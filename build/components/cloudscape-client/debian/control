@@ -1,8 +1,0 @@
-Package: cloudscape-client
-Version: $MAJOR.$MINOR-$RELEASE
-Section: admin
-Priority: optional
-Architecture: all
-Depends: cloudscape-common, python-requests
-Maintainer: David Taylor <dtaylor@vpls.net>
-Description: CloudScape Client Libraries

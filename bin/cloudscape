@@ -1,6 +1,0 @@
-#!/usr/bin/python
-from cloudscape.client.interface import CLIClient
-
-if __name__ == '__main__':
-    client = CLIClient()
-    client.interface()

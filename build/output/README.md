@@ -1,1 +1,0 @@
-Output directory for building *.deb and *.rpm packages.

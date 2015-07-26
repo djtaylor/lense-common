@@ -1,8 +1,0 @@
-Package: cloudscape-common
-Version: $MAJOR.$MINOR-$RELEASE
-Section: admin
-Priority: optional
-Architecture: all
-Depends: python-paramiko, python-crypto
-Maintainer: David Taylor <dtaylor@vpls.net>
-Description: CloudScape Common Libraries

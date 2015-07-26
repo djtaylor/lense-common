@@ -1,7 +1,11 @@
-# Byte-compiled files
 *.py[cod]
+test.py[cod]
+.pypirc
+build
+dist
+feedback.egg-info
 
-# Eclipse project
+# Eclipse
 .project
 .settings
 
