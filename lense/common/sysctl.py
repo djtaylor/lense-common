@@ -1,7 +1,7 @@
 import re
 from subprocess import Popen, PIPE, STDOUT
 
-class SysCtl:
+class SysCtl(object):
     """
     Interface class for interacting with Linux kernel parameters and the
     sysctl.conf file.
@@ -108,7 +108,7 @@ class SysCtl:
             
         """
         for i,l in enumerate(self.config):
-            if re.match(r'^%s.*$' % k, l):
+            if re.match(r'^{}.*$'.format(k), l):
                 del self.config[i]
                 break
         return True
@@ -131,12 +131,12 @@ class SysCtl:
         for i,l in enumerate(self.config):
 
             # Key already set in config, replace
-            if re.match(r'^%s.*$' % k, l):
+            if re.match(r'^{}.*$'.format(k), l):
                 keyset = True
-                self.config[i] = '%s = %s' % (k,v)
+                self.config[i] = '{} = {}'.format(k,v)
                 break
 
         # Key not set, append
         if not keyset:
-            self.config.append('%s = %s' % (k,v))
+            self.config.append('{} = {}'.format(k,v))
         return True

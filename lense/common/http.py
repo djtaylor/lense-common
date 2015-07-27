@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import json
 import traceback
@@ -85,7 +86,7 @@ def error_response(message, response=None, cli=False):
     if cli:
         
         # Show the error message
-        print 'ERROR: %s' % message
+        print('ERROR: {}'.format(message))
         
         # Show any problems with token retrieval
         if response:
@@ -93,17 +94,17 @@ def error_response(message, response=None, cli=False):
             rsp_err = response['body'].get('error', 'An unknown error has occurred')
             
             # Print the response
-            print '\n---RESPONSE---'
-            print 'HTTP %s: %s\n' % (response['code'], '%s - %s' % (rsp_msg, rsp_err))
+            print('\n---RESPONSE---')
+            print('HTTP {}: {}\n'.format(response['code'], '{} - {}'.format(rsp_msg, rsp_err)))
             
             # If any debug information is present
             if 'debug' in response['body']:
-                print '---DEBUG---'
-                print 'Traceback (most recent call last):'
+                print('---DEBUG---')
+                print('Traceback (most recent call last):')
                 for l in response['body']['debug']['traceback']:
-                    print '  File "%s", line %s, in %s' % (l[0], l[1], l[2])
-                    print '    %s' % l[3]
-                print 'Exception: %s\n' % response['body']['debug']['exception']
+                    print('  File "{}", line {}, in {}'.format(l[0], l[1], l[2]))
+                    print('    {}'.format(l[3]))
+                print('Exception: {}\n'.format(response['body']['debug']['exception']))
         
         # Exit the client
         sys.exit(1)
@@ -182,7 +183,7 @@ class JSONErrorBase(object):
             e_type, e_info, e_trace = sys.exc_info()
         
             # Exception message
-            e_msg = '%s: %s' % (e_type.__name__, e_info)
+            e_msg = '{}: {}'.format(e_type.__name__, e_info)
         
             # Log the exception
             self.log.exception(e_msg)

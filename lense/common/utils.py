@@ -16,7 +16,7 @@ from Crypto.Cipher import AES
 # Lense Libraries
 from lense.common import config
 from lense.common import logger
-from lense.common.vars import S_CONF, PY_BASE
+from lense.common.vars import LENSE_CONFIG
 
 def truncate(string, length=75):
     """
@@ -65,16 +65,16 @@ def mod_has_class(mod, cls, no_launch=False):
         
         # Make sure the module has the class definition
         if not hasattr(mod_inst, cls):
-            return invalid('Class definition <%s> not found in module <%s>' % (cls, mod))
+            return invalid('Class definition <{}> not found in module <{}>'.format(cls, mod))
         
         # Create an instance of the class
         cls_inst = getattr(mod_inst, cls)
         if not no_launch:
             if not hasattr(cls_inst, 'launch') or not callable(cls_inst.launch):
-                return invalid('Class <%s.%s> requires a callable <launch> method definition' % (mod, cls))
+                return invalid('Class <{}.{}> requires a callable <launch> method definition'.format(mod, cls))
         return valid()
     except Exception:
-        return invalid('Failed to import module <%s>: %s' % (mod, str(e)))
+        return invalid('Failed to import module <{}>: {}'.format(mod, str(e)))
 
 def obj_extract(obj, id=None, filter=None, auto_quote=True):
     """
@@ -230,16 +230,16 @@ class UtilsBase(object):
         """
     
         # Define the logger name
-        log_name  = '%s.%s' % (__name__, child.__class__.__name__)
+        log_name  = '{}.{}'.format(__name__, child.__class__.__name__)
 
         # Running utilities on the server
-        if os.path.isfile(S_CONF):
-            self.conf = config.parse()
+        if os.path.isfile(LENSE_CONFIG.SERVER):
+            self.conf = config.parse('SERVER')
             self.log  = logger.create(log_name, self.conf.utils.log)
             
         # Raise an exception if neither the server nor agent configuration is found
         else:
-            raise Exception('Could not locate the server or agent configuration')
+            raise Exception('Could not locate the server configuration')
 
 class FileSec(UtilsBase):
     """
@@ -277,7 +277,7 @@ class FileSec(UtilsBase):
         checksum = hash_obj.hexdigest()
         
         # Log and return the checksum
-        self.log.info('Generating SHA256 checksum [%s] for: %s' % (checksum, filename))
+        self.log.info('Generating SHA256 checksum [{}] for: {}'.format(checksum, filename))
         return checksum
     
     def encrypt(self, infile, outfile, key):
@@ -309,10 +309,10 @@ class FileSec(UtilsBase):
         :rtype: boolean
         """
         if not os.path.isfile(infile):
-            self.log.error('Failed to enrypt file [%s]: file not found' % infile)
+            self.log.error('Failed to enrypt file [{}]: file not found'.format(infile))
             return False 
         if os.path.isfile(outfile):
-            self.log.error('Failed to encrypt file - output file [%s] already exists' % outfile)
+            self.log.error('Failed to encrypt file - output file [{}] already exists'.format(outfile))
             return False
         
         # Encrypt the file
@@ -330,7 +330,7 @@ class FileSec(UtilsBase):
                     elif len(chunk) % 16 != 0:
                         chunk += b' ' * (16 - len(chunk) % 16)
                     ofh.write(encryptor.encrypt(chunk))
-        self.log.info('Encrypting file [%s] to [%s] using AES-256 and key string' % (infile, outfile))
+        self.log.info('Encrypting file [{}] to [{}] using AES-256 and key string'.format(infile, outfile))
         return True
     
     def decrypt(self, infile, outfile, key):
@@ -362,10 +362,10 @@ class FileSec(UtilsBase):
         :rtype: boolean
         """
         if not os.path.isfile(infile):
-            self.log.error('Failed to decrypt file [%s]: file not found' % infile)
+            self.log.error('Failed to decrypt file [{}]: file not found'.format(infile))
             return False 
         if os.path.isfile(outfile):
-            self.log.error('Failed to decrypt file - output file [%s] already exists' % outfile)
+            self.log.error('Failed to decrypt file - output file [{}] already exists'.format(outfile))
             return False
         
         # Decrypt the file
@@ -380,7 +380,7 @@ class FileSec(UtilsBase):
                         break
                     ofh.write(decryptor.decrypt(chunk))
                 ofh.truncate(origsize)
-        self.log.info('Decrypting file [%s] to [%s] using AES-256 and key string' % (infile, outfile))
+        self.log.info('Decrypting file [{}] to [{}] using AES-256 and key string'.format(infile, outfile))
         return True
 
 class JSONTemplate(UtilsBase):
@@ -453,14 +453,14 @@ class JSONTemplate(UtilsBase):
             try:
                 return valid(json.loads(json_obj))
             except Exception as e:
-                return invalid('Target object is not valid JSON: %s' % str(e))
+                return invalid('Target object is not valid JSON: {}'.format(str(e)))
             
         # If the object is a list or dictionary
         if isinstance(json_obj, (dict, list)):
             try:
                 obj_tmp = json.dumps(json_obj)
             except:
-                return invalid('Target object is not valid JSON: %s' % str(e))
+                return invalid('Target object is not valid JSON: {}'.format(str(e)))
             return valid(json_obj)
             
         # JSON object must be a string or list/dictionary
@@ -491,7 +491,7 @@ class JSONTemplate(UtilsBase):
         """
         Construct and return a JSON path error, showing exactly where validation failed and why.
         """
-        return self.log.error('Error at %s: %s' % (map, msg))
+        return self.log.error('Error at {}: {}'.format(map, msg))
     
     def validate(self, target_str=None):
         """
@@ -533,7 +533,7 @@ class JSONTemplate(UtilsBase):
                         return self._path_error(m, 'Invalid list object type')
                     
                     # Set the formula map
-                    m += '/%d' % c if (c == 0) else re.compile('(^.*\/%s\/)[0-9]*(.*$)' % k).sub(r'\g<1>%s\g<2>' % c, m)
+                    m += '/%d' % c if (c == 0) else re.compile('(^.*\/{}\/)[0-9]*(.*$)'.format(k)).sub(r'\g<1>{}\g<2>'.format(c), m)
                     
                     # Walk through nested items in the list
                     obj_err = _dict_walk(c,t,o,m)
@@ -549,7 +549,7 @@ class JSONTemplate(UtilsBase):
                 if ('_empty' in t) and (t['_empty'] == True):
                     pass
                 else:
-                    return self._path_error(m, 'Object is an invalid type, should be %s' % dt)
+                    return self._path_error(m, 'Object is an invalid type, should be {}'.format(dt))
             
             # If the current level has no children
             if not '_children' in t:
@@ -559,17 +559,17 @@ class JSONTemplate(UtilsBase):
                     if self._is_type(f, 'list'):
                         for fk in f:
                             if not fk in t['_values']:
-                                return self._path_error(m, 'Object value [%s] is not in supported values list: [%s]' % (fk, ', '.join(t['_values'])))
+                                return self._path_error(m, 'Object value [{}] is not in supported values list: [{}]'.format(fk, ', '.join(t['_values'])))
                     else:
                         if f not in t['_values']:
-                            return self._path_error(m, 'Object value [%s] is not in supported values list: [%s]' % (f, ', '.join(t['_values'])))
+                            return self._path_error(m, 'Object value [{}] is not in supported values list: [{}]'.format(f, ', '.join(t['_values'])))
             
                 # Look for the integer range flag
                 if '_range' in t and self._is_type(f, 'str'):
                     b = re.compile('(^[^\/]*)\/[^\/]*$').sub(r'\g<1>', f)
                     e = re.compile('^[^\/]*\/([^\/]*$)').sub(r'\g<1>', f)
                     if not int(b) <= int(f) <= int(e):
-                        return self._path_error(m, 'Object value [%s] must be between [%s] and [%s]' % (f, b, e))
+                        return self._path_error(m, 'Object value [{}] must be between [{}] and [{}]'.format(f, b, e))
             
             # If the current level has children
             else:
@@ -591,7 +591,7 @@ class JSONTemplate(UtilsBase):
                                 akf = True
                                 rks.append(ak)
                         if not akf:
-                            mkv.append('(%s)' % '/'.join(rkv))
+                            mkv.append('({})'.format('/'.join(rkv)))
                         
                     # Make sure the key is set
                     else:
@@ -602,7 +602,7 @@ class JSONTemplate(UtilsBase):
                 
                 # If any required keys are missing
                 if mkv:
-                    return self._path_error(m, 'Missing required key values: %s' % ', '.join(mkv))
+                    return self._path_error(m, 'Missing required key values: {}'.format(', '.join(mkv)))
                 
                 # Process the formula level
                 for k,v in f.iteritems():
@@ -613,7 +613,7 @@ class JSONTemplate(UtilsBase):
                     if not k in rks:
                         if not k in ok:
                             if not '*' in ok:
-                                return self._path_error(m, 'Using unsupported key [%s] without wildcard flag' % k)
+                                return self._path_error(m, 'Using unsupported key [{}] without wildcard flag'.format(k))
                             
                             # Current key is a wildcard entry
                             else:
@@ -643,12 +643,12 @@ class JSONTemplate(UtilsBase):
                             if ('_empty' in to) and (to['_empty'] == True):
                                 pass
                             else:
-                                return self._path_error(m, 'Value for key [%s] is not defined or empty' % k)
+                                return self._path_error(m, 'Value for key [{}] is not defined or empty'.format(k))
                         if not self._is_type(v,tt):
                             if ('_empty' in to) and (to['_empty'] == True):
                                 pass
                             else:
-                                return self._path_error(m, 'Invalid data type for key [%s], expected [%s]' % (k,tt))
+                                return self._path_error(m, 'Invalid data type for key [{}], expected [{}]'.format((k,tt)))
                          
                         # Walk through the next level of the formula
                         ferr = _dict_walk(p,to,f[k],m)

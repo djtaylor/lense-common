@@ -10,9 +10,9 @@ from feedback import Feedback
 # Lense Libraries
 from lense.common import config
 from lense.common import logger
-from lense.common.vars import L_BASE
+from lense.common.vars import PID_DIR
 
-class ServiceManager:
+class ServiceManager(object):
     """
     Lense services manager class designed to handle starting/stopping/restarting all
     Lense services. This includes the API server, Socket.IO proxy server, and the
@@ -21,9 +21,9 @@ class ServiceManager:
     def __init__(self, args):
         
         # Configuration / logger / feedback handler
-        self.conf     = config.parse()
+        self.conf     = config.parse('SERVER')
         self.log      = logger.create(__name__, self.conf.server.log)
-        self.fb       = Feedback()
+        self.feedback = Feedback()
         
         # Actions mapper
         self.actions  = {
@@ -48,12 +48,6 @@ class ServiceManager:
                 'pid':    self.conf.socket.pid,
                 'label':  'API socket proxy',
                 'start':  ['nohup', 'nodejs', self.conf.socket.exe]
-            },
-            'scheduler': {
-                'apache': False,    
-                'pid':    self.conf.scheduler.pid,
-                'label':  'API scheduler',
-                'start':  ['nohup', 'python', self.conf.scheduler.exe]
             }
         }
         
@@ -120,8 +114,7 @@ class ServiceManager:
         """
         return ('portal     The web portal interface\n'
                 'api        The API server\n'
-                'socket     The socket proxy server\n'
-                'scheduler  The API scheduler service')
+                'socket     The socket proxy server')
         
     def _is_running(self, pid_file):
         """
@@ -195,11 +188,11 @@ class ServiceManager:
                     
                     # Failed to start Apache
                     except Exception as e:
-                        self.fb.show('Lense %s failed to start...' % srv_attr['label']).error()
+                        self.feedback.set('Lense {} failed to start...'.format(srv_attr['label'])).error()
                         sys.exit(1)
                     
                     # Apache started
-                    self.fb.show('Starting Lense %s...' % srv_attr['label']).success()
+                    self.feedback.set('Starting Lense {}...'.format(srv_attr['label'])).success()
                     apache_started = True
                     
                 # If Apache is already running
@@ -207,9 +200,9 @@ class ServiceManager:
                     
                     # If Apache was started earlier
                     if apache_started:
-                        self.fb.show('Starting Lense %s...' % srv_attr['label']).success()
+                        self.feedback.set('Starting Lense {}...'.format(srv_attr['label'])).success()
                     else:
-                        self.fb.show('Lense %s already running...' % srv_attr['label']).info()
+                        self.feedback.set('Lense {} already running...'.format(srv_attr['label'])).info()
                 
             # If the service is an independent process
             else:
@@ -230,22 +223,22 @@ class ServiceManager:
                         
                     # Failed to start the process
                     except Exception as e:
-                        self.fb.show('Failed to start Lense %s...' % srv_attr['label']).error()
+                        self.feedback.set('Failed to start Lense {}...'.format(srv_attr['label'])).error()
                         sys.exit(1)
                         
                     # Service started
-                    self.fb.show('Starting Lense %s [PID %s]...' % (srv_attr['label'], pnum)).success()
+                    self.feedback.set('Starting Lense {} [PID {}]...'.format(srv_attr['label'], pnum)).success()
                     
                     # Make sure the PID file directory exists
-                    if not os.path.exists('%s/run' % L_BASE):
-                        os.makedirs('%s/run' % L_BASE, 0750)
+                    if not os.path.exists(PID_DIR):
+                        os.makedirs(PID_DIR, 0750)
                         
                     # Create or update the PID file
                     open(srv_attr['pid'], 'w').write(pnum)
                     
                 # If the service is already running
                 else:
-                    self.fb.show('Lense %s already running [PID %s]...' % (srv_attr['label'], pid)).info()
+                    self.feedback.set('Lense {} already running [PID {}]...'.format(srv_attr['label'], pid)).info()
     
     def _stop(self):
         """
@@ -275,11 +268,11 @@ class ServiceManager:
                     
                     # Failed to stop Apache
                     except Exception as e:
-                        self.fb.show('Failed to stop Lense %s...' % srv_attr['label']).error()
+                        self.feedback.set('Failed to stop Lense {}...'.format(srv_attr['label'])).error()
                         sys.exit(1)
                         
                     # Apache stopped
-                    self.fb.show('Stopping Lense %s...' % srv_attr['label']).success()
+                    self.feedback.set('Stopping Lense {}...'.format(srv_attr['label'])).success()
                     apache_stopped = True
                     
                 # If Apache is already stopped
@@ -287,9 +280,9 @@ class ServiceManager:
                     
                     # If Apache was stopped earlier
                     if apache_started:
-                        self.fb.show('Stopping Lense %s...' % srv_attr['label']).success()
+                        self.feedback.set('Stopping Lense {}...'.format(srv_attr['label'])).success()
                     else:
-                        self.fb.show('Lense %s already stopped...' % srv_attr['label']).info()
+                        self.feedback.set('Lense {} already stopped...'.format(srv_attr['label'])).info()
                 
             # If the service is an independent process
             else:
@@ -306,16 +299,16 @@ class ServiceManager:
                     
                     # If the process failed to stop
                     if self._is_running(srv_attr['pid']):
-                        self.fb.show('Failed to stop Lense %s...' % srv_attr['label']).error()
+                        self.feedback.set('Failed to stop Lense {}...'.format(srv_attr['label'])).error()
                         sys.exit(1)
                         
                     # Process successfully stopped
                     else:
-                        self.fb.show('Stopping Lense %s...' % srv_attr['label']).success()
+                        self.feedback.set('Stopping Lense {}...'.format(srv_attr['label'])).success()
                     
                 # If the service is already stopped
                 else:
-                    self.fb.show('Lense %s already stopped...' % srv_attr['label']).info()
+                    self.feedback.set('Lense {} already stopped...'.format(srv_attr['label'])).info()
     
     def _restart(self):
         """
@@ -342,7 +335,7 @@ class ServiceManager:
                 status = 'running' if (self._apache_running()) else 'stopped'
                 
                 # Show the managed service status
-                self.fb.show('Lense %s is %s...' % (srv_attr['label'], status)).info()
+                self.feedback.set('Lense {} is {}...'.format(srv_attr['label'], status)).info()
                     
             # If the service is an independent process
             else:
@@ -351,10 +344,10 @@ class ServiceManager:
                 pid    = self._is_running(srv_attr['pid'])
                 
                 # Set the status
-                status = 'running [PID %s]' % pid if pid else 'stopped'
+                status = 'running [PID {}]'.format(pid) if pid else 'stopped'
         
                 # Show the service status
-                self.fb.show('Lense %s is %s...' % (srv_attr['label'], status)).info()
+                self.feedback.set('Lense {} is {}...'.format(srv_attr['label'], status)).info()
         
     def handler(self):
         """

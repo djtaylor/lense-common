@@ -8,7 +8,7 @@ from django_auth_ldap.config import LDAPSearch, LDAPSearchUnion
 import lense.common.config as config
 
 # Configuration
-CONFIG = config.parse()
+CONFIG = config.parse('SERVER')
 
 class AuthGroupsLDAP(object):
     """
@@ -25,7 +25,7 @@ class AuthGroupsLDAP(object):
         
         # Failed to parse JSON map file
         except Exception as e:
-            raise Exception('Failed to load LDAP JSON map file [%s]: %s' % (CONFIG.ldap.map, str(e)))
+            raise Exception('Failed to load LDAP JSON map file [{}]: {}'.format(CONFIG.ldap.map, str(e)))
     
     @staticmethod
     def construct():

@@ -32,7 +32,7 @@ class CParse(object):
         try:
             shutil.copyfile(self.target_file, self.target_bak)
         except Exception as e:
-            raise Exception('Failed to backup file [%s]: %s' % (self.target_file, str(e)))
+            raise Exception('Failed to backup file [{}]: {}'.format(self.target_file, str(e)))
         
     def _restore(self):
         """
@@ -42,7 +42,7 @@ class CParse(object):
             shutil.copyfile(self.target_bak, self.target_file)
             os.unlink(self.target_bak)
         except Exception as e:
-            raise Exception('Failed to restore backup file [%s]: %s' % (self.target_bak, str(e)))
+            raise Exception('Failed to restore backup file [{}]: {}'.format(self.target_bak, str(e)))
         
     def _reset(self):
         """
@@ -65,13 +65,13 @@ class CParse(object):
         :type file: str
         """
         if not os.path.isfile(file):
-            raise Exception('Target file [%s] does not exist' % file)
+            raise Exception('Target file [{}] does not exist'.format(file))
         
         # Reset if already instantiated
         self._reset()
         
         # Set the target file
-        self.target_bak  = '%s.bak' % file
+        self.target_bak  = '{}.bak'.format(file)
         self.target_file = file
         
         # Read the file into memory
@@ -161,7 +161,7 @@ class CParse(object):
         if self.is_ini:
             if s:
                 if not s in self.target_attr:
-                    raise Exception('Configuration section [%s] does not exist' % s)
+                    raise Exception('Configuration section [{}] does not exist'.format(s))
                 if k in self.target_attr[s]:
                     del self.target_attr[s][k]
                 return True
@@ -229,10 +229,10 @@ class CParse(object):
                         break
             if not keyset:
                 if not s:
-                    raise Exception('Key [%s] not found, must specify a section to insert new parameter into an INI file' % k)
+                    raise Exception('Key [{}] not found, must specify a section to insert new parameter into an INI file'.format(k))
                 else:
                     if not s in self.target_attr:
-                        raise Exception('Section [%s] not found, must add first using \'add_section("section")\'' % s)
+                        raise Exception('Section [{}] not found, must add first using \'add_section("section")\''.format(s))
                     self.target_attr[s][k] = [d, v]
                     return True
             return True
@@ -252,7 +252,7 @@ class CParse(object):
         except Exception as e:
             self._restore()
             os.unlink(self.target_bak)
-            raise Exception('Failed to write out configuration: %s' % str(e))
+            raise Exception('Failed to write out configuration: {}'.format(str(e)))
             
     def apply(self):
         """
@@ -262,19 +262,19 @@ class CParse(object):
             count = 0
             for k,v in self.target_attr.iteritems():
                 pre = '\n' if not (count == 0) else ''
-                self.target_out += '%s[%s]\n' % (pre, k)
+                self.target_out += '{}[{}]\n'.format(pre, k)
                 for _k, _v in v.iteritems():
                     if not _v:
-                        self.target_out += '%s\n' % _k
+                        self.target_out += '{}\n'.format(_k)
                     else:
-                        self.target_out += '%s%s%s\n' % (_k, _v[0], _v[1])
+                        self.target_out += '{}{}{}\n'.format(_k, _v[0], _v[1])
                 count += 1
         else:
             for k,v in self.target_attr.iteritems():
                 if not v:
-                    self.target_out += '%s\n' % k
+                    self.target_out += '{}\n'.format(k)
                 else:
-                    self.target_out += '%s%s%s\n' % (_k, _v[0], _v[1])
+                    self.target_out += '{}{}{}\n'.format(_k, _v[0], _v[1])
         
         # Backup the file
         self._backup()

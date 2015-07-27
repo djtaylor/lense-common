@@ -4,7 +4,6 @@ import sys
 import json
 
 # Lense Libraries
-from lense.common.utils import truncate
 from lense.common.exceptions import JSONException
 
 class JSONObject(object):
@@ -13,6 +12,44 @@ class JSONObject(object):
     """
     def __init__(self):
         self._json = None
+        
+        # Comment regex pattern
+        self.regex_comment = re.compile(r'^//.*$') 
+    
+    def _is_comment_or_empty(self, line):
+        """
+        Check if a line contains a comment string or is empty.
+        """
+        line_empty   = line.isspace()
+        line_comment = self.regex_comment.match(line.rstrip().lstrip())
+        return True if (line_empty or line_comment) else False
+    
+    def from_config_file(self, file):
+        """
+        Construct a new JSON object from a custom configuration JSON file
+        with embedded comments.
+        """
+        if os.path.isfile(file):
+            try:
+                
+                # Since I will be using Python style comments in JSON, strip them out before reading
+                json_str = ''
+                with open(file) as f:
+                    for line in f.readlines():
+                        if not self._is_comment_or_empty(line):
+                            json_str = '{}{}'.format(json_str, line.rstrip().lstrip())
+                
+                # Read the file after cleaning any comments
+                self._json = json.loads(json_str)
+                return True
+            
+            # Error reading file
+            except Exception, e:
+                raise JSONException('Failed to read file "{}": {}'.format(file, str(e)))
+                
+        # File not found
+        else:
+            raise JSONException('File not found: %s' % file)
     
     def from_file(self, file):
         """
@@ -20,12 +57,14 @@ class JSONObject(object):
         """
         if os.path.isfile(file):
             try:
+                
+                # Read the file after cleaning any comments
                 self._json = json.load(open(file))
                 return True
             
             # Error reading file
             except Exception, e:
-                raise JSONException('Failed to read file "%s": %s' % (file, str(e)))
+                raise JSONException('Failed to read file "{}": {}'.format(file, str(e)))
                 
         # File not found
         else:

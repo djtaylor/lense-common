@@ -1,8 +1,9 @@
 from collections import OrderedDict
 
 # Lense Libraries
+from lense import PKG_ROOT
 from lense.common.utils import rstring
-from lense.common.vars import G_ADMIN, U_ADMIN, L_BASE
+from lense.common.vars import G_ADMIN, U_ADMIN, DB_ENCRYPT_DIR
 from lense.common.http import HTTP_GET, HTTP_POST, HTTP_PUT, HTTP_DELETE
 
 class _BootstrapACL(object):
@@ -373,9 +374,9 @@ class BootstrapParams(object):
             'host': self.input.response.get('db_host'),
             'passwd': self.input.response.get('db_user_password'),
             'encryption': {
-                'dir': '%s/dbkey' % L_BASE,
-                'key': '%s/dbkey/1' % L_BASE,
-                'meta': '%s/dbkey/meta' % L_BASE
+                'dir':  DB_ENCRYPT_DIR,
+                'key':  '{}/1'.format(DB_ENCRYPT_DIR),
+                'meta': '{}/meta'.format(DB_ENCRYPT_DIR)
             }
         }
         
@@ -383,18 +384,18 @@ class BootstrapParams(object):
         self.db = {
             "attrs": db_attrs,
             "query": {
-                "create_db": "CREATE DATABASE IF NOT EXISTS %s" % db_attrs['name'],
-                "create_user": "CREATE USER '%s'@'%s' IDENTIFIED BY '%s'" % (db_attrs['user'], db_attrs['host'], db_attrs['passwd']),
-                "grant_user": "GRANT ALL PRIVILEGES ON %s.* TO '%s'@'%s'" % (db_attrs['name'], db_attrs['user'], db_attrs['host']),
+                "create_db": "CREATE DATABASE IF NOT EXISTS {}".format(db_attrs['name']),
+                "create_user": "CREATE USER '{}'@'{}' IDENTIFIED BY '{}'".format(db_attrs['user'], db_attrs['host'], db_attrs['passwd']),
+                "grant_user": "GRANT ALL PRIVILEGES ON {}.* TO '{}'@'{}'".format(db_attrs['name'], db_attrs['user'], db_attrs['host']),
                 "flush_priv": "FLUSH PRIVILEGES"
             }
         }
     
     def _set_path(self, path):
         """
-        Return a path after prepending L_BASE
+        Return a path after prepending the package root
         """
-        return '%s/%s' % (L_BASE, path)
+        return '{}/{}'.format(PKG_ROOT, path)
     
     def _set_file(self):
         """
