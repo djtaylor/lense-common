@@ -3,7 +3,6 @@ import os
 import sys
 import json
 import uuid
-import psutil
 import struct
 import string
 import random
