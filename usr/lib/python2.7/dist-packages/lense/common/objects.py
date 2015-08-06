@@ -11,7 +11,6 @@ class JSONObject(object):
     Class for loading and abstracting access to a JSON object.
     """
     def __init__(self):
-        self._json = None
         
         # Comment regex pattern
         self.regex_comment = re.compile(r'^//.*$') 
@@ -40,8 +39,7 @@ class JSONObject(object):
                             json_str = '{}{}'.format(json_str, line.rstrip().lstrip())
                 
                 # Read the file after cleaning any comments
-                self._json = json.loads(json_str)
-                return True
+                return json.loads(json_str)
             
             # Error reading file
             except Exception, e:
@@ -59,8 +57,7 @@ class JSONObject(object):
             try:
                 
                 # Read the file after cleaning any comments
-                self._json = json.load(open(file))
-                return True
+                return json.load(open(file))
             
             # Error reading file
             except Exception, e:
@@ -75,8 +72,7 @@ class JSONObject(object):
         Construct a new JSON object from a string.
         """
         try:
-            self._json = json.loads(string)
-            return True
+            return json.loads(string)
         
         # Error reading string
         except Exception, e:

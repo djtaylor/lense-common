@@ -28,8 +28,8 @@ class _LenseConfig(object):
         """
         
         # Parse the default and user configuration files
-        def_config = self.json.from_config_file(re.compile(r'\.conf').sub('.default.conf', self.conf))
-        usr_config = {} if not isfile(self.conf) else json.from_config_file(self.conf)
+        def_config = self.json.from_config_file(self.conf.replace('.json', '.default.json'))
+        usr_config = {} if not isfile(self.conf) else self.json.from_config_file(self.conf)
         
         # Merge the configuration files
         for section, attrs in def_config.iteritems():
@@ -45,26 +45,12 @@ class _LenseConfig(object):
             for key, value in attrs.iteritems():
                 
                 # If processing a relative path
-                if re.match(r'^[^\/][\/]+', value):
-                    
+                if isinstance(value, str) and re.match(r'^[^\/][\/]+', value):
+                    usr_config[section][key] = '{}/{}'.format(PKG_ROOT, value)
     
         # Parse the configuration file
-        self.collection = Collection(usr_config).get()
-
-def _construct(config_file):
-    """
-    Parse and return a colletion from a JSON configuration file.
-    """
+        return Collection(usr_config).get()
     
-    # JSON object manager
-    json = JSONObject()
-
-    # Parse the default and user configuration files
-    def_config = json.from_config_file(re.compile(r'\.conf').sub('.default.conf', config_file))
-    usr_config = {} if not isfile(config_file) else json.from_config_file(config_file)
-
-    
-
 def parse(config_id=None):
     """
     Parse a configuration file based on a file ID. For a list of supported
@@ -74,8 +60,6 @@ def parse(config_id=None):
     # Make sure the ID is valid
     if hasattr(LENSE_CONFIG, config_id):
         return _LenseConfig(getattr(LENSE_CONFIG, config_id)).collection
-        
-        return _construct()
     
     # Invalid configuration ID
     raise Exception('Invalid configuration ID: {}'.format(config_id))

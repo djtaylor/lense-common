@@ -1,7 +1,8 @@
-import os
 import time
 import logging
 import logging.handlers
+from os import makedirs
+from os.path import isdir, dirname
 
 class LogFormat(logging.Formatter):
     """
@@ -40,6 +41,11 @@ class Logger:
         :type log_file: str
         :rtype: logger
         """
+        
+        # Make sure the log directory exists
+        log_dir = dirname(log_file)
+        if not isdir(log_dir):
+            makedirs(log_dir, 0755)
         
         # Set the logger module name
         logger = logging.getLogger(name)
@@ -86,5 +92,4 @@ def create(name=False, log_file=None):
     """
     if name and log_file:
         return Logger.construct(name, log_file)
-    else:
-        raise Exception('Logger factory method must have a module name and log file as arguments')
+    raise Exception('Logger factory method must have a module name and log file as arguments')
