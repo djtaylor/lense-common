@@ -4,6 +4,10 @@ Changelog
 %%version%% (unreleased)
 ------------------------
 
+- Forgot to add the changelog. [David Taylor]
+
+- Added the changelog. [David Taylor]
+
 - Added the changelog. [David Taylor]
 
 - Need to fix case sensitive debian folder. [David Taylor]
