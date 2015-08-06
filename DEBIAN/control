@@ -8,5 +8,3 @@ Depends: python (>=2.7), python-crypto (>=2.6.1), python-mysqldb (>=1.2.3), pyth
 Maintainer: David Taylor <djtaylor13@gmail.com>
 Description: Common libraries for Lense API engine packages.
 Homepage: https://github.com/djtaylor/lense-common
-Vcs-Browser: https://github.com/djtaylor/lense-common
-Vcs-Git: https://github.com/djtaylor/lense-common -b dev git clone
