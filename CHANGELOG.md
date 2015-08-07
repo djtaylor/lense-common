@@ -4,6 +4,9 @@ Changelog
 %%version%% (unreleased)
 ------------------------
 
+- Added the changelog again, trying to work out release tagging. [David
+  Taylor]
+
 - Forgot to add the changelog. [David Taylor]
 
 - Added the changelog. [David Taylor]
