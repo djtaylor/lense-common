@@ -3,7 +3,7 @@ from sys import path
 from setuptools import setup, find_packages
 
 # Add the local path
-path.append('src/usr/local/lib/python2.7/dist-packages')
+path.append('usr/local/lib/python2.7/dist-packages')
 
 # Import the module version
 from lense.common import __version__
