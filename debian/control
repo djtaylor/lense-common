@@ -1,10 +1,18 @@
-Package: lense-common
-Version: 0.1-1
-Architecture: all
-Essential: no
+Source: lense-common
 Section: python
 Priority: optional
-Depends: python (>=2.7), python-crypto (>=2.6.1), python-mysqldb (>=1.2.3), python-django-auth-ldap (>=1.1.8-1), python-ldap (>=2.4.10)
 Maintainer: David Taylor <djtaylor13@gmail.com>
-Description: Common libraries for Lense API engine packages.
+Build-Depends: debhelper (>= 9),
+               python (>= 2.7),
+               python-setuptools (>= 3.3),
+               python-wheel (>= 0.24.0)
+Standards-Version: 3.9.5
 Homepage: https://github.com/djtaylor/lense-common
+Vcs-Git: git://github.com/djtaylor/lense-common.git
+Vcs-Browser: https://github.com/djtaylor/lense-common
+X-Python-Version: >= 2.7
+
+Package: lense-client
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Common Python libraries, modules, and attributes shared by the Lense client, engine, and portal applications.
