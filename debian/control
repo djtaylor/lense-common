@@ -12,7 +12,7 @@ Vcs-Git: git://github.com/djtaylor/lense-common.git
 Vcs-Browser: https://github.com/djtaylor/lense-common
 X-Python-Version: >= 2.7
 
-Package: lense-client
+Package: lense-common
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}
 Description: Common Python libraries, modules, and attributes shared by the Lense client, engine, and portal applications.
