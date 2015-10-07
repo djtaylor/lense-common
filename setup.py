@@ -14,7 +14,7 @@ setup(
     author_email     = 'djtaylor13@gmail.com',
     url              = 'http://github.com/djtaylor/lense-common',
     license          = 'GPLv3',
-    install_requires = ['Django>=1.8.5', 'pycrypto>=2.6.1'],
+    install_requires = ['pycrypto>=2.6.1'],
     packages         = find_packages(),
     keywords         = 'lense module library common',
     classifiers      = [
