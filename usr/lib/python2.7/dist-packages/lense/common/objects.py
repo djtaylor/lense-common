@@ -15,6 +15,9 @@ class JSONObject(object):
         # Comment regex pattern
         self.regex_comment = re.compile(r'^//.*$') 
     
+        # Internal JSON object
+        self._json = None
+    
     def _is_comment_or_empty(self, line):
         """
         Check if a line contains a comment string or is empty.
@@ -39,7 +42,8 @@ class JSONObject(object):
                             json_str = '{}{}'.format(json_str, line.rstrip().lstrip())
                 
                 # Read the file after cleaning any comments
-                return json.loads(json_str)
+                self._json = json.loads(json_str)
+                return self._json
             
             # Error reading file
             except Exception, e:
@@ -57,7 +61,8 @@ class JSONObject(object):
             try:
                 
                 # Read the file after cleaning any comments
-                return json.load(open(file))
+                self._json = json.load(open(file))
+                return self._json
             
             # Error reading file
             except Exception, e:
@@ -72,7 +77,8 @@ class JSONObject(object):
         Construct a new JSON object from a string.
         """
         try:
-            return json.loads(string)
+            self._json = json.loads(string)
+            return self._json
         
         # Error reading string
         except Exception, e:
