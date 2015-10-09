@@ -10,16 +10,16 @@ L_USER         = 'lense'
 
 # Lense Configuration Files
 LENSE_CONFIG   = Collection({
-    'ENGINE': '/etc/lense/engine.json',
-    'PORTAL': '/etc/lense/portal.json',
-    'CLIENT': '/etc/lense/client.json',
-    'SOCKET': '/etc/lense/socket.json'
+    'ENGINE': '/etc/lense/engine/config.json',
+    'PORTAL': '/etc/lense/portal/config.json',
+    'CLIENT': '/etc/lense/client/config.json',
+    'SOCKET': '/etc/lense/socket/config.json'
 }).get()
 
 # WSGI Configuration Files
 WSGI_CONFIG    = Collection({
-    'ENGINE': '/etc/lense/engine-wsgi.conf',
-    'PORTAL': '/etc/lense/portal-wsgi.conf'                    
+    'ENGINE': '/etc/lense/engine/wsgi.conf',
+    'PORTAL': '/etc/lense/portal/wsgi.conf'                    
 }).get()
 
 # Log / PID Directory
