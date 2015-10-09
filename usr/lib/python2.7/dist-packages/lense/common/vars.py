@@ -13,6 +13,7 @@ LENSE_CONFIG   = Collection({
     'ENGINE': '/etc/lense/engine/config.json',
     'PORTAL': '/etc/lense/portal/config.json',
     'CLIENT': '/etc/lense/client/config.json',
+    'MAPPER': '/etc/lense/client/mapper.json',
     'SOCKET': '/etc/lense/socket/config.json'
 }).get()
 
