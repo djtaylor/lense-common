@@ -31,8 +31,7 @@ class Bootstrap(object):
     def __init__(self):
         self.feedback = Feedback()
     
-        # Configuration / logger
-        self.conf   = config.parse()
+        # Logger
         self.log    = logger.create('bootstrap', '{0}/bootstrap.log'.format(LOG_DIR))
     
         # Bootstrap parameters
@@ -49,7 +48,7 @@ class Bootstrap(object):
         Quit the program
         """
         self.log.error(msg)
-        self.feedback.set(msg).error()
+        self.feedback.error(msg)
         sys.exit(1)
     
     def _deploy_config(self):
@@ -70,24 +69,24 @@ class Bootstrap(object):
                 d_file.close()
                 
                 # File deployed
-                self.feedback.set('File <{0}> deployed'.format(p[1])).success()
+                self.feedback.success('File <{0}> deployed'.format(p[1]))
             else:
-                self.feedback.set('File <{0}> already deployed, skipping...'.format(p[1])).info()
+                self.feedback.info('File <{0}> already deployed, skipping...'.format(p[1]))
     
         # Create the log and run directories
         for _dir in [LOG_DIR, RUN_DIR]:
             if not os.path.isdir(_dir):
                 os.mkdir(_dir)
-                self.feedback.set('Created directory "{0}"'.format(_dir))
+                self.feedback.info('Created directory "{0}"'.format(_dir))
             else:
-                self.feedback.set('Directory "{0}" already exists, skipping...'.format(_dir))
+                self.feedback.info('Directory "{0}" already exists, skipping...'.format(_dir))
     
     def _get_password(self, prompt, min_length=8):
         _pass = getpass(prompt)
         
         # Make sure the password is long enough
         if not len(_pass) >= min_length:
-            self.feedback.set('Password cannot be empty and must be at least {0} characters long'.format(str(min_length))).error()
+            self.feedback.error('Password cannot be empty and must be at least {0} characters long'.format(str(min_length)))
             return self._get_password(prompt, min_length)
             
         # Confirm the password
@@ -95,7 +94,7 @@ class Bootstrap(object):
             
         # Make sure the passwords match
         if not _pass == _pass_confirm:
-            self.feedback.set('Passwords do not match, try again').error()
+            self.feedback.error('Passwords do not match, try again')
             return self._get_password(prompt, min_length)
         return _pass
     
@@ -104,7 +103,7 @@ class Bootstrap(object):
         
         # If no input found
         if not _input:
-            self.feedback.set('Must provide a value').error()
+            self.feedback.error('Must provide a value')
             return self._get_input(prompt, default)
         return _input
     
@@ -135,25 +134,25 @@ class Bootstrap(object):
         )
         
         # Print the summary
-        self.feedback.set([
+        self.feedback.block([
             'Lense bootstrap complete!',
             'To start all Lense processes, run "lense-server start".',
             'You may access the portal (if configured) using the "lense"'
             'user with the password created during the bootstrap process'
             'at: {}'.format(portal_addr)
-        ]).block('COMPLETE')
+        ], 'COMPLETE')
         sys.exit(0)
     
     def _bootstrap_info(self):
         """
         Show a brief introduction and summary on the bootstrapping process.
         """
-        self.feedback.set([
+        self.feedback.block([
             'Lense Bootstrap Utility',
             'The bootstrap utility is used to get a new Lense installation up and',
             'running as quickly as possible. This will set up the database, make sure',
             'any required users exists, and populate the tables with seed data.'   
-        ]).block('ABOUT')
+        ], 'ABOUT')
     
     def _database_encryption(self):
         """
@@ -169,21 +168,21 @@ class Bootstrap(object):
         
         # Make sure neither file exists
         if os.path.isfile(enc_attrs['key']) or os.path.isfile(enc_attrs['meta']):
-            return self.feedback.set('Database encryption key/meta properties already exist').warn()
+            return self.feedback.warn('Database encryption key/meta properties already exist')
         
         # Generate the encryption key
         p_keycreate = Popen(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
         p_keycreate.communicate()
         if not p_keycreate.returncode == 0:
-            return self.feedback.set('Failed to create database encryption key').error()
-        self.feedback.set('Created database encryption key').success()
+            return self.feedback.error('Failed to create database encryption key')
+        self.feedback.success('Created database encryption key')
     
         # Add the encryption key
         p_keyadd = Popen(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
         p_keyadd.communicate()
         if not p_keyadd.returncode == 0:
-            return self.feedback.set('Failed to add database encryption key').error()
-        self.feedback.set('Added database encryption key').success()
+            return self.feedback.error('Failed to add database encryption key')
+        self.feedback.success('Added database encryption key')
     
     def _create_group(self, obj):
         """
@@ -203,7 +202,7 @@ class Bootstrap(object):
         # If the group was not created
         if not group['valid']:
             self._die('HTTP {0}: {1}'.format(group['code'], group['content']))
-        self.feedback.set('Created default Lense administrator group').success()
+        self.feedback.success('Created default Lense administrator group')
         
         # Return the group object
         return group
@@ -233,7 +232,7 @@ class Bootstrap(object):
         # If the user was not created
         if not user['valid']:
             self._die('HTTP {0}: {1}'.format(user['code'], user['content']))
-        self.feedback.set('Created default Lense administrator account').success()
+        self.feedback.success('Created default Lense administrator account')
     
         # Return the user object
         return user
@@ -265,7 +264,7 @@ class Bootstrap(object):
             # If the utility was not created
             if not util['valid']:
                 self._die('HTTP {}: {}'.format(util['code'], util['content']))
-            self.feedback.set('Created database entry for utility "{0}": Path={1}, Method={2}'.format(_util['cls'], _util['path'], _util['method'])).success()
+            self.feedback.success('Created database entry for utility "{0}": Path={1}, Method={2}'.format(_util['cls'], _util['path'], _util['method']))
     
     def _create_acl_keys(self, obj):
         """
@@ -288,7 +287,7 @@ class Bootstrap(object):
                 
             # Store the new ACL key UUID
             _acl_key['uuid'] = acl_key['data']['uuid']
-            self.feedback.set('Created database entry for ACL key "{0}"'.format(_acl_key['name'])).success()
+            self.feedback.success('Created database entry for ACL key "{0}"'.format(_acl_key['name']))
             
         # Setup ACL objects
         self.params.acl.set_objects()
@@ -313,7 +312,7 @@ class Bootstrap(object):
                         acl = key.objects.get(uuid=k['uuid']),
                         utility = util.objects.get(cls=u)
                     ).save()
-                    self.feedback.set('Granted global access to utility "{0}" with ACL "{1}"'.format(u, k['name'])).success()
+                    self.feedback.success('Granted global access to utility "{0}" with ACL "{1}"'.format(u, k['name']))
     
     def _create_acl_objects(self, obj):
         """
@@ -338,7 +337,7 @@ class Bootstrap(object):
             # If the ACL object was not created
             if not acl_obj['valid']:
                 self._die('HTTP {}: {}'.format(acl_obj['code'], acl_obj['content']))
-            self.feedback.set('Created database entry for ACL object "{0}->{1}"'.format(_acl_obj['type'], _acl_obj['name'])).success()
+            self.feedback.success('Created database entry for ACL object "{0}->{1}"'.format(_acl_obj['type'], _acl_obj['name']))
     
     def _create_acl_access(self, obj, keys, groups):
         """
@@ -351,7 +350,7 @@ class Bootstrap(object):
                     owner = groups.objects.get(uuid=access['owner']),
                     allowed = access['allowed']
                 ).save()
-                self.feedback.set('Granted global administrator access for ACL "{0}"'.format(access['acl_name'])).success()
+                self.feedback.success('Granted global administrator access for ACL "{0}"'.format(access['acl_name']))
             except Exception as e:
                 self._die('Failed to grant global access for ACL "{0}": {1}'.format(access['acl_name'], str(e)))
     
@@ -383,7 +382,7 @@ class Bootstrap(object):
         cp.set_key('group', self.params.user['group'], s='admin')
         cp.set_key('key', user['data']['api_key'], s='admin')
         cp.apply()
-        self.feedback.set('[{0}] Set API administrator values'.format(self.server_conf)).success()
+        self.feedback.success('[{0}] Set API administrator values'.format(self.server_conf))
     
         # Create API utilities / ACL objects / ACL keys / access entries
         self._create_utils(GatewayUtilitiesCreate)
@@ -435,7 +434,7 @@ class Bootstrap(object):
             
             # Create the database
             _cursor.execute(self.params.db['query']['create_db'])
-            self.feedback.set('Created database "{0}"'.format(self.params.db['attrs']['name'])).success()
+            self.feedback.success('Created database "{0}"'.format(self.params.db['attrs']['name']))
             
             # Create the database user
             _cursor.execute(self.params.db['query']['create_user'])
@@ -444,7 +443,7 @@ class Bootstrap(object):
             self.feedback.set('Created database user "{0}" with grants'.format(self.params.db['attrs']['user'])).success()
             
         except Exception as e:
-            self._die('Failed to bootstrap Lense database: {}'.format(str(e)))
+            self._die('Failed to bootstrap Lense database: {0}'.format(str(e)))
             
         # Close the connection
         _cursor.close()
@@ -460,7 +459,7 @@ class Bootstrap(object):
                 self._die('Failed to sync Django application database')
                 
             # Sync success
-            self.feedback.set('Synced Django application database').success()
+            self.feedback.success('Synced Django application database')
         except Exception as e:
             self._die('Failed to sync Django application database: {0}'.format(str(e)))
             
@@ -485,11 +484,11 @@ class Bootstrap(object):
                 cp.set_key(key, val, s=section)
                 
                 # Format the value output
-                self.feedback.set('[{0}] Set key value for "{1}->{2}"'.format(self.server_conf, section, key)).success()
+                self.feedback.success('[{0}] Set key value for "{1}->{2}"'.format(self.server_conf, section, key))
             
         # Apply the configuration changes
         cp.apply()
-        self.feedback.set('Applied updated server configuration').success()
+        self.feedback.success('Applied updated server configuration')
             
     def run(self):
         """
