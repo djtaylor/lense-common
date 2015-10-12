@@ -39,6 +39,7 @@ G_USER         = '11111111-1111-1111-1111-111111111111'
 G_DEFAULT      = G_USER
 
 # API Templates
-T_ROOT         = '/usr/share/lense/templates/engine/api'
-T_BASE         = '{}/base'.format(T_ROOT)
-T_ACL          = '{}/acl'.format(T_ROOT)
+TEMPLATES      = Collection({
+    'ENGINE': '/usr/share/lense/templates/engine',
+    'PORTAL': '/usr/share/lense/templates/portal'                     
+}).get()

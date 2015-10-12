@@ -84,7 +84,7 @@ class JSONObject(object):
         except Exception, e:
             raise JSONException('Failed to read string: %s' % str(e))
         
-    def search(self, filter, delimiter='/'):
+    def search(self, filter, delimiter='/', default=None):
         """
         Search through the JSON object for a value.
         """
@@ -122,7 +122,7 @@ class JSONObject(object):
                     
                 # Search key not found
                 else:
-                    return None
+                    return default
         
             # Searching a list
             else:
@@ -138,7 +138,7 @@ class JSONObject(object):
                         continue
                     
                 # Search key/value not found in list
-                return None
+                return default
         
         # Return any discovered values
         return _search(search_path, self._json)

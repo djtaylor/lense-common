@@ -2,7 +2,6 @@ import re
 from os.path import isfile
 
 # Lense Libraries
-from lense import PKG_ROOT
 from lense.common.vars import LENSE_CONFIG
 from lense.common.objects import JSONObject
 from lense.common.collection import Collection
@@ -36,17 +35,12 @@ class _LenseConfig(object):
             if not section in usr_config:
                 usr_config[section] = attrs
             else:
-                for key, value in attrs.iteritems():
-                    if not key in usr_config[section]:
-                        usr_config[section][key] = value
-    
-        # Scan for substitution values
-        for section, attrs in usr_config.iteritems():
-            for key, value in attrs.iteritems():
-                
-                # If processing a relative path
-                if isinstance(value, str) and re.match(r'^[^\/][\/]+', value):
-                    usr_config[section][key] = '{}/{}'.format(PKG_ROOT, value)
+                if not isinstance(attrs, dict):
+                    usr_config[section] = attrs
+                else:
+                    for key, value in attrs.iteritems():
+                        if not key in usr_config[section]:
+                            usr_config[section][key] = value
     
         # Parse the configuration file
         return Collection(usr_config).get()
@@ -62,4 +56,4 @@ def parse(config_id=None):
         return _LenseConfig(getattr(LENSE_CONFIG, config_id)).collection
     
     # Invalid configuration ID
-    raise Exception('Invalid configuration ID: {}'.format(config_id))
+    raise Exception('Invalid configuration ID: {0}'.format(config_id))

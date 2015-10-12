@@ -12,8 +12,7 @@ from feedback import Feedback
 os.environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 
 # Lense Libraries
-from lense import PKG_ROOT
-from lense.common.vars import LOG_DIR
+from lense.common.vars import LOG_DIR, RUN_DIR
 import lense.common.logger as logger
 import lense.common.config as config
 from lense.common.cparse import CParse
@@ -34,7 +33,7 @@ class Bootstrap(object):
     
         # Configuration / logger
         self.conf   = config.parse()
-        self.log    = logger.create('bootstrap', '{}/bootstrap.log'.format(LOG_DIR))
+        self.log    = logger.create('bootstrap', '{0}/bootstrap.log'.format(LOG_DIR))
     
         # Bootstrap parameters
         self.params = BootstrapParams()
@@ -71,25 +70,24 @@ class Bootstrap(object):
                 d_file.close()
                 
                 # File deployed
-                self.feedback.set('File <{}> deployed'.format(p[1])).success()
+                self.feedback.set('File <{0}> deployed'.format(p[1])).success()
             else:
-                self.feedback.set('File <{}> already deployed, skipping...'.format(p[1])).info()
+                self.feedback.set('File <{0}> already deployed, skipping...'.format(p[1])).info()
     
         # Create the log and run directories
-        for _dir in ['log', 'run']:
-            dir = '{}/{}'.format(PKG_ROOT, _dir)
-            if not os.path.isdir(dir):
-                os.mkdir(dir)
-                self.feedback.set('Created directory "{}"'.format(dir))
+        for _dir in [LOG_DIR, RUN_DIR]:
+            if not os.path.isdir(_dir):
+                os.mkdir(_dir)
+                self.feedback.set('Created directory "{0}"'.format(_dir))
             else:
-                self.feedback.set('Directory "{}" already exists, skipping...'.format(dir))
+                self.feedback.set('Directory "{0}" already exists, skipping...'.format(_dir))
     
     def _get_password(self, prompt, min_length=8):
         _pass = getpass(prompt)
         
         # Make sure the password is long enough
         if not len(_pass) >= min_length:
-            self.feedback.set('Password cannot be empty and must be at least {} characters long'.format(str(min_length))).error()
+            self.feedback.set('Password cannot be empty and must be at least {0} characters long'.format(str(min_length))).error()
             return self._get_password(prompt, min_length)
             
         # Confirm the password
@@ -123,7 +121,7 @@ class Bootstrap(object):
             )
             self.feedback.set('Connected to MySQL using root user').success()
         except Exception as e:
-            self._die('Unable to connect to MySQL with root user: {}'.format(str(e)))
+            self._die('Unable to connect to MySQL with root user: {0}'.format(str(e)))
     
     def _bootstrap_complete(self):
         """
@@ -131,7 +129,7 @@ class Bootstrap(object):
         """
         
         # Portal address
-        portal_addr = 'http://{}:{}/'.format(
+        portal_addr = 'http://{0}:{1}/'.format(
             self.params.input.response.get('portal_host'),
             self.params.input.response.get('portal_port')
         )
@@ -174,14 +172,14 @@ class Bootstrap(object):
             return self.feedback.set('Database encryption key/meta properties already exist').warn()
         
         # Generate the encryption key
-        p_keycreate = Popen(['keyczart', 'create', '--location={}'.format(enc_attrs['dir']), '--purpose=crypt'])
+        p_keycreate = Popen(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
         p_keycreate.communicate()
         if not p_keycreate.returncode == 0:
             return self.feedback.set('Failed to create database encryption key').error()
         self.feedback.set('Created database encryption key').success()
     
         # Add the encryption key
-        p_keyadd = Popen(['keyczart', 'addkey', '--location={}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
+        p_keyadd = Popen(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
         p_keyadd.communicate()
         if not p_keyadd.returncode == 0:
             return self.feedback.set('Failed to add database encryption key').error()
@@ -200,11 +198,11 @@ class Bootstrap(object):
             },
             path = 'group'
         )).launch()
-        self.log.info('Received response from <{}>: {}'.format(str(obj), json.dumps(group)))
+        self.log.info('Received response from <{0}>: {1}'.format(str(obj), json.dumps(group)))
         
         # If the group was not created
         if not group['valid']:
-            self._die('HTTP {}: {}'.format(group['code'], group['content']))
+            self._die('HTTP {0}: {1}'.format(group['code'], group['content']))
         self.feedback.set('Created default Lense administrator group').success()
         
         # Return the group object
@@ -234,7 +232,7 @@ class Bootstrap(object):
         
         # If the user was not created
         if not user['valid']:
-            self._die('HTTP {}: {}'.format(user['code'], user['content']))
+            self._die('HTTP {0}: {1}'.format(user['code'], user['content']))
         self.feedback.set('Created default Lense administrator account').success()
     
         # Return the user object
@@ -267,7 +265,7 @@ class Bootstrap(object):
             # If the utility was not created
             if not util['valid']:
                 self._die('HTTP {}: {}'.format(util['code'], util['content']))
-            self.feedback.set('Created database entry for utility "{}": Path={}, Method={}'.format(_util['cls'], _util['path'], _util['method'])).success()
+            self.feedback.set('Created database entry for utility "{0}": Path={1}, Method={2}'.format(_util['cls'], _util['path'], _util['method'])).success()
     
     def _create_acl_keys(self, obj):
         """
@@ -286,11 +284,11 @@ class Bootstrap(object):
             
             # If the ACL key was not created
             if not acl_key['valid']:
-                self._die('HTTP {}: {}'.format(acl_key['code'], acl_key['content']))
+                self._die('HTTP {0}: {1}'.format(acl_key['code'], acl_key['content']))
                 
             # Store the new ACL key UUID
             _acl_key['uuid'] = acl_key['data']['uuid']
-            self.feedback.set('Created database entry for ACL key "{}"'.format(_acl_key['name'])).success()
+            self.feedback.set('Created database entry for ACL key "{0}"'.format(_acl_key['name'])).success()
             
         # Setup ACL objects
         self.params.acl.set_objects()
@@ -315,7 +313,7 @@ class Bootstrap(object):
                         acl = key.objects.get(uuid=k['uuid']),
                         utility = util.objects.get(cls=u)
                     ).save()
-                    self.feedback.set('Granted global access to utility "{}" with ACL "{}"'.format(u, k['name'])).success()
+                    self.feedback.set('Granted global access to utility "{0}" with ACL "{1}"'.format(u, k['name'])).success()
     
     def _create_acl_objects(self, obj):
         """
@@ -340,7 +338,7 @@ class Bootstrap(object):
             # If the ACL object was not created
             if not acl_obj['valid']:
                 self._die('HTTP {}: {}'.format(acl_obj['code'], acl_obj['content']))
-            self.feedback.set('Created database entry for ACL object "{}->{}"'.format(_acl_obj['type'], _acl_obj['name'])).success()
+            self.feedback.set('Created database entry for ACL object "{0}->{1}"'.format(_acl_obj['type'], _acl_obj['name'])).success()
     
     def _create_acl_access(self, obj, keys, groups):
         """
@@ -353,9 +351,9 @@ class Bootstrap(object):
                     owner = groups.objects.get(uuid=access['owner']),
                     allowed = access['allowed']
                 ).save()
-                self.feedback.set('Granted global administrator access for ACL "{}"'.format(access['acl_name'])).success()
+                self.feedback.set('Granted global administrator access for ACL "{0}"'.format(access['acl_name'])).success()
             except Exception as e:
-                self._die('Failed to grant global access for ACL "{}": {}'.format(access['acl_name'], str(e)))
+                self._die('Failed to grant global access for ACL "{0}": {1}'.format(access['acl_name'], str(e)))
     
     def _database_seed(self):
         """
@@ -385,7 +383,7 @@ class Bootstrap(object):
         cp.set_key('group', self.params.user['group'], s='admin')
         cp.set_key('key', user['data']['api_key'], s='admin')
         cp.apply()
-        self.feedback.set('[{}] Set API administrator values'.format(self.server_conf)).success()
+        self.feedback.set('[{0}] Set API administrator values'.format(self.server_conf)).success()
     
         # Create API utilities / ACL objects / ACL keys / access entries
         self._create_utils(GatewayUtilitiesCreate)
@@ -437,13 +435,13 @@ class Bootstrap(object):
             
             # Create the database
             _cursor.execute(self.params.db['query']['create_db'])
-            self.feedback.set('Created database "{}"'.format(self.params.db['attrs']['name'])).success()
+            self.feedback.set('Created database "{0}"'.format(self.params.db['attrs']['name'])).success()
             
             # Create the database user
             _cursor.execute(self.params.db['query']['create_user'])
             _cursor.execute(self.params.db['query']['grant_user'])
             _cursor.execute(self.params.db['query']['flush_priv'])
-            self.feedback.set('Created database user "{}" with grants'.format(self.params.db['attrs']['user'])).success()
+            self.feedback.set('Created database user "{0}" with grants'.format(self.params.db['attrs']['user'])).success()
             
         except Exception as e:
             self._die('Failed to bootstrap Lense database: {}'.format(str(e)))
@@ -453,7 +451,7 @@ class Bootstrap(object):
         
         # Run Django syncdb
         try:
-            app  = '{}/engine/api/manage.py'.format(PKG_ROOT)
+            app  = '/usr/lib/python2.7/dist-packages/lense/engine/api/manage.py'
             proc = Popen(['python', app, 'migrate'])
             proc.communicate()
             
@@ -464,7 +462,7 @@ class Bootstrap(object):
             # Sync success
             self.feedback.set('Synced Django application database').success()
         except Exception as e:
-            self._die('Failed to sync Django application database: {}'.format(str(e)))
+            self._die('Failed to sync Django application database: {0}'.format(str(e)))
             
         # Set up database encryption
         self._database_encryption()
@@ -487,7 +485,7 @@ class Bootstrap(object):
                 cp.set_key(key, val, s=section)
                 
                 # Format the value output
-                self.feedback.set('[{}] Set key value for "{}->{}"'.format(self.server_conf, section, key)).success()
+                self.feedback.set('[{0}] Set key value for "{1}->{2}"'.format(self.server_conf, section, key)).success()
             
         # Apply the configuration changes
         cp.apply()
