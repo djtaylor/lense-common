@@ -1,10 +1,51 @@
 import re
 from os.path import isfile
+from json import dumps as dump_json
 
 # Lense Libraries
 from lense.common.vars import LENSE_CONFIG
 from lense.common.objects import JSONObject
 from lense.common.collection import Collection
+
+class LenseConfigEditor(object):
+    """
+    Public class for editing an existing JSON configuration file.
+    """
+    def __init__(self, config_id):
+        if not hasattr(LENSE_CONFIG, config_id):
+            raise Exception('Invalid configuration ID: {0}'.format(config_id))
+
+        # Open the configuration object
+        self.json = JSONOBject()
+        self.file = getattr(LENSE_CONFIG, config_id)
+        self.conf = self.json.from_config_file(self.file)
+
+    def set(self, path, value):
+        """
+        Set a new value.
+        """
+        
+        # Store the configuration
+        _obj   = self.conf
+        
+        # Path keys / length
+        _paths = path.split('/')
+        _len   = len(_paths)
+        _count = 1
+        
+        # Set the new value
+        for k in _paths:
+            if _count == _len:
+                _obj[k] = value
+            else:
+                _obj = _obj[k]
+
+    def save(self):
+        """
+        Save out the updated configuration.
+        """
+        with open(self.file, 'w') as f:
+            f.write(dump_json(self.conf, indent=4))
 
 class _LenseConfig(object):
     """

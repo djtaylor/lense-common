@@ -39,7 +39,7 @@ class JSONObject(object):
                 with open(file) as f:
                     for line in f.readlines():
                         if not self._is_comment_or_empty(line):
-                            json_str = '{}{}'.format(json_str, line.rstrip().lstrip())
+                            json_str = '{0}{1}'.format(json_str, line.rstrip().lstrip())
                 
                 # Read the file after cleaning any comments
                 self._json = json.loads(json_str)
@@ -47,11 +47,11 @@ class JSONObject(object):
             
             # Error reading file
             except Exception, e:
-                raise JSONException('Failed to read file "{}": {}'.format(file, str(e)))
+                raise JSONException('Failed to read file "{0}": {1}'.format(file, str(e)))
                 
         # File not found
         else:
-            raise JSONException('File not found: %s' % file)
+            raise JSONException('File not found: {0}'.format(file))
     
     def from_file(self, file):
         """
@@ -66,11 +66,11 @@ class JSONObject(object):
             
             # Error reading file
             except Exception, e:
-                raise JSONException('Failed to read file "{}": {}'.format(file, str(e)))
+                raise JSONException('Failed to read file "{0}": {1}'.format(file, str(e)))
                 
         # File not found
         else:
-            raise JSONException('File not found: %s' % file)
+            raise JSONException('File not found: {0}'.format(file))
     
     def from_string(self, string):
         """
@@ -82,7 +82,7 @@ class JSONObject(object):
         
         # Error reading string
         except Exception, e:
-            raise JSONException('Failed to read string: %s' % str(e))
+            raise JSONException('Failed to read string: {0}'.format(str(e)))
         
     def search(self, filter, delimiter='/', default=None):
         """
@@ -91,7 +91,7 @@ class JSONObject(object):
         
         # Search filter must be a list or string
         if not (isinstance(filter, list) or isinstance(filter, str)):
-            raise JSONException('Search parameter must be a list or string, not "%s"' % type(filter))
+            raise JSONException('Search parameter must be a list or string, not "{0}"'.format(type(filter)))
         
         # Construct the search path
         search_path = filter if (isinstance(filter, list)) else filter.split(delimiter)

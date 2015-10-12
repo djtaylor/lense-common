@@ -14,7 +14,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 # Lense Libraries
 from lense.common.vars import LOG_DIR, RUN_DIR
 import lense.common.logger as logger
-import lense.common.config as config
+from lense.common.config import LenseConfigEditor
 from lense.common.cparse import CParse
 from lense.common.bootstrap.params import BootstrapParams
 
@@ -26,7 +26,7 @@ except:
 class Bootstrap(object):
     """
     Main class object for bootstrapping the Lense installation. This
-    includes setting up the database and setting the admin user account.
+    includes setting up the database and the admin user account.
     """
     def __init__(self):
         self.feedback = Feedback()
