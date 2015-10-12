@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 # Lense Libraries
-from lense import PKG_ROOT
 from lense.common.utils import rstring
 from lense.common.vars import G_ADMIN, U_ADMIN, DB_ENCRYPT_DIR
 from lense.common.http import HTTP_GET, HTTP_POST, HTTP_PUT, HTTP_DELETE
@@ -391,21 +390,15 @@ class BootstrapParams(object):
             }
         }
     
-    def _set_path(self, path):
-        """
-        Return a path after prepending the package root
-        """
-        return '{}/{}'.format(PKG_ROOT, path)
-    
     def _set_file(self):
         """
         Set file deployment parameters.
         """
         return {
             "config": {
-                "server_conf": [self._set_path("conf/default/server.conf"), self._set_path("conf/server.conf")],
-                "apache_engine": [self._set_path("conf/apache/default/engine.conf"), self._set_path("conf/apache/engine.conf")],
-                "apache_portal": [self._set_path("conf/apache/default/portal.conf"), self._set_path("conf/apache/portal.conf")]
+                "server_conf": ["/etc/lense/engine/config.default.json", "/etc/lense/engine/config.json"],
+                "apache_engine": ["/etc/lense/engine/wsgi.default.conf", "/etc/lense/engine/wsgi.conf"],
+                "apache_portal": ["/etc/lense/portal/wsgi.default.conf", "/etc/lense/portal/wsgi.conf"]
             }
         }
         

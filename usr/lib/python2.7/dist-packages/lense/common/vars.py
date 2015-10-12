@@ -23,9 +23,9 @@ WSGI_CONFIG    = Collection({
     'PORTAL': '/etc/lense/portal/wsgi.conf'                    
 }).get()
 
-# Log / PID Directory
+# Log / Run Directory
 LOG_DIR        = '/var/log/lense'
-PID_DIR        = '/var/run/lense'
+RUN_DIR        = '/var/run/lense'
 
 # Database encryption keys
 DB_ENCRYPT_DIR = '/etc/lense/dbkey'
