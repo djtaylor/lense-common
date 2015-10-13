@@ -16,7 +16,7 @@ class LenseConfigEditor(object):
             raise Exception('Invalid configuration ID: {0}'.format(config_id))
 
         # Open the configuration object
-        self.json = JSONOBject()
+        self.json = JSONObject()
         self.file = getattr(LENSE_CONFIG, config_id)
         self.conf = self.json.from_config_file(self.file)
 
@@ -39,6 +39,7 @@ class LenseConfigEditor(object):
                 _obj[k] = value
             else:
                 _obj = _obj[k]
+            _count += 1
 
     def save(self):
         """
