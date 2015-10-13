@@ -338,7 +338,7 @@ class BootstrapParams(object):
         
         # Return the updated server configuration
         return {
-            'server': {
+            'engine': {
                 'host': self.input.response.get('api_host'),
                 'port': self.input.response.get('api_port'),
                 'secret': engine_secret      
@@ -351,8 +351,7 @@ class BootstrapParams(object):
             },
             'portal': {
                 'host': self.input.response.get('portal_host'),
-                'port': self.input.response.get('portal_port'),
-                'secret': portal_secret
+                'port': self.input.response.get('portal_port')
             },
             'socket': {
                 'host': self.input.response.get('socket_host'),

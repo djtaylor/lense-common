@@ -15,7 +15,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 from lense.common.vars import LOG_DIR, RUN_DIR
 import lense.common.logger as logger
 from lense.common.config import LenseConfigEditor
-from lense.common.cparse import CParse
+from lense.common.objects import JSONObject
 from lense.common.bootstrap.params import BootstrapParams
 
 try:
@@ -118,7 +118,7 @@ class Bootstrap(object):
                 user   = 'root',
                 passwd = self.params.input.response.get('db_root_password')
             )
-            self.feedback.set('Connected to MySQL using root user').success()
+            self.feedback.success('Connected to MySQL using root user')
         except Exception as e:
             self._die('Unable to connect to MySQL with root user: {0}'.format(str(e)))
     
@@ -154,6 +154,38 @@ class Bootstrap(object):
             'any required users exists, and populate the tables with seed data.'   
         ], 'ABOUT')
     
+    def _keyczart_create(self, enc_attrs):
+        """
+        Create a new database encryption key.
+        """
+        p_keycreate = Popen(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
+        p_keycreate.communicate()
+        
+        # Failed to generate key
+        if not p_keycreate.returncode == 0:
+            self.feedback.error('Failed to create database encryption key')
+            return False
+        
+        # Generated encryption key
+        self.feedback.success('Created database encryption key')
+        return True
+    
+    def _keyczart_add(self, enc_attrs):
+        """
+        Add a bew database encryption key.
+        """
+        p_keyadd = Popen(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
+        p_keyadd.communicate()
+        
+        # Failed to add key
+        if not p_keyadd.returncode == 0:
+            self.feedback.error('Failed to add database encryption key')
+            return False
+        
+        # Added key
+        self.feedback.success('Added database encryption key')
+        return True
+    
     def _database_encryption(self):
         """
         Bootstrap the database encryption keys.
@@ -170,19 +202,10 @@ class Bootstrap(object):
         if os.path.isfile(enc_attrs['key']) or os.path.isfile(enc_attrs['meta']):
             return self.feedback.warn('Database encryption key/meta properties already exist')
         
-        # Generate the encryption key
-        p_keycreate = Popen(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
-        p_keycreate.communicate()
-        if not p_keycreate.returncode == 0:
-            return self.feedback.error('Failed to create database encryption key')
-        self.feedback.success('Created database encryption key')
-    
-        # Add the encryption key
-        p_keyadd = Popen(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
-        p_keyadd.communicate()
-        if not p_keyadd.returncode == 0:
-            return self.feedback.error('Failed to add database encryption key')
-        self.feedback.success('Added database encryption key')
+        # Generate / add encryption key
+        for m in [self._keyczart_create, self._keyczart_add]:
+            if not m(enc_attrs):
+                return False
     
     def _create_group(self, obj):
         """
@@ -376,12 +399,11 @@ class Bootstrap(object):
         user = self._create_user(UserCreate)
     
         # Update administrator info in the server configuration
-        cp = CParse()
-        cp.select(self.server_conf)
-        cp.set_key('user', user['data']['username'], s='admin')
-        cp.set_key('group', self.params.user['group'], s='admin')
-        cp.set_key('key', user['data']['api_key'], s='admin')
-        cp.apply()
+        lce = LenseConfigEditor('ENGINE')
+        lce.set('admin/user', user['data']['username'])
+        lce.set('admin/group', self.params.user['group'])
+        lce.set('admin/key', user['data']['api_key'])
+        lce.save()
         self.feedback.success('[{0}] Set API administrator values'.format(self.server_conf))
     
         # Create API utilities / ACL objects / ACL keys / access entries
@@ -396,6 +418,13 @@ class Bootstrap(object):
         Read any required user input prompts
         """
         
+        # Look for an answer file
+        try:
+            afile = JSONObject()
+            answers = afile.from_file('/tmp/lense_bootstrap.js')
+        except:
+            answers = {}
+        
         # Process each configuration section
         for section, obj in self.params.input.prompt.iteritems():
             print obj['label']
@@ -404,14 +433,20 @@ class Bootstrap(object):
             # Process each section input
             for key, attrs in obj['attrs'].iteritems():
                 
-                # Regular string input
-                if attrs['type'] == 'str':
-                    val = self._get_input(attrs['prompt'], attrs['default'])
+                # If an answer already defined
+                if key in answers:
+                    self.feedback.info('Value for {0} found in answer file'.format(key))
+                    val = answers[key]
                     
-                # Password input
-                if attrs['type'] == 'pass':
-                    val = self._get_password(attrs['prompt'])
-            
+                else:
+                
+                    # Regular string input
+                    if attrs['type'] == 'str':
+                        val = self._get_input(attrs['prompt'], attrs['default'])
+                        
+                    # Password input
+                    if attrs['type'] == 'pass':
+                        val = self._get_password(attrs['prompt'])
             
                 # Store in response object
                 self.params.input.set_response(key, val)
@@ -440,7 +475,7 @@ class Bootstrap(object):
             _cursor.execute(self.params.db['query']['create_user'])
             _cursor.execute(self.params.db['query']['grant_user'])
             _cursor.execute(self.params.db['query']['flush_priv'])
-            self.feedback.set('Created database user "{0}" with grants'.format(self.params.db['attrs']['user'])).success()
+            self.feedback.success('Created database user "{0}" with grants'.format(self.params.db['attrs']['user']))
             
         except Exception as e:
             self._die('Failed to bootstrap Lense database: {0}'.format(str(e)))
@@ -475,19 +510,18 @@ class Bootstrap(object):
         """
         
         # Parse and update the configuration
-        cp = CParse()
-        cp.select(self.server_conf)
+        lce = LenseConfigEditor('ENGINE')
         
         # Update each section
         for section, pair in self.params.get_config().iteritems():
             for key, val in pair.iteritems():
-                cp.set_key(key, val, s=section)
-                
+                lce.set('{0}/{1}'.format(section, key), val)
+            
                 # Format the value output
                 self.feedback.success('[{0}] Set key value for "{1}->{2}"'.format(self.server_conf, section, key))
             
         # Apply the configuration changes
-        cp.apply()
+        lce.save()
         self.feedback.success('Applied updated server configuration')
             
     def run(self):
