@@ -324,7 +324,6 @@ class BootstrapParams(object):
         self.group  = self._set_group()
         self.user   = self._set_user()
         self.utils  = self._set_utils()
-        self.file   = self._set_file()
         self.db     = None
     
     def get_config(self):
@@ -333,8 +332,8 @@ class BootstrapParams(object):
         """
         
         # Generate a new Django secret for the engine and portal
-        engine_secret = "'%s'" % rstring(64)
-        portal_secret = "'%s'" % rstring(64)
+        engine_secret = "'{0}'".format(rstring(64))
+        portal_secret = "'{0}'".format(rstring(64))
         
         # Return the updated server configuration
         return {
@@ -373,8 +372,8 @@ class BootstrapParams(object):
             'passwd': self.input.response.get('db_user_password'),
             'encryption': {
                 'dir':  DB_ENCRYPT_DIR,
-                'key':  '{}/1'.format(DB_ENCRYPT_DIR),
-                'meta': '{}/meta'.format(DB_ENCRYPT_DIR)
+                'key':  '{0}/1'.format(DB_ENCRYPT_DIR),
+                'meta': '{0}/meta'.format(DB_ENCRYPT_DIR)
             }
         }
         
@@ -382,22 +381,10 @@ class BootstrapParams(object):
         self.db = {
             "attrs": db_attrs,
             "query": {
-                "create_db": "CREATE DATABASE IF NOT EXISTS {}".format(db_attrs['name']),
-                "create_user": "CREATE USER '{}'@'{}' IDENTIFIED BY '{}'".format(db_attrs['user'], db_attrs['host'], db_attrs['passwd']),
-                "grant_user": "GRANT ALL PRIVILEGES ON {}.* TO '{}'@'{}'".format(db_attrs['name'], db_attrs['user'], db_attrs['host']),
+                "create_db": "CREATE DATABASE IF NOT EXISTS {0}".format(db_attrs['name']),
+                "create_user": "CREATE USER '{0}'@'{1}' IDENTIFIED BY '{2}'".format(db_attrs['user'], db_attrs['host'], db_attrs['passwd']),
+                "grant_user": "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'{2}'".format(db_attrs['name'], db_attrs['user'], db_attrs['host']),
                 "flush_priv": "FLUSH PRIVILEGES"
-            }
-        }
-    
-    def _set_file(self):
-        """
-        Set file deployment parameters.
-        """
-        return {
-            "config": {
-                "server_conf": ["/etc/lense/engine/config.default.json", "/etc/lense/engine/config.json"],
-                "apache_engine": ["/etc/lense/engine/wsgi.default.conf", "/etc/lense/engine/wsgi.conf"],
-                "apache_portal": ["/etc/lense/portal/wsgi.default.conf", "/etc/lense/portal/wsgi.conf"]
             }
         }
         
@@ -420,7 +407,8 @@ class BootstrapParams(object):
             "username": U_ADMIN,
             "group": G_ADMIN,
             "email": None,
-            "password": None
+            "password": None,
+            "key": None
         }
         
     def _set_utils(self):

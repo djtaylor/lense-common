@@ -12,7 +12,7 @@ from feedback import Feedback
 os.environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 
 # Lense Libraries
-from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG
+from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG
 import lense.common.logger as logger
 from lense.common.config import LenseConfigEditor
 from lense.common.objects import JSONObject
@@ -36,9 +36,6 @@ class Bootstrap(object):
     
         # Bootstrap parameters
         self.params = BootstrapParams()
-    
-        # Server configuration file
-        self.server_conf = self.params.file['config']['server_conf'][1]
         
         # Database connection
         self._connection = None
@@ -65,27 +62,10 @@ class Bootstrap(object):
             self._die('Failed to enable virtual host: {0}'.format(str(err)))
         self.feedback.success('Enabled virtual host configuration for Lense engine')
     
-    def _deploy_config(self):
+    def _mkdirs(self):
         """
-        Deploy configuration files.
+        Make required directories.
         """
-        for f,p in self.params.file['config'].iteritems():
-            if not os.path.isfile(p[1]):
-                
-                # Read the default file content
-                c_file = open(p[0], 'r')
-                c_str  = c_file.read()
-                c_file.close()
-                
-                # Create the new configuration file
-                d_file = open(p[1], 'w')
-                d_file.write(c_str)
-                d_file.close()
-                
-                # File deployed
-                self.feedback.success('File <{0}> deployed'.format(p[1]))
-            else:
-                self.feedback.info('File <{0}> already deployed, skipping...'.format(p[1]))
     
         # Create the log and run directories
         for _dir in [LOG_DIR, RUN_DIR]:
@@ -143,7 +123,12 @@ class Bootstrap(object):
         
         # Print the summary
         self.feedback.block([
-            'Lense bootstrap complete!'
+            'Lense bootstrap complete! You must restart Apache to load the',
+            'engine API and portal web interface. In order to use the CLI lense',
+            'client you must make sure the following environment variables exist:\n',
+            'LENSE_API_USER = {0}'.format(self.params.user['username']),
+            'LENSE_API_KEY = {0}'.format(self.params.user['group']),
+            'LENSE_API_GROUP = {0}'.format(self.params.user['key'])
         ], 'COMPLETE')
         sys.exit(0)
     
@@ -402,13 +387,17 @@ class Bootstrap(object):
         group = self._create_group(GroupCreate)
         user = self._create_user(UserCreate)
     
+        # Store the new username and API key
+        self.params.user['username'] = user['data']['username']
+        self.params.user['key'] = user['data']['api_key']
+    
         # Update administrator info in the server configuration
         lce = LenseConfigEditor('ENGINE')
         lce.set('admin/user', user['data']['username'])
         lce.set('admin/group', self.params.user['group'])
         lce.set('admin/key', user['data']['api_key'])
         lce.save()
-        self.feedback.success('[{0}] Set API administrator values'.format(self.server_conf))
+        self.feedback.success('[{0}] Set API administrator values'.format(LENSE_CONFIG.ENGINE))
     
         # Create API utilities / ACL objects / ACL keys / access entries
         self._create_utils(GatewayUtilitiesCreate)
@@ -522,7 +511,7 @@ class Bootstrap(object):
                 lce.set('{0}/{1}'.format(section, key), val)
             
                 # Format the value output
-                self.feedback.success('[{0}] Set key value for "{1}->{2}"'.format(self.server_conf, section, key))
+                self.feedback.success('[{0}] Set key value for "{1}->{2}"'.format(LENSE_CONFIG.ENGINE, section, key))
             
         # Apply the configuration changes
         lce.save()
@@ -539,8 +528,8 @@ class Bootstrap(object):
         # Read user input
         self._read_input()
         
-        # Bootstrap the configuration files and update
-        self._deploy_config()
+        # Bootstrap required directories and update configurations
+        self._mkdirs()
         self._update_config()
         
         # Deploy Apache configurations
