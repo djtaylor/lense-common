@@ -431,7 +431,7 @@ class BootstrapParams(object):
         # Set the utility modules
         mod_gateway = 'lense.engine.api.app.gateway.utils'
         mod_group   = 'lense.engine.api.app.group.utils'
-        mod_user    = 'engine.api.app.user.utils'
+        mod_user    = 'lense.engine.api.app.user.utils'
         
         # Return the database parameters
         return [

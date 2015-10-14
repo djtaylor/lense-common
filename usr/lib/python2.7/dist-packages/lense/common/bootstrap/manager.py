@@ -4,7 +4,7 @@ import json
 import shutil
 import django
 import MySQLdb
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from getpass import getpass
 from feedback import Feedback
 
@@ -12,7 +12,7 @@ from feedback import Feedback
 os.environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 
 # Lense Libraries
-from lense.common.vars import LOG_DIR, RUN_DIR
+from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG
 import lense.common.logger as logger
 from lense.common.config import LenseConfigEditor
 from lense.common.objects import JSONObject
@@ -50,6 +50,20 @@ class Bootstrap(object):
         self.log.error(msg)
         self.feedback.error(msg)
         sys.exit(1)
+    
+    def _deploy_apache(self):
+        """
+        Deploy Apache configuration files.
+        """
+    
+        # Enable the site configuration
+        proc = Popen(['a2ensite', WSGI_CONFIG.ENGINE[0]], stdout=PIPE, stderr=PIPE)
+        out, err = proc.communicate()
+        
+        # Make sure the command returned successfully
+        if not proc.returncode == 0:
+            self._die('Failed to enable virtual host: {0}'.format(str(err)))
+        self.feedback.success('Enabled virtual host configuration for Lense engine')
     
     def _deploy_config(self):
         """
@@ -127,19 +141,9 @@ class Bootstrap(object):
         Brief summary of the completed bootstrap process.
         """
         
-        # Portal address
-        portal_addr = 'http://{0}:{1}/'.format(
-            self.params.input.response.get('portal_host'),
-            self.params.input.response.get('portal_port')
-        )
-        
         # Print the summary
         self.feedback.block([
-            'Lense bootstrap complete!',
-            'To start all Lense processes, run "lense-server start".',
-            'You may access the portal (if configured) using the "lense"'
-            'user with the password created during the bootstrap process'
-            'at: {}'.format(portal_addr)
+            'Lense bootstrap complete!'
         ], 'COMPLETE')
         sys.exit(0)
     
@@ -281,12 +285,12 @@ class Bootstrap(object):
                 path = 'utilities'
             )).launch()
             
-            # Store the utility UUID
-            _util['uuid'] = util['data']['uuid']
-            
             # If the utility was not created
             if not util['valid']:
-                self._die('HTTP {}: {}'.format(util['code'], util['content']))
+                self._die('HTTP {0}: {1}'.format(util['code'], util['content']))
+            
+            # Store the utility UUID
+            _util['uuid'] = util['data']['uuid']
             self.feedback.success('Created database entry for utility "{0}": Path={1}, Method={2}'.format(_util['cls'], _util['path'], _util['method']))
     
     def _create_acl_keys(self, obj):
@@ -538,6 +542,9 @@ class Bootstrap(object):
         # Bootstrap the configuration files and update
         self._deploy_config()
         self._update_config()
+        
+        # Deploy Apache configurations
+        self._deploy_apache()
         
         # Bootstrap the database
         self._database()

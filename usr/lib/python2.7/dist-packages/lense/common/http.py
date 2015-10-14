@@ -86,7 +86,7 @@ def error_response(message, response=None, cli=False):
     if cli:
         
         # Show the error message
-        print('ERROR: {}'.format(message))
+        print('ERROR: {0}'.format(message))
         
         # Show any problems with token retrieval
         if response:
@@ -95,16 +95,16 @@ def error_response(message, response=None, cli=False):
             
             # Print the response
             print('\n---RESPONSE---')
-            print('HTTP {}: {}\n'.format(response['code'], '{} - {}'.format(rsp_msg, rsp_err)))
+            print('HTTP {0}: {1}\n'.format(response['code'], '{0} - {1}'.format(rsp_msg, rsp_err)))
             
             # If any debug information is present
             if 'debug' in response['body']:
                 print('---DEBUG---')
                 print('Traceback (most recent call last):')
                 for l in response['body']['debug']['traceback']:
-                    print('  File "{}", line {}, in {}'.format(l[0], l[1], l[2]))
-                    print('    {}'.format(l[3]))
-                print('Exception: {}\n'.format(response['body']['debug']['exception']))
+                    print('  File "{0}", line {1}, in {2}'.format(l[0], l[1], l[2]))
+                    print('    {0}'.format(l[3]))
+                print('Exception: {0}\n'.format(response['body']['debug']['exception']))
         
         # Exit the client
         sys.exit(1)
