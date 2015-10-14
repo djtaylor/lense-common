@@ -125,10 +125,10 @@ class Bootstrap(object):
         self.feedback.block([
             'Lense bootstrap complete! You must restart Apache to load the',
             'engine API and portal web interface. In order to use the CLI lense',
-            'client you must make sure the following environment variables exist:\n',
-            'LENSE_API_USER = {0}'.format(self.params.user['username']),
-            'LENSE_API_KEY = {0}'.format(self.params.user['group']),
-            'LENSE_API_GROUP = {0}'.format(self.params.user['key'])
+            'client you must add the following to your ~/.bashrc file:\n',
+            'export LENSE_API_USER = "{0}"'.format(self.params.user['username']),
+            'export LENSE_API_KEY = "{0}"'.format(self.params.user['group']),
+            'export LENSE_API_GROUP = "{0}"'.format(self.params.user['key'])
         ], 'COMPLETE')
         sys.exit(0)
     
