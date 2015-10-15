@@ -11,7 +11,7 @@ class Collection(object):
     Initialize a collection::
     
         # Import the collection class
-        from cloudscape.common.collection import Collection
+        from lense.common.collection import Collection
         
         # Create an empty collection
         c1 = Collection()
@@ -61,7 +61,7 @@ class Collection(object):
         Merging dictionaries::
         
             # Import the collection class
-            from cloudscape.common.collection import Collection
+            from lense.common.collection import Collection
         
             # Create a collection object
             collection = Collection()
@@ -112,7 +112,7 @@ class Collection(object):
         Mapping a new dictionary object::
         
             # Import the collection class
-            from cloudscape.common.collection import Collection
+            from lense.common.collection import Collection
         
             # Create a collection object
             collection = Collection({'data': {'key1': 'value1'}})
@@ -156,11 +156,11 @@ class Collection(object):
             return True
         
         # Test for a class object
-        if (re.match(r'^<cloudscape\..[^>]*>$', str(obj))):
+        if (re.match(r'^<lense\..[^>]*>$', str(obj))):
             return True
         
         # Test for a new style class
-        if ((hasattr(obj, '__class__')) and (re.match(r'^<class \'cloudscape\..*\.%s\'>$' % cls, repr(obj.__class__)))):
+        if ((hasattr(obj, '__class__')) and (re.match(r'^<class \'lense\..*\.%s\'>$' % cls, repr(obj.__class__)))):
             return True
         return False
        
@@ -172,7 +172,7 @@ class Collection(object):
         Constructing a collection::
         
             # Import the collection class
-            from cloudscape.common.collection import Collection
+            from lense.common.collection import Collection
         
             # Create a collection object
             collection = Collection()

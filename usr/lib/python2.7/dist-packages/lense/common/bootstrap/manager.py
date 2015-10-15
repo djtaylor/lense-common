@@ -17,7 +17,7 @@ from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG
 import lense.common.logger as logger
 from lense.common.config import LenseConfigEditor
 from lense.common.objects import JSONObject
-from lense.common.bootstrap.params import EngineParams, PortalParams, ClientParams
+from lense.common.bootstrap.params import EngineParams, PortalParams, ClientParams, SocketParams
 
 try:
     from lense.engine.api.base import APIBare
@@ -59,6 +59,7 @@ class _BootstrapArgs(object):
         self.parser.add_argument('-e', '--engine', help='Bootstrap the Lense API engine', action='store_true')
         self.parser.add_argument('-p', '--portal', help='Bootstrap the Lense API portal', action='store_true')
         self.parser.add_argument('-c', '--client', help='Bootstrap the Lense API client', action='store_true')
+        self.parser.add_argument('-s', '--socket', help='Bootstrap the Lense API Socket.IO proxy', action='store_true')
       
         # Parse CLI arguments
         sys.argv.pop(0)
@@ -663,6 +664,30 @@ class _BootstrapClient(_BootstrapCommon):
         self.feedback.block([
             'Finished bootstrapping Lense API client!'
         ], 'COMPLETE')
+        
+class _BootstrapSocket(_BootstrapCommon):
+    """
+    Class object for handling bootstrap of the Lense API Socket.IO proxy.
+    """
+    def __init__(self):
+        super(_BootstrapSocket, self).__init__()
+
+        # Bootstrap parameters
+        self.params   = SocketParams()
+
+    def _bootstrap_complete(self):
+        """
+        Brief summary of the completed bootstrap process.
+        """
+        
+        # Print the summary
+        self.feedback.block([
+            'Finished bootstrapping Lense API Socket.IO proxy server!\n',
+            'You may enable and start the Socket.IO proxy server with the',
+            'following commands:\n',
+            'sudo update-rc.d lense-socket defaults',
+            'sudo service lense-socket start'
+        ], 'COMPLETE')
 
 class Bootstrap(_BootstrapCommon):
     """
@@ -737,6 +762,21 @@ class Bootstrap(_BootstrapCommon):
         
         # Show the bootstrap complete summary
         _handler._bootstrap_complete()
+        
+    def _bootstrap_socket(self):
+        """
+        Bootstrap the Lense API socket.
+        """
+        _handler = _BootstrapSocket()
+        
+        # Get user input
+        _handler._read_input('/tmp/lense_socket_bootstrap.js')
+        
+        # Update the configuration
+        _handler._update_config('socket')
+        
+        # Show the bootstrap complete summary
+        _handler._bootstrap_complete()
             
     def _bootstrap_project(self, project):
         """
@@ -745,7 +785,8 @@ class Bootstrap(_BootstrapCommon):
         _bootstrap_methods = {
             'engine': self._bootstrap_engine,
             'portal': self._bootstrap_portal,
-            'client': self._bootstrap_client
+            'client': self._bootstrap_client,
+            'socket': self._bootstrap_socket
         }
         
         # Run the project bootstrap method
@@ -773,11 +814,12 @@ class Bootstrap(_BootstrapCommon):
         _bootstrap = {
             'engine': self.args.get('engine', False),
             'portal': self.args.get('portal', False),
-            'client': self.args.get('client', False)
+            'client': self.args.get('client', False),
+            'socket': self.args.get('socket', False)
         }
         
         # If not bootstrapping a specific project
-        if not _bootstrap['engine'] and not _bootstrap['portal'] and not _bootstrap['client']:
+        if not _bootstrap['engine'] and not _bootstrap['portal'] and not _bootstrap['client'] and not _bootstrap['socket']:
             self._bootstrap_all()
             
         # Bootstrapping specific projects

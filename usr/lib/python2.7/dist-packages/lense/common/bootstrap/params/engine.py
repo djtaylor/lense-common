@@ -302,12 +302,6 @@ class _EngineInput(object):
                     "default": "10551",
                     "prompt": "Please enter the port for the socket server (10551): ",
                     "value": None
-                },
-                "socket_bind_ipaddr": {
-                    "type": "str",
-                    "default": "127.0.0.1",
-                    "prompt": "Please enter the bind IP address for the socket server (127.0.0.1): ",
-                    "value": None
                 }
             })             
         }
@@ -360,8 +354,7 @@ class EngineParams(object):
             },
             'socket': {
                 'host': self.input.response.get('socket_host'),
-                'port': self.input.response.get('socket_port'),
-                'bind_ip': self.input.response.get('socket_bind_ipaddr')
+                'port': self.input.response.get('socket_port')
             }    
         }
     

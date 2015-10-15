@@ -48,7 +48,7 @@ class SysCtl(object):
         Apply changes::
         
             # Create a sysctl instance
-            from cloudscape.common.sysctl import SysCtl
+            from lense.common.sysctl import SysCtl
             sc = SysCtl()
             
             # Unset a kernel parameter value
@@ -83,7 +83,7 @@ class SysCtl(object):
         Retrieve a kernel parameter::
         
             # Create a sysctl instance
-            from cloudscape.common.sysctl import SysCtl
+            from lense.common.sysctl import SysCtl
             sc = SysCtl()
             
             # Print a kernel parameter value
@@ -100,7 +100,7 @@ class SysCtl(object):
         Unset a kernel parameter::
         
             # Create a sysctl instance
-            from cloudscape.common.sysctl import SysCtl
+            from lense.common.sysctl import SysCtl
             sc = SysCtl()
             
             # Unset a kernel parameter value
@@ -120,7 +120,7 @@ class SysCtl(object):
         Set a kernel parameter::
         
             # Create a sysctl instance
-            from cloudscape.common.sysctl import SysCtl
+            from lense.common.sysctl import SysCtl
             sc = SysCtl()
             
             # Set a kernel parameter value

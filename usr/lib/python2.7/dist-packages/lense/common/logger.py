@@ -71,7 +71,7 @@ def create(name=False, log_file=None):
     Constructing a logging object::
     
         # Import the logging module
-        import cloudscape.common.logger as logger
+        import lense.common.logger as logger
         
         # Create a new log object
         LOG = logger.create('some.module.name', '/path/to/file.log')
