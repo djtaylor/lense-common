@@ -627,7 +627,7 @@ class _BootstrapPortal(_BootstrapCommon):
             'configuration. You can connect to the Lense API portal using the',
             'administrator credentials generated during the engine bootstrap process',
             'at the following URL:\n',
-            'http://{0}:{1}'.format(self.params.input.reponse.get('portal_host'), self.params.input.response.get('portal_port'))
+            'http://{0}:{1}'.format(self.params.input.response.get('portal_host'), self.params.input.response.get('portal_port'))
         ], 'COMPLETE')
 
 class Bootstrap(_BootstrapCommon):

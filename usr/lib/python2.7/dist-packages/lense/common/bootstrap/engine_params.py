@@ -216,6 +216,12 @@ class _EngineInput(object):
                     "prompt": "Please enter the name of the primary non-root database user (lense): ",
                     "value": None
                 },
+                "db_name": {
+                    "type": "str",
+                    "default": "lense",
+                    "prompt": "Please enter the name of the database to use (lense): ",
+                    "value": None
+                },
                 "db_user_password": {
                     "type": "pass",
                     "default": None,
