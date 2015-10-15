@@ -351,7 +351,8 @@ class EngineParams(object):
                 'host': self.input.response.get('db_host'),
                 'port': self.input.response.get('db_port'),
                 'user': self.input.response.get('db_user'),
-                'password': self.input.response.get('db_user_password')
+                'password': self.input.response.get('db_user_password'),
+                'name': self.input.response.get('db_name')
             },
             'portal': {
                 'host': self.input.response.get('portal_host'),

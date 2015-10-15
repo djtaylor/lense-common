@@ -182,15 +182,15 @@ class PortalParams(object):
                 'port': self.input.response.get('db_port'),
                 'user': self.input.response.get('db_user'),
                 'password': self.input.response.get('db_user_password'),
-                'name': self.input.response_get('db_name')
+                'name': self.input.response.get('db_name')
             },
             'portal': {
                 'host': self.input.response.get('portal_host'),
-                'port': self.input.response.get('portal_port')
+                'port': self.input.response.get('portal_port'),
+                'secret': django_secret
             },
             'socket': {
                 'host': self.input.response.get('socket_host'),
-                'port': self.input.response.get('socket_port'),
-                'bind_ip': self.input.response.get('socket_bind_ipaddr')
+                'port': self.input.response.get('socket_port')
             }    
         }
