@@ -801,6 +801,7 @@ class Bootstrap(_BootstrapCommon):
         self._bootstrap_project('engine')
         self._bootstrap_project('portal')
         self._bootstrap_project('client')
+        self._bootstrap_project('socket')
             
     def run(self):
         """
