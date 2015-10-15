@@ -12,7 +12,7 @@ from lense.common.utils import rstring
 from lense.common.auth.utils import AuthGroupsLDAP
 
 # Configuration / logger
-CONFIG = config.parse('SERVER')
+CONFIG = config.parse('ENGINE')
 LOG    = logger.create(__name__, CONFIG.utils.log)
                 
 class AuthBackendLDAP(LDAPBackend):

@@ -232,8 +232,8 @@ class UtilsBase(object):
         log_name  = '{}.{}'.format(__name__, child.__class__.__name__)
 
         # Running utilities on the server
-        if os.path.isfile(LENSE_CONFIG.SERVER):
-            self.conf = config.parse('SERVER')
+        if os.path.isfile(LENSE_CONFIG.ENGINE):
+            self.conf = config.parse('ENGINE')
             self.log  = logger.create(log_name, self.conf.utils.log)
             
         # Raise an exception if neither the server nor agent configuration is found

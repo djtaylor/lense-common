@@ -8,7 +8,7 @@ from django_auth_ldap.config import LDAPSearch, LDAPSearchUnion
 import lense.common.config as config
 
 # Configuration
-CONFIG = config.parse('SERVER')
+CONFIG = config.parse('ENGINE')
 
 class AuthGroupsLDAP(object):
     """

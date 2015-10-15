@@ -150,8 +150,8 @@ class JSONErrorBase(object):
     def __init__(self, error=None, status=500, exception=False):
 
         # Configuration / logger
-        self.conf = config.parse()
-        self.log  = logger.create(__name__, self.conf.server.log)
+        self.conf = config.parse('ENGINE')
+        self.log  = logger.create(__name__, self.conf.engine.log)
 
         # Store the response status code
         self.status = status
@@ -168,7 +168,7 @@ class JSONErrorBase(object):
             self.log.error(error)
         
         # If providing a stack trace for debugging and debugging is enabled
-        if exception and self.conf.server.debug:
+        if exception and self.conf.engine.debug:
             self.error_object.update({
                 'debug': self._extract_trace()
             })
