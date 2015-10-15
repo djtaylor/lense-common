@@ -150,6 +150,20 @@ class _BootstrapCommon(object):
             else:
                 self.feedback.info('Directory "{0}" already exists, skipping...'.format(_dir))
 
+    def _chown_logs(self, project):
+        """
+        Set permissions on log directory.
+        """
+        
+        # Change log file permissions
+        proc = Popen(['chown', '-R', 'www-data:www-data', '/var/log/lense'], stdout=PIPE, stderr=PIPE)
+        out, err = proc.communicate()
+        
+        # Make sure the command returned successfully
+        if not proc.returncode == 0:
+            self._die('Failed to set log permissions: {0}'.format(str(err)))
+        self.feedback.success('Set log permissions for Lense API engine'.format(project))
+
     def _get_password(self, prompt, min_length=8):
         _pass = getpass(prompt)
         
@@ -677,6 +691,9 @@ class Bootstrap(_BootstrapCommon):
         # Deploy the Apache configuration
         _handler._deploy_apache('engine')
         
+        # Set log file permissions
+        _handler._chown_logs('portal')
+        
         # Bootstrap the database
         _handler._database()
         
@@ -698,6 +715,9 @@ class Bootstrap(_BootstrapCommon):
             
         # Deploy the Apache configuration
         _handler._deploy_apache('portal')
+            
+        # Set log file permissions
+        _handler._chown_logs('portal')
             
         # Show to bootstrap complete summary
         _handler._bootstrap_complete()
