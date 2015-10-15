@@ -156,7 +156,7 @@ class PortalParams(object):
     def __init__(self):
         
         # User input
-        self.input  = _EngineInput()
+        self.input  = _PortalInput()
     
     def get_config(self):
         """
