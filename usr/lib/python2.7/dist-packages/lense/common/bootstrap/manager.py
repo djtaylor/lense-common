@@ -4,6 +4,7 @@ import json
 import shutil
 import django
 import MySQLdb
+import argparse
 from subprocess import Popen, PIPE
 from getpass import getpass
 from feedback import Feedback
@@ -16,30 +17,82 @@ from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG
 import lense.common.logger as logger
 from lense.common.config import LenseConfigEditor
 from lense.common.objects import JSONObject
-from lense.common.bootstrap.params import BootstrapParams
+from lense.common.bootstrap.engine_params import EngineParams
+from lense.common.bootstrap.portal_params import PortalParams
 
 try:
     from lense.engine.api.base import APIBare
 except:
     pass
 
-class Bootstrap(object):
+class _BootstrapArgs(object):
     """
-    Main class object for bootstrapping the Lense installation. This
-    includes setting up the database and the admin user account.
+    Class object for handling arguments passed to the bootstrap manager.
     """
     def __init__(self):
-        self.feedback = Feedback()
-    
-        # Logger
-        self.log    = logger.create('bootstrap', '{0}/bootstrap.log'.format(LOG_DIR))
-    
-        # Bootstrap parameters
-        self.params = BootstrapParams()
         
-        # Database connection
-        self._connection = None
-    
+        # Arguments parser / object
+        self.parser  = None
+        self._args   = None
+        
+        # Construct arguments
+        self._construct()
+        
+    def list(self):
+        """
+        Return a list of argument keys.
+        """
+        return self._args.keys()
+        
+    def _return_help(self):
+         return ("Lense Bootstrap Manager\n\n"
+                 "A utility designed to handle bootstrapping a Lense installation. The\n"
+                 "default action is to bootstrap all projects unless otherwise specified\n"
+                 "with arguments.")
+        
+    def _construct(self):
+        """
+        Construct the argument parser.
+        """
+        
+        # Create a new argument parsing object and populate the arguments
+        self.parser = argparse.ArgumentParser(description=self._return_help(), formatter_class=argparse.RawTextHelpFormatter)
+        self.parser.add_argument('-e', '--engine', help='Bootstrap the Lense API engine', action='store_true')
+        self.parser.add_argument('-p', '--portal', help='Bootstrap the Lense API portal', action='store_true')
+      
+        # Parse CLI arguments
+        sys.argv.pop(0)
+        self._args = vars(self.parser.parse_args(sys.argv))
+        
+    def set(self, k, v):
+        """
+        Set a new argument or change the value.
+        """
+        self._args[k] = v
+        
+    def get(self, k, default=None, use_json=False):
+        """
+        Retrieve an argument passed via the command line.
+        """
+        
+        # Get the value from argparse
+        _raw = self._args.get(k)
+        _val = (_raw if _raw else default) if not isinstance(_raw, list) else (_raw[0] if _raw[0] else default)
+        
+        # Return the value
+        return _val if not use_json else json.dumps(_val)
+
+class _BootstrapCommon(object):
+    """
+    Common class object for bootstrap handlers.
+    """
+    def __init__(self):
+        
+        # Feedback / arguments / logger
+        self.feedback = Feedback()
+        self.args     = _BootstrapArgs(mod_help=self.modules.help_prompt)
+        self.log      = logger.create('bootstrap', '{0}/bootstrap.log'.format(LOG_DIR))
+
     def _die(self, msg):
         """
         Quit the program
@@ -47,34 +100,40 @@ class Bootstrap(object):
         self.log.error(msg)
         self.feedback.error(msg)
         sys.exit(1)
-    
-    def _deploy_apache(self):
+
+    def _deploy_apache(self, project):
         """
         Deploy Apache configuration files.
         """
+        
+        # Project configurations
+        _project_config = {
+            'engine': WSGI_CONFIG.ENGINE[0],
+            'portal': WSGI_CONFIG.PORTAL[0]
+        }
     
         # Enable the site configuration
-        proc = Popen(['a2ensite', WSGI_CONFIG.ENGINE[0]], stdout=PIPE, stderr=PIPE)
+        proc = Popen(['a2ensite', _project_config[project]], stdout=PIPE, stderr=PIPE)
         out, err = proc.communicate()
         
         # Make sure the command returned successfully
         if not proc.returncode == 0:
             self._die('Failed to enable virtual host: {0}'.format(str(err)))
-        self.feedback.success('Enabled virtual host configuration for Lense engine')
-    
-    def _mkdirs(self):
+        self.feedback.success('Enabled virtual host configuration for Lense API {0}'.format(project))
+
+    def _mkdirs(self, _dirs):
         """
         Make required directories.
         """
     
         # Create the log and run directories
-        for _dir in [LOG_DIR, RUN_DIR]:
+        for _dir in _dirs:
             if not os.path.isdir(_dir):
                 os.mkdir(_dir)
                 self.feedback.info('Created directory "{0}"'.format(_dir))
             else:
                 self.feedback.info('Directory "{0}" already exists, skipping...'.format(_dir))
-    
+
     def _get_password(self, prompt, min_length=8):
         _pass = getpass(prompt)
         
@@ -91,7 +150,7 @@ class Bootstrap(object):
             self.feedback.error('Passwords do not match, try again')
             return self._get_password(prompt, min_length)
         return _pass
-    
+
     def _get_input(self, prompt, default=None):
         _input = raw_input(prompt) or default
         
@@ -100,21 +159,6 @@ class Bootstrap(object):
             self.feedback.error('Must provide a value')
             return self._get_input(prompt, default)
         return _input
-    
-    def _try_mysql_root(self):
-        """
-        Attempt to connect to the MySQL server as root user.
-        """
-        try:
-            self._connection = MySQLdb.connect(
-                host   = self.params.input.response.get('db_host'), 
-                port   = int(self.params.input.response.get('db_port')),
-                user   = 'root',
-                passwd = self.params.input.response.get('db_root_password')
-            )
-            self.feedback.success('Connected to MySQL using root user')
-        except Exception as e:
-            self._die('Unable to connect to MySQL with root user: {0}'.format(str(e)))
     
     def _bootstrap_complete(self):
         """
@@ -142,6 +186,34 @@ class Bootstrap(object):
             'running as quickly as possible. This will set up the database, make sure',
             'any required users exists, and populate the tables with seed data.'   
         ], 'ABOUT')
+
+class _BootstrapEngine(_BootstrapCommon):
+    """
+    Class object for handling bootstrap of the Lense API engine.
+    """
+    def __init__(self):
+        super(_BootstrapEngine, self).__init__()
+        
+        # Bootstrap parameters
+        self.params   = EngineParams()
+        
+        # Database connection
+        self._connection = None
+        
+    def _try_mysql_root(self):
+        """
+        Attempt to connect to the MySQL server as root user.
+        """
+        try:
+            self._connection = MySQLdb.connect(
+                host   = self.params.input.response.get('db_host'), 
+                port   = int(self.params.input.response.get('db_port')),
+                user   = 'root',
+                passwd = self.params.input.response.get('db_root_password')
+            )
+            self.feedback.success('Connected to MySQL using root user')
+        except Exception as e:
+            self._die('Unable to connect to MySQL with root user: {0}'.format(str(e)))
     
     def _keyczart_create(self, enc_attrs):
         """
@@ -406,48 +478,6 @@ class Bootstrap(object):
         self._create_acl_objects(GatewayACLObjectsCreate)
         self._create_acl_access(DBGatewayACLGroupGlobalPermissions, DBGatewayACLKeys, DBGroupDetails)
     
-    def _read_input(self):
-        """
-        Read any required user input prompts
-        """
-        
-        # Look for an answer file
-        try:
-            afile = JSONObject()
-            answers = afile.from_file('/tmp/lense_bootstrap.js')
-        except:
-            answers = {}
-        
-        # Process each configuration section
-        for section, obj in self.params.input.prompt.iteritems():
-            print obj['label']
-            print '-' * 20
-        
-            # Process each section input
-            for key, attrs in obj['attrs'].iteritems():
-                
-                # If an answer already defined
-                if key in answers:
-                    self.feedback.info('Value for {0} found in answer file'.format(key))
-                    val = answers[key]
-                    
-                else:
-                
-                    # Regular string input
-                    if attrs['type'] == 'str':
-                        val = self._get_input(attrs['prompt'], attrs['default'])
-                        
-                    # Password input
-                    if attrs['type'] == 'pass':
-                        val = self._get_password(attrs['prompt'])
-            
-                # Store in response object
-                self.params.input.set_response(key, val)
-            print ''
-        
-        # Update and set database bootstrap attributes
-        self.params.set_db()
-    
     def _database(self):
         """
         Bootstrap the database and create all required tables and entries.
@@ -496,7 +526,49 @@ class Bootstrap(object):
             
         # Set up the database seed data
         self._database_seed()
-         
+        
+    def _read_input(self):
+        """
+        Read any required user input prompts
+        """
+        
+        # Look for an answer file
+        try:
+            afile = JSONObject()
+            answers = afile.from_file('/tmp/lense_bootstrap_engine.js')
+        except:
+            answers = {}
+        
+        # Process each configuration section
+        for section, obj in self.params.input.prompt.iteritems():
+            print obj['label']
+            print '-' * 20
+        
+            # Process each section input
+            for key, attrs in obj['attrs'].iteritems():
+                
+                # If an answer already defined
+                if key in answers:
+                    self.feedback.info('Value for {0} found in answer file'.format(key))
+                    val = answers[key]
+                    
+                else:
+                
+                    # Regular string input
+                    if attrs['type'] == 'str':
+                        val = self._get_input(attrs['prompt'], attrs['default'])
+                        
+                    # Password input
+                    if attrs['type'] == 'pass':
+                        val = self._get_password(attrs['prompt'])
+            
+                # Store in response object
+                self.params.input.set_response(key, val)
+            print ''
+        
+        # Update and set database bootstrap attributes
+        self.params.set_db()
+        
     def _update_config(self):
         """
         Update the deployed default server configuration.
@@ -516,6 +588,78 @@ class Bootstrap(object):
         # Apply the configuration changes
         lce.save()
         self.feedback.success('Applied updated server configuration')
+        
+class _BootstrapPortal(_BootstrapCommon):
+    """
+    Class object for handling bootstrap of the Lense API portal.
+    """
+    def __init__(self):
+        super(_BootstrapPortal, self).__init__()
+
+        # Bootstrap parameters
+        self.params   = PortalParams()
+
+class Bootstrap(_BootstrapCommon):
+    """
+    Main class object for bootstrapping the Lense installation. This
+    includes setting up the database and the admin user account.
+    """
+    def __init__(self):
+        super(Bootstrap, self).__init__()
+    
+    def _bootstrap_engine(self):
+        """        
+        Bootstrap the Lense API engine.
+        """
+        _handler = _BootstrapEngine()
+            
+        # Get user input
+        _handler._read_input()
+        
+        # Create required directories and update the configuration
+        self._mkdirs([LOG_DIR, RUN_DIR])
+        _handler._update_config()
+            
+        # Deploy the Apache configuration
+        self._deploy_apache('engine')
+        
+        # Bootstrap the database
+        _handler._database()
+            
+    def _bootstrap_portal(self):
+        """
+        Bootstrap the Lense API portal.
+        """
+        _handler = _BootstrapPortal()
+            
+        # Get user input
+        _handler._read_input()
+        
+        # Create required directories and update the configuration
+        self._mkdirs([LOG_DIR])
+            
+        # Deploy the Apache configuration
+        self._deploy_apache('portal')
+            
+    def _bootstrap_project(self, project):
+        """
+        Bootstrap a specific project.
+        """
+        _bootstrap_methods = {
+            'engine': self._bootstrap_engine,
+            'portal': self._bootstrap_portal
+        }
+        
+        # Run the project bootstrap method
+        if project in _bootstrap_methods:
+            _bootstrap_methods[project]()
+            
+    def _bootstrap_all(self):
+        """
+        Bootstrap all projects.
+        """
+        self._bootstrap_project('engine')
+        self._bootstrap_project('portal')
             
     def run(self):
         """
@@ -525,18 +669,21 @@ class Bootstrap(object):
         # Show bootstrap information
         self._bootstrap_info()
         
-        # Read user input
-        self._read_input()
+        # Bootstrap projects
+        _boostrap = {
+            'engine': self.args.get('engine', False),
+            'portal': self.args.get('portal', False)
+        }
         
-        # Bootstrap required directories and update configurations
-        self._mkdirs()
-        self._update_config()
-        
-        # Deploy Apache configurations
-        self._deploy_apache()
-        
-        # Bootstrap the database
-        self._database()
+        # If not bootstrapping a specific project
+        if not _boostrap['engine'] and not _bootstrap['portal']:
+            self._bootstrap_all()
+            
+        # Bootstrapping specific projects
+        else:
+            for project, run_bootstrap in _bootstrap.iteritems():
+                if run_bootstrap:
+                    self._bootstrap_project(project)
         
         # Bootstrap complete
         self._bootstrap_complete()
