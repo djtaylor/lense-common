@@ -17,8 +17,7 @@ from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG
 import lense.common.logger as logger
 from lense.common.config import LenseConfigEditor
 from lense.common.objects import JSONObject
-from lense.common.bootstrap.engine_params import EngineParams
-from lense.common.bootstrap.portal_params import PortalParams
+from lense.common.bootstrap.params import EngineParams, PortalParams, ClientParams
 
 try:
     from lense.engine.api.base import APIBare
@@ -59,6 +58,7 @@ class _BootstrapArgs(object):
         self.parser = argparse.ArgumentParser(description=self._return_help(), formatter_class=argparse.RawTextHelpFormatter)
         self.parser.add_argument('-e', '--engine', help='Bootstrap the Lense API engine', action='store_true')
         self.parser.add_argument('-p', '--portal', help='Bootstrap the Lense API portal', action='store_true')
+        self.parser.add_argument('-c', '--client', help='Bootstrap the Lense API client', action='store_true')
       
         # Parse CLI arguments
         sys.argv.pop(0)
@@ -629,6 +629,26 @@ class _BootstrapPortal(_BootstrapCommon):
             'at the following URL:\n',
             'http://{0}:{1}'.format(self.params.input.response.get('portal_host'), self.params.input.response.get('portal_port'))
         ], 'COMPLETE')
+        
+class _BootstrapClient(_BootstrapCommon):
+    """
+    Class object for handling bootstrap of the Lense API client.
+    """
+    def __init__(self):
+        super(_BootstrapClient, self).__init__()
+
+        # Bootstrap parameters
+        self.params   = ClientParams()
+
+    def _bootstrap_complete(self):
+        """
+        Brief summary of the completed bootstrap process.
+        """
+        
+        # Print the summary
+        self.feedback.block([
+            'Finished bootstrapping Lense API client!'
+        ], 'COMPLETE')
 
 class Bootstrap(_BootstrapCommon):
     """
@@ -674,11 +694,28 @@ class Bootstrap(_BootstrapCommon):
         
         # Create required directories and update the configuration
         _handler._mkdirs([LOG_DIR])
+        _handler._update_config('portal')
             
         # Deploy the Apache configuration
         _handler._deploy_apache('portal')
             
         # Show to bootstrap complete summary
+        _handler._bootstrap_complete()
+            
+    def _bootstrap_client(self):
+        """
+        Bootstrap the Lense API client.
+        """
+        _handler = _BootstrapClient()
+        
+        # Get user input
+        _handler._read_input('/tmp/lense_client_bootstrap.js')
+        
+        # Create required directories and update the configuration
+        _handler._mkdirs([LOG_DIR])
+        _handler._update_config('client')
+        
+        # Show the bootstrap complete summary
         _handler._bootstrap_complete()
             
     def _bootstrap_project(self, project):
@@ -687,7 +724,8 @@ class Bootstrap(_BootstrapCommon):
         """
         _bootstrap_methods = {
             'engine': self._bootstrap_engine,
-            'portal': self._bootstrap_portal
+            'portal': self._bootstrap_portal,
+            'client': self._bootstrap_client
         }
         
         # Run the project bootstrap method
@@ -701,6 +739,7 @@ class Bootstrap(_BootstrapCommon):
         """
         self._bootstrap_project('engine')
         self._bootstrap_project('portal')
+        self._bootstrap_project('client')
             
     def run(self):
         """
@@ -713,11 +752,12 @@ class Bootstrap(_BootstrapCommon):
         # Bootstrap projects
         _bootstrap = {
             'engine': self.args.get('engine', False),
-            'portal': self.args.get('portal', False)
+            'portal': self.args.get('portal', False),
+            'client': self.args.get('client', False)
         }
         
         # If not bootstrapping a specific project
-        if not _bootstrap['engine'] and not _bootstrap['portal']:
+        if not _bootstrap['engine'] and not _bootstrap['portal'] and not _bootstrap['client']:
             self._bootstrap_all()
             
         # Bootstrapping specific projects
