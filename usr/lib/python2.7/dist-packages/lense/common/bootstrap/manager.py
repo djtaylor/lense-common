@@ -60,6 +60,7 @@ class _BootstrapArgs(object):
         self.parser.add_argument('-p', '--portal', help='Bootstrap the Lense API portal', action='store_true')
         self.parser.add_argument('-c', '--client', help='Bootstrap the Lense API client', action='store_true')
         self.parser.add_argument('-s', '--socket', help='Bootstrap the Lense API Socket.IO proxy', action='store_true')
+        self.parser.add_argument('-a', '--answers', help='Path to an optional answers file to speed up bootstrapping', action='append')
       
         # Parse CLI arguments
         sys.argv.pop(0)
@@ -191,17 +192,10 @@ class _BootstrapCommon(object):
             return self._get_input(prompt, default)
         return _input
     
-    def _read_input(self, answer_file):
+    def _read_input(self, answers={}):
         """
         Read any required user input prompts
         """
-        
-        # Look for an answer file
-        try:
-            afile = JSONObject()
-            answers = afile.from_file(answer_file)
-        except:
-            answers = {}
         
         # Process each configuration section
         for section, obj in self.params.input.prompt.iteritems():
@@ -700,6 +694,23 @@ class Bootstrap(_BootstrapCommon):
         # Arguments
         self.args = _BootstrapArgs()
     
+        # Answers object
+        self.answers = self._read_answers()
+    
+    def _read_answers(self):
+        """
+        Read in any answers available from the -a argument.
+        """
+        
+        # If passing an answers file
+        _answers = self.args.get('answers', None)
+        try:
+            if _answers:
+                afile = JSONObject()
+                return afile.from_file(_answers)
+        except:
+            return {}
+    
     def _bootstrap_engine(self):
         """        
         Bootstrap the Lense API engine.
@@ -707,7 +718,7 @@ class Bootstrap(_BootstrapCommon):
         _handler = _BootstrapEngine()
             
         # Get user input
-        _handler._read_input('/tmp/lense_engine_bootstrap.js')
+        _handler._read_input(self.answers.get('engine', {}))
         
         # Create required directories and update the configuration
         _handler._mkdirs([LOG_DIR, RUN_DIR])
@@ -732,7 +743,7 @@ class Bootstrap(_BootstrapCommon):
         _handler = _BootstrapPortal()
             
         # Get user input
-        _handler._read_input('/tmp/lense_portal_bootstrap.js')
+        _handler._read_input(self.answers.get('portal', {}))
         
         # Create required directories and update the configuration
         _handler._mkdirs([LOG_DIR])
@@ -754,7 +765,7 @@ class Bootstrap(_BootstrapCommon):
         _handler = _BootstrapClient()
         
         # Get user input
-        _handler._read_input('/tmp/lense_client_bootstrap.js')
+        _handler._read_input(self.answers.get('client', {}))
         
         # Create required directories and update the configuration
         _handler._mkdirs([LOG_DIR])
@@ -770,7 +781,7 @@ class Bootstrap(_BootstrapCommon):
         _handler = _BootstrapSocket()
         
         # Get user input
-        _handler._read_input('/tmp/lense_socket_bootstrap.js')
+        _handler._read_input(self.answers.get('socket', {}))
         
         # Update the configuration
         _handler._update_config('socket')
