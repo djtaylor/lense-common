@@ -1,0 +1,7 @@
+#!/usr/bin/python
+from lense.common.bootstrap.manager import Bootstrap
+
+# Launch the bootstrap manager
+if __name__ == '__main__':
+    bootstrap = Bootstrap()
+    bootstrap.run()
