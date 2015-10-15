@@ -90,7 +90,7 @@ class _BootstrapCommon(object):
         
         # Feedback / arguments / logger
         self.feedback = Feedback()
-        self.args     = _BootstrapArgs(mod_help=self.modules.help_prompt)
+        self.args     = _BootstrapArgs()
         self.log      = logger.create('bootstrap', '{0}/bootstrap.log'.format(LOG_DIR))
 
     def _die(self, msg):
