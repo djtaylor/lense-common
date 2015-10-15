@@ -31,10 +31,10 @@ PATH = Collection({
 
 # HTTP Headers
 HEADER = Collection({
-    'API_USER':     'CS-API-User',
-    'API_KEY':      'CS-API-Key',
-    'API_TOKEN':    'CS-API-Token',
-    'API_GROUP':    'CS-API-Group',
+    'API_USER':     'Lense-API-User',
+    'API_KEY':      'Lense-API-Key',
+    'API_TOKEN':    'Lense-API-Token',
+    'API_GROUP':    'Lense-API-Group',
     'CONTENT_TYPE': 'Content-Type',
     'ACCEPT':       'Accept' 
 }).get()
