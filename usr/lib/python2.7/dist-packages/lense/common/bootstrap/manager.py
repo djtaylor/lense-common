@@ -88,16 +88,33 @@ class _BootstrapCommon(object):
     """
     def __init__(self):
         
-        # Feedback / arguments / logger
+        # Feedback / arguments
         self.feedback = Feedback()
         self.args     = _BootstrapArgs()
+        
+        # Make sure being run as root
+        self._check_root()
+        
+        # Logger
         self.log      = logger.create('bootstrap', '{0}/bootstrap.log'.format(LOG_DIR))
 
-    def _die(self, msg):
+    def _check_root(self):
+        """
+        Bootstrap manager needs to be run as root.
+        """
+        if not os.geteuid() == 0:
+            self._die('Lense bootstrap manager must be run with root privileges', log=False)
+
+    def _die(self, msg, log=True):
         """
         Quit the program
         """
-        self.log.error(msg)
+        
+        # Log the message unless explicitly specified otherwise
+        if log:
+            self.log.error(msg)
+            
+        # Show the error and quit
         self.feedback.error(msg)
         sys.exit(1)
 
