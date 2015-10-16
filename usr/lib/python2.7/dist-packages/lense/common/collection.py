@@ -100,7 +100,7 @@ class Collection(object):
                 elif a[key] == b[key]:
                     pass
                 else:
-                    raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
+                    raise Exception('Conflict at {0}'.format('.'.join(path + [str(key)])))
             else:
                 a[key] = b[key]
         return a
@@ -160,7 +160,7 @@ class Collection(object):
             return True
         
         # Test for a new style class
-        if ((hasattr(obj, '__class__')) and (re.match(r'^<class \'lense\..*\.%s\'>$' % cls, repr(obj.__class__)))):
+        if ((hasattr(obj, '__class__')) and (re.match(r'^<class \'lense\..*\.{0}\'>$'.format(cls), repr(obj.__class__)))):
             return True
         return False
        
