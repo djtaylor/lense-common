@@ -40,6 +40,6 @@ G_DEFAULT      = G_USER
 
 # API Templates
 TEMPLATES      = Collection({
-    'ENGINE': '/usr/share/lense/templates/engine',
-    'PORTAL': '/usr/share/lense/templates/portal'                     
+    'ENGINE': '/usr/share/lense/engine/templates',
+    'PORTAL': '/usr/share/lense/portal/templates'                     
 }).get()
