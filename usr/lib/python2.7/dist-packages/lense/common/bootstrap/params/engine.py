@@ -163,6 +163,48 @@ class _EngineACL(object):
                 "util_classes": [
                     "GatewayUtilitiesGet"
                 ]
+            },
+            {
+                "name": "acl.view",
+                "desc": "ACL for allowing read-only access to ACL definitions.",
+                "type_object": False,
+                "type_global": True,
+                "util_classes": [
+                     "GatewayACLGet"            
+                ]
+            },
+            {
+                "name": "acl.admin",
+                "desc": "ACL for allowing administration of ACL definitions.",
+                "type_object": False,
+                "type_global": True,
+                "util_classes": [
+                     "GatewayACLGet",
+                     "GatewayACLCreate",
+                     "GatewayACLDelete",
+                     "GatewayACLUpdate"       
+                ]
+            },
+            {
+                "name": "acl_object.view",
+                "desc": "ACL for allowing read-only access to ACL object definitions.",
+                "type_object": False,
+                "type_global": True,
+                "util_classes": [
+                    "GatewayACLObjectsGet"
+                ]
+            },
+            {
+                "name": "acl_object.admin",
+                "desc": "ACL for allowing administration of ACL object definitions.",
+                "type_object": False,
+                "type_global": True,
+                "util_classes": [
+                    "GatewayACLObjectsGet",
+                    "GatewayACLObjectsCreate",
+                    "GatewayACLObjectsDelete",
+                    "GatewayACLObjectsUpdate"
+                ]
             }
         ]
 
