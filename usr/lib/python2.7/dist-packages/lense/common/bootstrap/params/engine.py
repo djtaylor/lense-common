@@ -472,8 +472,8 @@ class EngineParams(object):
                 "mod": mod_gateway,
                 "protected": True,
                 "enabled": True,
-                "object": "",
-                "object_key": "",
+                "object": None,
+                "object_key": None,
                 "rmap": {
                     "_required": [],
                     "_optional": []
