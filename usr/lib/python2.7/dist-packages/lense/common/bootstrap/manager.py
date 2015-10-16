@@ -680,7 +680,10 @@ class _BootstrapSocket(_BootstrapCommon):
             'You may enable and start the Socket.IO proxy server with the',
             'following commands:\n',
             'sudo update-rc.d lense-socket defaults',
-            'sudo service lense-socket start'
+            'sudo service lense-socket start\n',
+            'The Socket.IO proxy also looks for a few non-standard modules',
+            'which should be installed with the following command:\n',
+            'sudo npm install --prefix /usr/share/lense/socket socket.io ini winston'
         ], 'COMPLETE')
 
 class Bootstrap(_BootstrapCommon):
