@@ -807,11 +807,14 @@ class EngineParams(object):
                 "object_key": "uuid",
                 "rmap": {
                     "_required": ["utility"],
-                    "_optional": ["path", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
+                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
                     "_type": "dict",
                     "_children": {
                         "utility": {
                             "_type": "uuid"
+                        },
+                        "name": {
+                            "_type": "str"
                         },
                         "path": {
                             "_type": "str"
@@ -863,11 +866,14 @@ class EngineParams(object):
                 "object_key": "uuid",
                 "rmap": {
                     "_required": ["utility"],
-                    "_optional": ["path", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
+                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
                     "_type": "dict",
                     "_children": {
                         "utility": {
                             "_type": "uuid"
+                        },
+                        "name": {
+                            "_type": "str"
                         },
                         "path": {
                             "_type": "str"
@@ -918,11 +924,14 @@ class EngineParams(object):
                 "object": "utility",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["path", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
+                    "_required": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
                     "_optional": [],
                     "_type": "dict",
                     "_children": {
                         "path": {
+                            "_type": "str"
+                        },
+                        "name": {
                             "_type": "str"
                         },
                         "desc": {
