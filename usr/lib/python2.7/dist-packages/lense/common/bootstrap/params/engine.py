@@ -466,6 +466,7 @@ class EngineParams(object):
         return [
             {
                 "cls": "GatewayTokenGet",
+                "name": "Token_Get",
                 "path": "gateway/token",
                 "method": HTTP_GET,
                 "desc": "Make a token request to the API gateway",
@@ -481,6 +482,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayACLGet",
+                "name": "ACL_Get",
                 "path": "gateway/acl",
                 "method": HTTP_GET,
                 "desc": "Retrieve an ACL definition",
@@ -502,6 +504,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayACLCreate",
+                "name": "ACL_Create",
                 "path": "gateway/acl",
                 "method": HTTP_POST,
                 "desc": "Create a new ACL definition",
@@ -532,6 +535,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayACLDelete",
+                "name": "ACL_Delete",
                 "path": "gateway/acl",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing ACL definition",
@@ -553,6 +557,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayACLUpdate",
+                "name": "ACL_Update",
                 "path": "gateway/acl",
                 "method": HTTP_PUT,
                 "desc": "Update an existing ACL definition",
@@ -586,6 +591,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayACLObjectsGet",
+                "name": "ACLObjects_Get",
                 "path": "gateway/acl/objects",
                 "method": HTTP_GET,
                 "desc": "Get a listing of ACL objects",
@@ -607,6 +613,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayACLObjectsUpdate",
+                "name": "ACLObjects_Update",
                 "path": "gateway/acl/objects",
                 "method": HTTP_PUT,
                 "desc": "Update an ACL object definition",
@@ -655,6 +662,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayACLObjectsCreate",
+                "name": "ACLObjects_Create",
                 "path": "gateway/acl/objects",
                 "method": HTTP_POST,
                 "desc": "Create a new ACL object definition",
@@ -700,6 +708,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayACLObjectsDelete",
+                "name": "ACLObjects_Delete",
                 "path": "gateway/acl/objects",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing ACL object definition",
@@ -721,6 +730,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayUtilitiesGet",
+                "name": "Utilities_Get",
                 "path": "gateway/utilities",
                 "method": HTTP_GET,
                 "desc": "Get a listing of API utilities",
@@ -742,6 +752,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayUtilitiesOpen",
+                "name": "Utilities_Open",
                 "path": "gateway/utilities/open",
                 "method": HTTP_PUT,
                 "desc": "Open an API utility for editing",
@@ -763,6 +774,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayUtilitiesClose",
+                "name": "Utilities_Close",
                 "path": "gateway/utilities/close",
                 "method": HTTP_PUT,
                 "desc": "Close the editing lock on an API utility",
@@ -784,6 +796,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayUtilitiesValidate",
+                "name": "Utilities_Validate",
                 "path": "gateway/utilities/validate",
                 "method": HTTP_PUT,
                 "desc": "Validate changes to an API utility",
@@ -839,6 +852,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayUtilitiesSave",
+                "name": "Utilities_Save",
                 "path": "gateway/utilities",
                 "method": HTTP_PUT,
                 "desc": "Save changes to an API utility",
@@ -894,6 +908,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayUtilitiesCreate",
+                "name": "Utilities_Create",
                 "path": "gateway/utilities",
                 "method": HTTP_POST,
                 "desc": "Create a new API utility",
@@ -946,6 +961,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GatewayUtilitiesDelete",
+                "name": "Utilities_Delete",
                 "path": "gateway/utilities",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API utility",
@@ -967,6 +983,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GroupMemberRemove",
+                "name": "Group_RemoveMember",
                 "path": "group/member",
                 "method": HTTP_DELETE,
                 "desc": "Remove a user from an API group",
@@ -979,6 +996,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GroupMemberAdd",
+                "name": "Group_AddMember",
                 "path": "group/member",
                 "method": HTTP_POST,
                 "desc": "Add a user to an API group",
@@ -991,6 +1009,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GroupUpdate",
+                "name": "Group_Update",
                 "path": "group",
                 "method": HTTP_PUT,
                 "desc": "Update an existing API group",
@@ -1021,6 +1040,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GroupCreate",
+                "name": "Group_Create",
                 "path": "group",
                 "method": HTTP_POST,
                 "desc": "Create a new API group",
@@ -1051,6 +1071,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GroupDelete",
+                "name": "Group_Delete",
                 "path": "group",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API group",
@@ -1072,6 +1093,7 @@ class EngineParams(object):
             },
             {
                 "cls": "GroupGet",
+                "name": "Group_Get",
                 "path": "group",
                 "method": HTTP_GET,
                 "desc": "Get details for an API group",
@@ -1093,6 +1115,7 @@ class EngineParams(object):
             },
             {
                 "cls": "UserEnable",
+                "name": "User_Enable",
                 "path": "user/enable",
                 "method": HTTP_PUT,
                 "desc": "Enable a user account",
@@ -1114,6 +1137,7 @@ class EngineParams(object):
             },
             {
                 "cls": "UserDisable",
+                "name": "User_Disable",
                 "path": "user/disable",
                 "method": HTTP_PUT,
                 "desc": "Disable a user account",
@@ -1135,6 +1159,7 @@ class EngineParams(object):
             },
             {
                 "cls": "UserResetPassword",
+                "name": "User_ResetPassword",
                 "path": "user/pwreset",
                 "method": HTTP_PUT,
                 "desc": "Reset a user's password",
@@ -1156,6 +1181,7 @@ class EngineParams(object):
             },
             {
                 "cls": "UserDelete",
+                "name": "User_Delete",
                 "path": "user",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API user",
@@ -1177,6 +1203,7 @@ class EngineParams(object):
             },
             {
                 "cls": "UserCreate",
+                "name": "User_Create",
                 "path": "user",
                 "method": HTTP_POST,
                 "desc": "Create a new API user",
@@ -1209,6 +1236,7 @@ class EngineParams(object):
             },
             {
                 "cls": "UserGet",
+                "name": "User_Get",
                 "path": "user",
                 "method": HTTP_GET,
                 "desc": "Get API user details",
