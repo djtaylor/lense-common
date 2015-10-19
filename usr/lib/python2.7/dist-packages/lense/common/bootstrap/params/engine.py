@@ -489,8 +489,8 @@ class EngineParams(object):
                 "mod": mod_gateway,
                 "protected": True,
                 "enabled": True,
-                "object": "acl",
-                "object_key": "uuid",
+                "object": None,
+                "object_key": None,
                 "rmap": {
                     "_required": [],
                     "_optional": ["acl"],

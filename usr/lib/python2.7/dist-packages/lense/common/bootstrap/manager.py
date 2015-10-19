@@ -397,6 +397,7 @@ class _BootstrapEngine(_BootstrapCommon):
             util = obj(APIBare(
                 data = {
                     'path': _util['path'],
+                    'name': _util['name'],
                     'desc': _util['desc'],
                     'method': _util['method'],
                     'mod': _util['mod'],
@@ -416,7 +417,7 @@ class _BootstrapEngine(_BootstrapCommon):
             
             # Store the utility UUID
             _util['uuid'] = util['data']['uuid']
-            self.feedback.success('Created database entry for utility "{0}": Path={1}, Method={2}'.format(_util['cls'], _util['path'], _util['method']))
+            self.feedback.success('Created database entry for utility "{0}": Path={1}, Method={2}'.format(_util['name'], _util['path'], _util['method']))
     
     def _create_acl_keys(self, obj):
         """
