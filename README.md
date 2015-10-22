@@ -8,5 +8,5 @@ If you are running all lense services on one host, you must install the followin
 
 ```sh
 $ sudo apt-get install python-pip
-$ sudo pip install Django==1.8.5 django_auth_ldap3 django_encrypted_fields feedback lsbinit socketIO-client
+$ sudo pip install Django==1.8.5 django_auth_ldap django_encrypted_fields feedback lsbinit socketIO-client
 ```
