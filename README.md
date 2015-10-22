@@ -2,11 +2,11 @@
 
 Common libraries shared by the Lense API engine, client, and portal applications.
 
-### Django Requirements
+### Lense All-in-One
 
-The 'lense-common' package depends on following packages which must be installed with 'python-pip':
+If you are running all lense services on one host, you must install the following packages with pip:
 
 ```sh
 $ sudo apt-get install python-pip
-$ sudo pip install Django==1.8.5 django_auth_ldap3 feedback 
+$ sudo pip install Django==1.8.5 django_auth_ldap3 django_encrypted_fields feedback lsbinit socketIO-client
 ```
