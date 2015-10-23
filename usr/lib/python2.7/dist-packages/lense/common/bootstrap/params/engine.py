@@ -458,12 +458,36 @@ class EngineParams(object):
         """
         
         # Set the utility modules
-        mod_gateway = 'lense.engine.api.app.gateway.utils'
-        mod_group   = 'lense.engine.api.app.group.utils'
-        mod_user    = 'lense.engine.api.app.user.utils'
+        mod_gateway  = 'lense.engine.api.app.gateway.utils'
+        mod_group    = 'lense.engine.api.app.group.utils'
+        mod_user     = 'lense.engine.api.app.user.utils'
+        mod_callback = 'lense.engine.api.app.callback.utils'
         
         # Return the database parameters
         return [
+            {
+                "cls": "CallbackHandle",
+                "name": "Callback_Handle",
+                "path": "callback",
+                "method": HTTP_GET,
+                "desc": "Handle callbacks from 3rd party APIs",
+                "mod": mod_callback,
+                "protected": True,
+                "enabled": True,
+                "object": None,
+                "object_key": None,
+                "allow_anon": True,
+                "rmap": {
+                    "_required": ["provider"],
+                    "_optional": ["*"],
+                    "_type": "dict",
+                    "_children": {
+                        "provider": {
+                            "_type": "str"
+                        }
+                    }
+                }
+            },
             {
                 "cls": "GatewayTokenGet",
                 "name": "Token_Get",
@@ -475,6 +499,7 @@ class EngineParams(object):
                 "enabled": True,
                 "object": None,
                 "object_key": None,
+                "allow_anon": True,
                 "rmap": {
                     "_required": [],
                     "_optional": []
