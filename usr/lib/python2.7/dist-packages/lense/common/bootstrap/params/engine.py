@@ -832,7 +832,7 @@ class EngineParams(object):
                 "object_key": "uuid",
                 "rmap": {
                     "_required": ["utility"],
-                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
+                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
                     "_type": "dict",
                     "_children": {
                         "utility": {
@@ -875,6 +875,9 @@ class EngineParams(object):
                         "enabled": {
                             "_type": "bool"
                         },
+                        "allow_anon": {
+                            "_type": "bool"
+                        }
                     }
                 }
             },
@@ -891,7 +894,7 @@ class EngineParams(object):
                 "object_key": "uuid",
                 "rmap": {
                     "_required": ["utility"],
-                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
+                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
                     "_type": "dict",
                     "_children": {
                         "utility": {
@@ -934,6 +937,9 @@ class EngineParams(object):
                         "enabled": {
                             "_type": "bool"
                         },
+                        "allow_anon": {
+                            "_type": "bool"
+                        }
                     }
                 }
             },
@@ -949,7 +955,7 @@ class EngineParams(object):
                 "object": "utility",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled"],
+                    "_required": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
                     "_optional": [],
                     "_type": "dict",
                     "_children": {
@@ -990,6 +996,9 @@ class EngineParams(object):
                         "enabled": {
                             "_type": "bool"
                         },
+                        "allow_anon": {
+                            "_type": "bool"
+                        }
                     }
                 }
             },

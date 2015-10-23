@@ -406,6 +406,7 @@ class _BootstrapEngine(_BootstrapCommon):
                     'enabled': _util['enabled'],
                     'object': _util['object'],
                     'object_key': _util['object_key'],
+                    'allow_anon': _util.get('allow_anon', False),
                     'rmap': json.dumps(_util['rmap'])
                 },
                 path = 'utilities'
