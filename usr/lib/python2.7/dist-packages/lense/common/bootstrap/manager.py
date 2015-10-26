@@ -579,6 +579,9 @@ class _BootstrapEngine(_BootstrapCommon):
         # Close the connection
         _cursor.close()
         
+        # Set up database encryption
+        self._database_encryption()
+        
         # Run Django syncdb
         try:
             app  = '/usr/lib/python2.7/dist-packages/lense/engine/api/manage.py'
@@ -593,9 +596,6 @@ class _BootstrapEngine(_BootstrapCommon):
             self.feedback.success('Synced Django application database')
         except Exception as e:
             self._die('Failed to sync Django application database: {0}'.format(str(e)))
-            
-        # Set up database encryption
-        self._database_encryption()
             
         # Set up the database seed data
         self._database_seed()
