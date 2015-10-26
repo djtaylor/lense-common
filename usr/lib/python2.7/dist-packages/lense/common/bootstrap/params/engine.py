@@ -77,6 +77,17 @@ class _EngineACL(object):
                 "obj_cls": "DBUser",
                 "obj_key": "uuid",
                 "def_acl": self._get_acl_key('user.view')
+            },
+            {
+                "type": "connector",
+                "name": "API Connector",
+                "acl_mod": "lense.engine.api.app.gateway.models",
+                "acl_cls": "DBGatewayACLGroupObjectConnectorPermissions",
+                "acl_key": "connector",
+                "obj_mod": "lense.engine.api.app.connector.models",
+                "obj_cls": "DBConnectors",
+                "obj_key": "uuid",
+                "def_acl": self._get_acl_key('connector.view')
             }
         ]
     
@@ -92,6 +103,27 @@ class _EngineACL(object):
                 "type_global": True,
                 "util_classes": [
                     "GatewayTokenGet"
+                ]
+            },
+            {
+                "name": "connector.view",
+                "desc": "ACL for allowing read-only access to API connectors.",
+                "type_object": True,
+                "type_global": False,
+                "util_classes": [
+                    "ConnectorsGet"
+                ]
+            },
+            {
+                "name": "connector.admin",
+                "desc": "ACL for allowing administration of API connectors.",
+                "type_object": False,
+                "type_global": True,
+                "util_classes": [
+                    "ConnectorsGet",
+                    "ConnectorsCreate",
+                    "ConnectorsUpdate",
+                    "ConnectorsDelete"
                 ]
             },
             {
@@ -458,10 +490,11 @@ class EngineParams(object):
         """
         
         # Set the utility modules
-        mod_gateway  = 'lense.engine.api.app.gateway.utils'
-        mod_group    = 'lense.engine.api.app.group.utils'
-        mod_user     = 'lense.engine.api.app.user.utils'
-        mod_callback = 'lense.engine.api.app.callback.utils'
+        mod_gateway   = 'lense.engine.api.app.gateway.utils'
+        mod_group     = 'lense.engine.api.app.group.utils'
+        mod_user      = 'lense.engine.api.app.user.utils'
+        mod_callback  = 'lense.engine.api.app.callback.utils'
+        mod_connector = 'lense.engine.api.app.connector.utils'
         
         # Return the database parameters
         return [
@@ -1296,6 +1329,122 @@ class EngineParams(object):
                         "user": {
                             "_type": "uuid"
                         }
+                    }
+                }
+            },
+            {
+                "cls": "ConnectorsGet",
+                "name": "Connectors_Get",
+                "path": "connector",
+                "method": HTTP_GET,
+                "desc": "Get API connector details",
+                "mod": mod_connector,
+                "protected": True,
+                "enabled": True,
+                "object": "connector",
+                "object_key": "uuid",
+                "rmap": {
+                    "_required": [],
+                    "_optional": ["uuid"],
+                    "_children": {
+                        "uuid": {
+                            "_type": "uuid"
+                        }
+                    }
+                }
+            },
+            {
+                "cls": "ConnectorsDelete",
+                "name": "Connectors_Delete",
+                "path": "connector",
+                "method": HTTP_DELETE,
+                "desc": "Delete an existing API connector",
+                "mod": mod_connector,
+                "protected": True,
+                "enabled": True,
+                "object": "connector",
+                "object_key": "uuid",
+                "rmap": {
+                    "_required": ["uuid"],
+                    "_optional": [],
+                    "_children": {
+                        "uuid": {
+                            "_type": "uuid"
+                        }
+                    }
+                }
+            },
+            {
+                "cls": "ConnectorsUpdate",
+                "name": "Connectors_Update",
+                "path": "connector",
+                "method": HTTP_PUT,
+                "desc": "Update an existing API connector",
+                "mod": mod_connector,
+                "protected": True,
+                "enabled": True,
+                "object": "connector",
+                "object_key": "uuid",
+                "rmap": {
+                    "_required": ["uuid"],
+                    "_optional": ["name", "is_oauth2", "key_file", "token_url", "auth_url"],
+                    "_children": {
+                        "uuid": {
+                            "_type": "uuid"
+                        },
+                        "name": {
+                            "_type": "str"
+                        },
+                        "is_oauth2": {
+                            "_type": "bool"
+                        },
+                        "key_file": {
+                            "_type": "str"
+                        },
+                        "token_url": {
+                            "_type": "str"
+                        },
+                        "auth_url": {
+                            "_type": ""
+                        }
+                                  
+                    }
+                }
+            },
+            {
+                "cls": "ConnectorsCreate",
+                "name": "Connectors_Create",
+                "path": "connector",
+                "method": HTTP_POST,
+                "desc": "Create a new API connector",
+                "mod": mod_connector,
+                "protected": True,
+                "enabled": True,
+                "object": "connector",
+                "object_key": "uuid",
+                "rmap": {
+                    "_required": ["name", "is_oauth2"],
+                    "_optional": ["key_file", "token_url", "auth_url"],
+                    "_children": {
+                        "uuid": {
+                            "_type": "uuid"
+                        },
+                        "name": {
+                            "_type": "str"
+                        },
+                        "is_oauth2": {
+                            "_type": "bool"
+                        },
+                        "key_file": {
+                            "_type": "str"
+                        },
+                        "token_url": {
+                            "_type": "str"
+                        },
+                        "auth_url": {
+                            "_type": ""
+                        }
+                                  
                     }
                 }
             }
