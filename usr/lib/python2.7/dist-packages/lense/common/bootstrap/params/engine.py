@@ -88,6 +88,17 @@ class _EngineACL(object):
                 "obj_cls": "DBConnectors",
                 "obj_key": "uuid",
                 "def_acl": self._get_acl_key('connector.view')
+            },
+            {
+                "type": "integrator",
+                "name": "API Integrator",
+                "acl_mod": "lense.engine.api.app.gateway.models",
+                "acl_cls": "DBGatewayACLGroupObjectIntegratorPermissions",
+                "acl_key": "integrator",
+                "obj_mod": "lense.engine.api.app.integrator.models",
+                "obj_cls": "DBIntegrators",
+                "obj_key": "uuid",
+                "def_acl": self._get_acl_key('integrator.view')
             }
         ]
     
@@ -124,6 +135,27 @@ class _EngineACL(object):
                     "ConnectorsCreate",
                     "ConnectorsUpdate",
                     "ConnectorsDelete"
+                ]
+            },
+            {
+                "name": "integrator.view",
+                "desc": "ACL for allowing read-only access to API integrators.",
+                "type_object": True,
+                "type_global": False,
+                "util_classes": [
+                    "IntegratorsGet"
+                ]
+            },
+            {
+                "name": "integrator.admin",
+                "desc": "ACL for allowing administration of API integrators.",
+                "type_object": False,
+                "type_global": True,
+                "util_classes": [
+                    "IntegratorsGet",
+                    "IntegratorsCreate",
+                    "IntegratorsUpdate",
+                    "IntegratorsDelete"
                 ]
             },
             {
@@ -490,11 +522,15 @@ class EngineParams(object):
         """
         
         # Set the utility modules
-        mod_gateway   = 'lense.engine.api.app.gateway.utils'
-        mod_group     = 'lense.engine.api.app.group.utils'
-        mod_user      = 'lense.engine.api.app.user.utils'
-        mod_callback  = 'lense.engine.api.app.callback.utils'
-        mod_connector = 'lense.engine.api.app.connector.utils'
+        umod = {
+            'gateway': 'lense.engine.api.app.gateway.utils',
+            'group': 'lense.engine.api.app.group.utils',
+            'user': 'lense.engine.api.app.user.utils',
+            'callback': 'lense.engine.api.app.callback.utils',
+            'connector': 'lense.engine.api.app.connector.utils',
+            'integrator': 'lense.engine.api.app.integrator.utils'
+        }
+        
         
         # Return the database parameters
         return [
@@ -504,7 +540,7 @@ class EngineParams(object):
                 "path": "callback",
                 "method": HTTP_GET,
                 "desc": "Handle callbacks from 3rd party APIs",
-                "mod": mod_callback,
+                "mod": umod['callback'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -527,7 +563,7 @@ class EngineParams(object):
                 "path": "gateway/token",
                 "method": HTTP_GET,
                 "desc": "Make a token request to the API gateway",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -544,7 +580,7 @@ class EngineParams(object):
                 "path": "gateway/acl",
                 "method": HTTP_GET,
                 "desc": "Retrieve an ACL definition",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -566,7 +602,7 @@ class EngineParams(object):
                 "path": "gateway/acl",
                 "method": HTTP_POST,
                 "desc": "Create a new ACL definition",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -597,7 +633,7 @@ class EngineParams(object):
                 "path": "gateway/acl",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing ACL definition",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -619,7 +655,7 @@ class EngineParams(object):
                 "path": "gateway/acl",
                 "method": HTTP_PUT,
                 "desc": "Update an existing ACL definition",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -653,7 +689,7 @@ class EngineParams(object):
                 "path": "gateway/acl/objects",
                 "method": HTTP_GET,
                 "desc": "Get a listing of ACL objects",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -675,7 +711,7 @@ class EngineParams(object):
                 "path": "gateway/acl/objects",
                 "method": HTTP_PUT,
                 "desc": "Update an ACL object definition",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -724,7 +760,7 @@ class EngineParams(object):
                 "path": "gateway/acl/objects",
                 "method": HTTP_POST,
                 "desc": "Create a new ACL object definition",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -770,7 +806,7 @@ class EngineParams(object):
                 "path": "gateway/acl/objects",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing ACL object definition",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": None,
@@ -792,7 +828,7 @@ class EngineParams(object):
                 "path": "gateway/utilities",
                 "method": HTTP_GET,
                 "desc": "Get a listing of API utilities",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": "utility",
@@ -814,7 +850,7 @@ class EngineParams(object):
                 "path": "gateway/utilities/open",
                 "method": HTTP_PUT,
                 "desc": "Open an API utility for editing",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": "utility",
@@ -836,7 +872,7 @@ class EngineParams(object):
                 "path": "gateway/utilities/close",
                 "method": HTTP_PUT,
                 "desc": "Close the editing lock on an API utility",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": "utility",
@@ -858,7 +894,7 @@ class EngineParams(object):
                 "path": "gateway/utilities/validate",
                 "method": HTTP_PUT,
                 "desc": "Validate changes to an API utility",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": "utility",
@@ -920,7 +956,7 @@ class EngineParams(object):
                 "path": "gateway/utilities",
                 "method": HTTP_PUT,
                 "desc": "Save changes to an API utility",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": "utility",
@@ -982,7 +1018,7 @@ class EngineParams(object):
                 "path": "gateway/utilities",
                 "method": HTTP_POST,
                 "desc": "Create a new API utility",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": "utility",
@@ -1041,7 +1077,7 @@ class EngineParams(object):
                 "path": "gateway/utilities",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API utility",
-                "mod": mod_gateway,
+                "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
                 "object": "utility",
@@ -1063,7 +1099,7 @@ class EngineParams(object):
                 "path": "group/member",
                 "method": HTTP_DELETE,
                 "desc": "Remove a user from an API group",
-                "mod": mod_group,
+                "mod": umod['group'],
                 "protected": True,
                 "enabled": True,
                 "object": "group",
@@ -1076,7 +1112,7 @@ class EngineParams(object):
                 "path": "group/member",
                 "method": HTTP_POST,
                 "desc": "Add a user to an API group",
-                "mod": mod_group,
+                "mod": umod['group'],
                 "protected": True,
                 "enabled": True,
                 "object": "group",
@@ -1089,7 +1125,7 @@ class EngineParams(object):
                 "path": "group",
                 "method": HTTP_PUT,
                 "desc": "Update an existing API group",
-                "mod": mod_group,
+                "mod": umod['group'],
                 "protected": True,
                 "enabled": True,
                 "object": "group",
@@ -1120,7 +1156,7 @@ class EngineParams(object):
                 "path": "group",
                 "method": HTTP_POST,
                 "desc": "Create a new API group",
-                "mod": mod_group,
+                "mod": umod['group'],
                 "protected": True,
                 "enabled": True,
                 "object": "group",
@@ -1151,7 +1187,7 @@ class EngineParams(object):
                 "path": "group",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API group",
-                "mod": mod_group,
+                "mod": umod['group'],
                 "protected": True,
                 "enabled": True,
                 "object": "group",
@@ -1173,7 +1209,7 @@ class EngineParams(object):
                 "path": "group",
                 "method": HTTP_GET,
                 "desc": "Get details for an API group",
-                "mod": mod_group,
+                "mod": umod['group'],
                 "protected": True,
                 "enabled": True,
                 "object": "group",
@@ -1195,7 +1231,7 @@ class EngineParams(object):
                 "path": "user/enable",
                 "method": HTTP_PUT,
                 "desc": "Enable a user account",
-                "mod": mod_user,
+                "mod": umod['user'],
                 "protected": True,
                 "enabled": True,
                 "object": "user",
@@ -1217,7 +1253,7 @@ class EngineParams(object):
                 "path": "user/disable",
                 "method": HTTP_PUT,
                 "desc": "Disable a user account",
-                "mod": mod_user,
+                "mod": umod['user'],
                 "protected": True,
                 "enabled": True,
                 "object": "user",
@@ -1239,7 +1275,7 @@ class EngineParams(object):
                 "path": "user/pwreset",
                 "method": HTTP_PUT,
                 "desc": "Reset a user's password",
-                "mod": mod_user,
+                "mod": umod['user'],
                 "protected": True,
                 "enabled": True,
                 "object": "user",
@@ -1261,7 +1297,7 @@ class EngineParams(object):
                 "path": "user",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API user",
-                "mod": mod_user,
+                "mod": umod['user'],
                 "protected": True,
                 "enabled": True,
                 "object": "user",
@@ -1283,7 +1319,7 @@ class EngineParams(object):
                 "path": "user",
                 "method": HTTP_POST,
                 "desc": "Create a new API user",
-                "mod": mod_user,
+                "mod": umod['user'],
                 "protected": True,
                 "enabled": True,
                 "object": "user",
@@ -1316,7 +1352,7 @@ class EngineParams(object):
                 "path": "user",
                 "method": HTTP_GET,
                 "desc": "Get API user details",
-                "mod": mod_user,
+                "mod": umod['user'],
                 "protected": True,
                 "enabled": True,
                 "object": "user",
@@ -1338,7 +1374,7 @@ class EngineParams(object):
                 "path": "connector",
                 "method": HTTP_GET,
                 "desc": "Get API connector details",
-                "mod": mod_connector,
+                "mod": umod['connector'],
                 "protected": True,
                 "enabled": True,
                 "object": "connector",
@@ -1359,7 +1395,7 @@ class EngineParams(object):
                 "path": "connector",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API connector",
-                "mod": mod_connector,
+                "mod": umod['connector'],
                 "protected": True,
                 "enabled": True,
                 "object": "connector",
@@ -1380,7 +1416,7 @@ class EngineParams(object):
                 "path": "connector",
                 "method": HTTP_PUT,
                 "desc": "Update an existing API connector",
-                "mod": mod_connector,
+                "mod": umod['connector'],
                 "protected": True,
                 "enabled": True,
                 "object": "connector",
@@ -1417,7 +1453,7 @@ class EngineParams(object):
                 "path": "connector",
                 "method": HTTP_POST,
                 "desc": "Create a new API connector",
-                "mod": mod_connector,
+                "mod": umod['connector'],
                 "protected": True,
                 "enabled": True,
                 "object": "connector",
@@ -1445,6 +1481,111 @@ class EngineParams(object):
                             "_type": ""
                         }
                                   
+                    }
+                }
+            },
+            {
+                "cls": "IntegratorsGet",
+                "name": "Integrators_Get",
+                "path": "integrator",
+                "method": HTTP_GET,
+                "desc": "Get API integrator details",
+                "mod": umod['integrator'],
+                "protected": True,
+                "enabled": True,
+                "object": "integrator",
+                "object_key": "uuid",
+                "rmap": {
+                    "_required": [],
+                    "_optional": ["uuid"],
+                    "_children": {
+                        "uuid": {
+                            "_type": "uuid"
+                        }
+                    }
+                }
+            },
+            {
+                "cls": "IntegratorsDelete",
+                "name": "Integrators_Delete",
+                "path": "integrator",
+                "method": HTTP_DELETE,
+                "desc": "Delete an existing API integrator",
+                "mod": umod['integrator'],
+                "protected": True,
+                "enabled": True,
+                "object": "integrator",
+                "object_key": "uuid",
+                "rmap": {
+                    "_required": ["uuid"],
+                    "_optional": [],
+                    "_children": {
+                        "uuid": {
+                            "_type": "uuid"
+                        }
+                    }
+                }
+            },
+            {
+                "cls": "IntegratorsUpdate",
+                "name": "Integrators_Update",
+                "path": "integrator",
+                "method": HTTP_PUT,
+                "desc": "Update an existing API integrator",
+                "mod": umod['integrator'],
+                "protected": True,
+                "enabled": True,
+                "object": "integrator",
+                "object_key": "uuid",
+                "rmap": {
+                    "_required": ["uuid"],
+                    "_optional": ["name", "path", "method", "imap"],
+                    "_children": {
+                        "uuid": {
+                            "_type": "uuid"
+                        },
+                        "name": {
+                            "_type": "str"
+                        },
+                        "path": {
+                            "_type": "str"
+                        },
+                        "method": {
+                            "_type": "str"
+                        },
+                        "imap": {
+                            "_type": "str"
+                        }        
+                    }
+                }
+            },
+            {
+                "cls": "IntegratorsCreate",
+                "name": "Integrators_Create",
+                "path": "integrator",
+                "method": HTTP_POST,
+                "desc": "Create a new API integrator",
+                "mod": umod['integrator'],
+                "protected": True,
+                "enabled": True,
+                "object": "integrator",
+                "object_key": "uuid",
+                "rmap": {
+                    "_required": ["name", "path", "method", "imap"],
+                    "_optional": [],
+                    "_children": {
+                        "name": {
+                            "_type": "str"
+                        },
+                        "path": {
+                            "_type": "str"
+                        },
+                        "method": {
+                            "_type": "str"
+                        },
+                        "imap": {
+                            "_type": "str"
+                        }         
                     }
                 }
             }
