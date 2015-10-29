@@ -17,6 +17,12 @@ from lense.common import config
 from lense.common import logger
 from lense.common.vars import LENSE_CONFIG
 
+def set_response(rsp_obj, default):
+    """
+    Convenience method for returning a default value if the queried utility has no return values.
+    """
+    return default if not rsp_obj else rsp_obj
+
 def truncate(string, length=75):
     """
     Return a truncated string.
