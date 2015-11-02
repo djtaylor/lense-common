@@ -1104,7 +1104,19 @@ class EngineParams(object):
                 "enabled": True,
                 "object": "group",
                 "object_key": "uuid",
-                "rmap": {}
+                "rmap": {
+                    "_required": ["group", "user"],
+                    "_optional": [],
+                    "_type": "dict",
+                    "_children": {
+                        "group": {
+                            "_type": "uuid"
+                        },
+                        "user": { 
+                            "_type": "uuid"
+                        }
+                    }
+                }
             },
             {
                 "cls": "GroupMemberAdd",
@@ -1117,7 +1129,19 @@ class EngineParams(object):
                 "enabled": True,
                 "object": "group",
                 "object_key": "uuid",
-                "rmap": {}
+                "rmap": {
+                    "_required": ["group", "user"],
+                    "_optional": [],
+                    "_type": "dict",
+                    "_children": {
+                        "group": {
+                            "_type": "uuid"
+                        },
+                        "user": { 
+                            "_type": "uuid"
+                        }
+                    }
+                }
             },
             {
                 "cls": "GroupUpdate",
@@ -1459,8 +1483,8 @@ class EngineParams(object):
                 "object": "connector",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["name", "is_oauth2"],
-                    "_optional": ["key_file", "token_url", "auth_url"],
+                    "_required": ["name"],
+                    "_optional": ["is_oauth2", "key_file", "token_url", "auth_url"],
                     "_children": {
                         "uuid": {
                             "_type": "uuid"
