@@ -571,7 +571,8 @@ class EngineParams(object):
                 "allow_anon": True,
                 "rmap": {
                     "_required": [],
-                    "_optional": []
+                    "_optional": [],
+                    "_type": "dict"
                 }
             },
             {
@@ -1350,6 +1351,7 @@ class EngineParams(object):
                 "object_key": "uuid",
                 "rmap": {
                     "_required": ["username", "group", "email", "password", "password_confirm"],
+                    "_optional": [],
                     "_type": "dict",
                     "_children": {
                         "username": {
@@ -1406,6 +1408,7 @@ class EngineParams(object):
                 "rmap": {
                     "_required": [],
                     "_optional": ["uuid"],
+                    "_type": "dict",
                     "_children": {
                         "uuid": {
                             "_type": "uuid"
@@ -1427,6 +1430,7 @@ class EngineParams(object):
                 "rmap": {
                     "_required": ["uuid"],
                     "_optional": [],
+                    "_type": "dict",
                     "_children": {
                         "uuid": {
                             "_type": "uuid"
@@ -1448,6 +1452,7 @@ class EngineParams(object):
                 "rmap": {
                     "_required": ["uuid"],
                     "_optional": ["name", "is_oauth2", "key_file", "token_url", "auth_url"],
+                    "_type": "dict",
                     "_children": {
                         "uuid": {
                             "_type": "uuid"
@@ -1485,6 +1490,7 @@ class EngineParams(object):
                 "rmap": {
                     "_required": ["name"],
                     "_optional": ["is_oauth2", "key_file", "token_url", "auth_url"],
+                    "_type": "dict",
                     "_children": {
                         "uuid": {
                             "_type": "uuid"
@@ -1522,6 +1528,7 @@ class EngineParams(object):
                 "rmap": {
                     "_required": [],
                     "_optional": ["uuid"],
+                    "_type": "dict",
                     "_children": {
                         "uuid": {
                             "_type": "uuid"
@@ -1543,6 +1550,7 @@ class EngineParams(object):
                 "rmap": {
                     "_required": ["uuid"],
                     "_optional": [],
+                    "_type": "dict",
                     "_children": {
                         "uuid": {
                             "_type": "uuid"
@@ -1564,6 +1572,7 @@ class EngineParams(object):
                 "rmap": {
                     "_required": ["uuid"],
                     "_optional": ["name", "path", "method", "imap"],
+                    "_type": "dict",
                     "_children": {
                         "uuid": {
                             "_type": "uuid"
@@ -1597,6 +1606,7 @@ class EngineParams(object):
                 "rmap": {
                     "_required": ["name", "path", "method", "imap"],
                     "_optional": [],
+                    "_type": "dict",
                     "_children": {
                         "name": {
                             "_type": "str"
