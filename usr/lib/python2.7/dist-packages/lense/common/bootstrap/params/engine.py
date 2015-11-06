@@ -269,6 +269,15 @@ class _EngineACL(object):
                     "GatewayACLObjectsDelete",
                     "GatewayACLObjectsUpdate"
                 ]
+            },
+            {
+                "name": "stats.admin",
+                "desc": "ACL for allowing administration of API statistics.",
+                "type_object": False,
+                "type_global": True,
+                "util_classes": [
+                    "StatsRequestGet"
+                ]
             }
         ]
 
@@ -528,7 +537,8 @@ class EngineParams(object):
             'user': 'lense.engine.api.app.user.utils',
             'callback': 'lense.engine.api.app.callback.utils',
             'connector': 'lense.engine.api.app.connector.utils',
-            'integrator': 'lense.engine.api.app.integrator.utils'
+            'integrator': 'lense.engine.api.app.integrator.utils',
+            'stats': 'lense.engine.api.app.stats.utils'
         }
         
         
@@ -1620,6 +1630,66 @@ class EngineParams(object):
                         "imap": {
                             "_type": "str"
                         }         
+                    }
+                }
+            },
+            {
+                "cls": "StatsRequestGet",
+                "name": "Stats_Request_Get",
+                "path": "stats/request",
+                "method": HTTP_GET,
+                "desc": "Get API request statistics",
+                "mod": umod['stats'],
+                "protected": True,
+                "enabled": True,
+                "object": None,
+                "object_key": None,
+                "rmap": {
+                    "_required": [],
+                    "_optional": [
+                        "path", "method", "client_ip", "client_user", "client_group", "endpoint", "user_agent", "retcode", "req_size", "rsp_size", "rsp_time_ms", "from", "to"
+                    ],
+                    "_type": "dict",
+                    "_children": {
+                        "path": {
+                            "_type": "str"
+                        },
+                        "method": {
+                            "_type": "str"
+                        },
+                        "client_ip": {
+                            "_type": "str"
+                        },
+                        "client_user": {
+                            "_type": "str"
+                        },
+                        "client_group": {
+                            "_type": "str"
+                        },
+                        "endpoint": {
+                            "_type": "str"
+                        },
+                        "user_agent": {
+                            "_type": "str"
+                        },
+                        "retcode": {
+                            "_type": "str"
+                        },
+                        "req_size": {
+                            "_type": "str"
+                        },
+                        "rsp_size": {
+                            "_type": "str"
+                        },
+                        "rsp_time_ms": {
+                            "_type": "str"
+                        },
+                        "from": {
+                            "_type": "str"
+                        },
+                        "to": {
+                            "_type": "str"
+                        }
                     }
                 }
             }
