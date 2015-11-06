@@ -132,7 +132,7 @@ def obj_extract(obj, id=None, filter=None, auto_quote=True):
                         return _inner(v, _fv)
     return _inner(base_obj, fv)
 
-def valid(msg=None, data=None):
+def valid(msg=None, data=None, code=200):
     """
     Return valid request object. Used internally by the API to pass data between methods.
     Contains a boolean 'valid' flag as well as the data to return to the calling method.
@@ -186,8 +186,8 @@ def valid(msg=None, data=None):
     :rtype: dict
     """
     if not msg:
-        return { 'valid': True, 'content': None , 'data': data }
-    return { 'valid': True, 'content': msg , 'data': data }
+        return { 'valid': True, 'content': None , 'data': data, 'code': code }
+    return { 'valid': True, 'content': msg , 'data': data , 'code': code }
 
 def invalid(msg, code=400):
     """
