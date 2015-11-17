@@ -3,7 +3,7 @@ from uuid import uuid4
 # Django Libraries
 from django.db.models import Model, CharField, TextField, NullBooleanField, BooleanField
 
-class DBGatewayUtilities(Model):
+class Utilities(Model):
     """
     Main database model for storing API utility details.
     """
