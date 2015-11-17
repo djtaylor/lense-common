@@ -1,7 +1,7 @@
 import importlib
 
 # Django Libraries
-from django.db.models import Model, ForeignKey, CharField, \
+from django.db.models import Model, ForeignKey, CharField, SET_NULL, \
                              TextField, NullBooleanField, BooleanField
 
 # Lense Libraries
