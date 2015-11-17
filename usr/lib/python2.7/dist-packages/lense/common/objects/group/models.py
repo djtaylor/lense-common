@@ -7,7 +7,7 @@ from uuid import uuid4
 from django.db.models import Model, ForeignKey, CharField, NullBooleanField
 
 # Lense Libraries
-from lense.common.objects.acl import ACLObjects
+from lense.common.objects.acl.models import ACLObjects
 from lense.common.objects.user.models import APIUser
 from lense.common.objects.group.manager import APIGroupsManager
 from lense.common.objects.acl.models import ACLGroupPermissions_Global, ACLKeys
