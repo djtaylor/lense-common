@@ -73,7 +73,7 @@ class ACLGroupPermissions_Object_Group(Model):
     """
     Main database model for storing object ACL permissions for group objects.
     """
-    acl        = ForeignKey(DBGatewayACLKeys, to_field='uuid', db_column='acl')
+    acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
     group      = ForeignKey('group.APIGroups', to_field='uuid', db_column='group', related_name='group_target')
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner', related_name='group_owner')
     allowed    = NullBooleanField()
@@ -86,7 +86,7 @@ class ACLGroupPermissions_Object_User(Model):
     """
     Main database model for storing object ACL permissions for group objects.
     """
-    acl        = ForeignKey(DBGatewayACLKeys, to_field='uuid', db_column='acl')
+    acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
     user       = ForeignKey('user.DBUser', to_field='uuid', db_column='user')
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
     allowed    = NullBooleanField()
@@ -99,7 +99,7 @@ class ACLGroupPermissions_Object_Utility(Model):
     """
     Main database model for storing object ACL permissions for utility objects.
     """
-    acl        = ForeignKey(DBGatewayACLKeys, to_field='uuid', db_column='acl')
+    acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
     utility    = ForeignKey(DBGatewayUtilities, to_field='uuid', db_column='utility')
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
     allowed    = NullBooleanField()

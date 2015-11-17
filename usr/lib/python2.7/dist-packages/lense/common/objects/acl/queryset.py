@@ -5,7 +5,6 @@ from django.db.models.query import QuerySet
 
 # Lense Libraries
 from lense.common.objects.utility.models import Utilities
-from lense.common.objects.acl.models import ACLObjects, ACLObjectAccess, ACLGlobalAccess
 
 class ACLKeysQuerySet(QuerySet):
     """
@@ -13,6 +12,14 @@ class ACLKeysQuerySet(QuerySet):
     """
     def __init__(self, *args, **kwargs):
         super(ACLKeysQuerySet, self).__init__(*args, **kwargs)
+        
+        # Need to do internal imports
+        from lense.common.objects.acl.models import ACLObjects, ACLObjectAccess, ACLGlobalAccess
+        
+        # Store the imports
+        self.ACLObjects      = ACLObjects
+        self.ACLObjectAccess = ACLObjectAccess
+        self.ACLGlobalAccess = ACLGlobalAccess
         
         # ACL object types / utilities
         self.obj_types = self._get_objects()
@@ -24,7 +31,7 @@ class ACLKeysQuerySet(QuerySet):
         """
         
         # Query all ACL object types
-        acl_objects = list(ACLObjects.objects.all().values())
+        acl_objects = list(self.ACLObjects.objects.all().values())
         
         # Construct and return the definition
         return {
@@ -66,8 +73,8 @@ class ACLKeysQuerySet(QuerySet):
         """
         
         # Extract all utility access definitions
-        object_util = self._extract_utilities(list(ACLObjectAccess.objects.filter(acl=acl['uuid']).values()))
-        global_util = self._extract_utilities(list(ACLGlobalAccess.objects.filter(acl=acl['uuid']).values()))
+        object_util = self._extract_utilities(list(self.ACLObjectAccess.objects.filter(acl=acl['uuid']).values()))
+        global_util = self._extract_utilities(list(self.ACLGlobalAccess.objects.filter(acl=acl['uuid']).values()))
         
         # Contstruct the utilities for each ACL access type
         acl['utilities'] = {
