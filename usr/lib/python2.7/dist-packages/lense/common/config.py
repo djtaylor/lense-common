@@ -4,8 +4,8 @@ from json import dumps as dump_json
 
 # Lense Libraries
 from lense.common.vars import LENSE_CONFIG
-from lense.common.objects import JSONObject
 from lense.common.collection import Collection
+from lense.common.objects.json import JSONObject
 
 class LenseConfigEditor(object):
     """
