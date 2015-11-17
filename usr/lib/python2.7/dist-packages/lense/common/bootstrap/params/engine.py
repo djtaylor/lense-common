@@ -49,7 +49,7 @@ class _EngineACL(object):
                 "type": "utility",
                 "name": "API Utility",
                 "acl_mod": "lense.common.objects.acl.models",
-                "acl_cls": "DBGatewayACLGroupObjectUtilityPermissions",
+                "acl_cls": "ACLGroupPermissions_Object_Utility",
                 "acl_key": "utility",
                 "obj_mod": "lense.common.objects.utility.models",
                 "obj_cls": "Utilities",
@@ -60,7 +60,7 @@ class _EngineACL(object):
                 "type": "group",
                 "name": "API Group",
                 "acl_mod": "lense.common.objects.acl.models",
-                "acl_cls": "DBGatewayACLGroupObjectGroupPermissions",
+                "acl_cls": "ACLGroupPermissions_Object_Group",
                 "acl_key": "group",
                 "obj_mod": "lense.common.objects.group.models",
                 "obj_cls": "APIGroups",
@@ -71,9 +71,9 @@ class _EngineACL(object):
                 "type": "user",
                 "name": "API User",
                 "acl_mod": "lense.common.objects.acl.models",
-                "acl_cls": "DBGatewayACLGroupObjectUserPermissions",
+                "acl_cls": "ACLGroupPermissions_Object_User",
                 "acl_key": "user",
-                "obj_mod": "lense.common.objects.group.models",
+                "obj_mod": "lense.common.objects.user.models",
                 "obj_cls": "APIUser",
                 "obj_key": "uuid",
                 "def_acl": self._get_acl_key('user.view')
@@ -127,8 +127,8 @@ class _EngineACL(object):
                     "Group_Create",
                     "Group_Update",
                     "Group_Delete",
-                    "Group_MemberAdd",
-                    "Group_MemberRemove"
+                    "GroupMember_Add",
+                    "GroupMember_Remove"
                 ]
             },
             {
@@ -321,7 +321,13 @@ class _EngineInput(object):
                     "default": None,
                     "prompt": "Please enter the email address for the default service account: ",
                     "value": None  
-                }
+                },
+                "api_service_password": {
+                    "type": "pass",
+                    "default": None,
+                    "prompt": "Please enter a password for the default service account: ",
+                    "value": None
+                },
             })             
         }
         
@@ -458,7 +464,7 @@ class EngineParams(object):
             {
                 "name": GROUPS.SERVICE.NAME,
                 "uuid": GROUPS.SERVICE.UUID,
-                "desd": "Service accounts group",
+                "desc": "Service accounts group",
                 "protected": True
             }
         ]
@@ -500,10 +506,11 @@ class EngineParams(object):
                 "username": USERS.SERVICE.NAME,
                 "group": GROUPS.SERVICE.UUID,
                 "email": None,
-                "password": rstring(12),
+                "password": None,
                 "key": None,
                 "_keys": {
-                    "email": "api_service_email"
+                    "email": "api_service_email",
+                    "password": "api_service_password"
                 }
             }
         ]

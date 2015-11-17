@@ -4,8 +4,6 @@ from django.db.models.query import QuerySet
 # Lense Libraries
 from lense.common.objects.acl import ACLObjects
 from lense.common.objects.user.models import APIUser
-from lense.common.objects.group.models import APIGroupMembers
-from lense.common.objects.group.queryset import APIGroupsQuerySet
 from lense.common.objects.acl.models import ACLKeys, ACLGroupPermissions_Global
 
 class APIGroupsQuerySet(QuerySet):
@@ -15,6 +13,12 @@ class APIGroupsQuerySet(QuerySet):
     """
     def __init__(self, *args, **kwargs):
         super(APIGroupsQuerySet, self).__init__(*args, **kwargs)
+        
+        # Group members import
+        from lense.common.objects.group.models import APIGroupMembers
+        
+        # Group members model
+        self.APIGroupMembers = APIGroupMembers
         
     def _object_permissions_get(self, group):
         """
@@ -108,7 +112,7 @@ class APIGroupsQuerySet(QuerySet):
         
         # Extract group membership
         members = []
-        for member in list(APIGroupMembers.objects.filter(group=group['uuid']).values()):
+        for member in list(self.APIGroupMembers.objects.filter(group=group['uuid']).values()):
             
             # Get the member user object
             user_obj = APIUser.objects.get(uuid=member['member_id'])

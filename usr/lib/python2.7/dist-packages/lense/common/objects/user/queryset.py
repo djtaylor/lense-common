@@ -3,7 +3,6 @@ from django.db.models.query import QuerySet
 
 # Lense Libraries
 from lense.common.vars import G_ADMIN
-from lense.common.objects.group.models import APIGroups, APIGroupMembers
 
 class APIUserQuerySet(QuerySet):
     """
@@ -16,6 +15,9 @@ class APIUserQuerySet(QuerySet):
     
     def __init__(self, *args, **kwargs):
         super(APIUserQuerySet, self).__init__(*args, **kwargs)
+
+        # Resolve circular imports
+        from lense.common.objects.group.models import APIGroups, APIGroupMembers
 
     def _is_admin(self, user):
         """

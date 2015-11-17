@@ -98,7 +98,7 @@ class _BootstrapCommon(object):
         self._check_root()
         
         # Logger
-        self.log      = logger.create('bootstrap', '{0}/bootstrap.log'.format(LOG_DIR))
+        self.log      = logger.create('lense.bootstrap', '{0}/bootstrap.log'.format(LOG_DIR))
 
     def _check_root(self):
         """
@@ -361,7 +361,7 @@ class _BootstrapEngine(_BootstrapCommon):
             # If the group was not created
             if not group['valid']:
                 self._die('HTTP {0}: {1}'.format(group['code'], group['content']))
-            self.feedback.success('Created Lense group: {0}'.format(group['name']))
+            self.feedback.success('Created Lense group: {0}'.format(group['data']['name']))
         
         # Return the groups object
         return _groups
@@ -379,20 +379,20 @@ class _BootstrapEngine(_BootstrapCommon):
             _keys = user.get('_keys')
             
             # User password
-            password = self.params.input.response.get(_keys['password'], self.params.user['password'])
+            password = self.params.input.response.get(_keys['password'], rstring(12))
             
             # User data
             _data = {
-                'username': self.params.user['username'],
-                'group': self.params.user['group'],
-                'email': self.params.input.response.get(_keys['email'], self.params.user['email']),
+                'username': user['username'],
+                'group': user['group'],
+                'email': self.params.input.response.get(_keys['email'], user['email']),
                 'password': password,
                 'password_confirm': password    
             }
             
             # Create a new user object
             user = obj(APIBare(data=_data, path='user')).launch()
-            self.log.info('Received response from <{}>: {}'.format(str(obj), json.dumps(user)))
+            self.log.info('Received response from <{0}>: {1}'.format(str(obj), json.dumps(user)))
             
             # If the user was not created
             if not user['valid']:
@@ -549,15 +549,15 @@ class _BootstrapEngine(_BootstrapCommon):
     
         # Store the new username and API key
         for user in users:
-            if not user['username'] == USERS.ADMIN.NAME:
+            if not user['data']['username'] == USERS.ADMIN.NAME:
                 continue
             
             # Get the user parameters
             user_params = self.params.get_user(USERS.ADMIN.NAME)
             
             # Default administrator
-            self.set_user(USERS.ADMIN.NAME, 'key', user['data']['api_key'])
-            self.set_user(USERS.ADMIN.NAME, 'username', user['data']['username'])
+            self.params.set_user(USERS.ADMIN.NAME, 'key', user['data']['api_key'])
+            self.params.set_user(USERS.ADMIN.NAME, 'username', user['data']['username'])
     
             # Update administrator info in the server configuration
             lce = LenseConfigEditor('ENGINE')

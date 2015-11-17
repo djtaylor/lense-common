@@ -9,7 +9,6 @@ from django.db.models import Model, CharField,DateTimeField, ForeignKey, EmailFi
 
 # Lense Libraries
 from lense.common.objects.user.manager import APIUserManager
-from lense.common.objects.group.models import APIGroups, APIGroupMembers
 
 class APIUserKeys(Model):
     """
@@ -24,15 +23,15 @@ class APIUserKeys(Model):
     class Meta:
         db_table = 'api_user_keys'
         
-class APIUserTokens(models.Model):
+class APIUserTokens(Model):
     """
     Main database model for storing user API tokens.
     """
     
     # User API token table columns
-    user    = models.ForeignKey('user.APIUser', to_field='uuid', db_column='user')
-    token   = models.CharField(max_length=255, unique=True)
-    expires = models.DateTimeField()
+    user    = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
+    token   = CharField(max_length=255, unique=True)
+    expires = DateTimeField()
     
     # Custom model metadata
     class Meta:
@@ -85,6 +84,6 @@ class APIUser(AbstractBaseUser):
 
     # Model metadata
     class Meta:
-        db_table = 'lense_users'
+        db_table = 'api_users'
         verbose_name = _('user')
         verbose_name_plural = _('users')

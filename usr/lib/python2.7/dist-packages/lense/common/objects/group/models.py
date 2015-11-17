@@ -8,7 +8,6 @@ from django.db.models import Model, ForeignKey, CharField, NullBooleanField
 
 # Lense Libraries
 from lense.common.objects.acl.models import ACLObjects
-from lense.common.objects.user.models import APIUser
 from lense.common.objects.group.manager import APIGroupsManager
 from lense.common.objects.acl.models import ACLGroupPermissions_Global, ACLKeys
 
@@ -152,7 +151,7 @@ class APIGroups(Model):
         """
         
         # Resolve circular dependencies
-        from lense.engine.api.app.user.models import DBUser
+        from lense.common.objects.user.models import APIUser
         
         # Return a list of user member objects
         return [APIUser.objects.get(uuid=m.member) for m in APIGroupMembers.objects.filter(group=self.uuid)]

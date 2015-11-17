@@ -1,10 +1,11 @@
+from uuid import uuid4
+
 # Django Libraries
+from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager
 
 # Lense Libraries
 from lense.common.vars import G_DEFAULT
-from lense.common.objects.group.models import APIGroups
-from lense.common.objects.user.models import APIUserKeys
 from lense.common.objects.user.queryset import APIUserQuerySet
 
 class APIUserManager(BaseUserManager):
@@ -40,13 +41,15 @@ class APIUserManager(BaseUserManager):
         Create a new user account.
         """
         
+        # Fix circular imports
+        from lense.engine.api.auth.key import APIKey
+        from lense.common.objects.group.models import APIGroups
+        from lense.common.objects.user.models import APIUserKeys
+        
         # Required attributes
         for k in ['username', 'email', 'password']:
             if not k in attrs:
                 raise Exception('Failed to create user, missing required attribute: {0}'.format(k))
-        
-        # Import the API keys module
-        from lense.engine.api.auth.key import APIKey
         
         # Get the current timestamp
         now = timezone.now()

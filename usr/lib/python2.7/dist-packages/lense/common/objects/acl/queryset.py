@@ -114,7 +114,7 @@ class ACLObjectsQuerySet(QuerySet):
     Custom queryset for the ACLObjects model.
     """
     def __init__(self, *args, **kwargs):
-        super(ACLKeysQuerySet, self).__init__(*args, **kwargs)
+        super(ACLObjectsQuerySet, self).__init__(*args, **kwargs)
         
         # Detailed object list
         self._detailed = False

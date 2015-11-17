@@ -87,7 +87,7 @@ class ACLGroupPermissions_Object_User(Model):
     Main database model for storing object ACL permissions for group objects.
     """
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    user       = ForeignKey('user.DBUser', to_field='uuid', db_column='user')
+    user       = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
     allowed    = NullBooleanField()
     
