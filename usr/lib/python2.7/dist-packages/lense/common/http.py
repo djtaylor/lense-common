@@ -26,7 +26,7 @@ HTTP_DELETE = 'DELETE'
 
 # HTTP Paths
 PATH = Collection({
-    'GET_TOKEN':    'gateway/token'
+    'GET_TOKEN':    'token'
 }).get()
 
 # HTTP Headers

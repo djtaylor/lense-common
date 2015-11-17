@@ -1,3 +1,5 @@
+from importlib import import_module
+
 # Django Libraries
 from django.db.models.query import QuerySet
 
@@ -13,12 +15,6 @@ class APIGroupsQuerySet(QuerySet):
     """
     def __init__(self, *args, **kwargs):
         super(APIGroupsQuerySet, self).__init__(*args, **kwargs)
-        
-        # Group members import
-        from lense.common.objects.group.models import APIGroupMembers
-        
-        # Group members model
-        self.APIGroupMembers = APIGroupMembers
         
     def _object_permissions_get(self, group):
         """
@@ -41,7 +37,7 @@ class APIGroupsQuerySet(QuerySet):
             
             # Get an instance of the ACL class
             acl_def   = ACLObjects.get_values(obj_type)[0]
-            acl_mod   = importlib.import_module(acl_def['acl_mod'])
+            acl_mod   = import_module(acl_def['acl_mod'])
             acl_class = getattr(acl_mod, acl_def['acl_cls'])
             
             # Get the object details
@@ -108,11 +104,12 @@ class APIGroupsQuerySet(QuerySet):
         """
         
         # Resolve circular dependencies
-        from lense.engine.api.app.user.models import DBUser
+        from lense.common.objects.user.models import APIUser
+        from lense.common.objects.group.models import APIGroupMembers
         
         # Extract group membership
         members = []
-        for member in list(self.APIGroupMembers.objects.filter(group=group['uuid']).values()):
+        for member in list(APIGroupMembers.objects.filter(group=group['uuid']).values()):
             
             # Get the member user object
             user_obj = APIUser.objects.get(uuid=member['member_id'])

@@ -19,6 +19,10 @@ class APIUserQuerySet(QuerySet):
         # Resolve circular imports
         from lense.common.objects.group.models import APIGroups, APIGroupMembers
 
+        # API groups / group members
+        self.APIGroups = APIGroups
+        self.APIGroupMembers = APIGroupMembers
+
     def _is_admin(self, user):
         """
         Check if the user is a member of the administrator group.
@@ -34,8 +38,8 @@ class APIUserQuerySet(QuerySet):
         Retrieve a list of group membership.
         """
         membership = []
-        for g in APIGroupMembers.objects.filter(member=user).values():
-            gd = APIGroups.objects.filter(uuid=g['group_id']).values()[0]
+        for g in self.APIGroupMembers.objects.filter(member=user).values():
+            gd = self.APIGroups.objects.filter(uuid=g['group_id']).values()[0]
             membership.append({
                 'uuid': gd['uuid'],
                 'name': gd['name'],

@@ -26,7 +26,7 @@ class _EngineACL(object):
             _access.append({
                 "acl": acl['uuid'],
                 "acl_name": acl['name'],
-                "owner": G_ADMIN,
+                "owner": GROUPS.ADMIN.UUID,
                 "allowed": True          
             })
         self.access = _access

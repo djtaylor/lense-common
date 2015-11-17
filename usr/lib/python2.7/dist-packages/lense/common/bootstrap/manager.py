@@ -631,15 +631,18 @@ class _BootstrapEngine(_BootstrapCommon):
         Brief summary of the completed bootstrap process.
         """
         
+        # Get the admin user
+        admin_user = self.params.get_user(USERS.ADMIN.NAME)
+        
         # Print the summary
         self.feedback.block([
             'Finished bootstrapping Lense API engine!\n',
             'You should restart your Apache service to load the new virtual host',
             'configuration. In order to use the Lense CLI client you should add the',
             'following environment variables to your ~/.bashrc file:\n',
-            'export LENSE_API_USER="{0}"'.format(self.params.user['username']),
-            'export LENSE_API_GROUP="{0}"'.format(self.params.user['group']),
-            'export LENSE_API_KEY="{0}"'.format(self.params.user['key'])  
+            'export LENSE_API_USER="{0}"'.format(admin_user['username']),
+            'export LENSE_API_GROUP="{0}"'.format(admin_user['group']),
+            'export LENSE_API_KEY="{0}"'.format(admin_user['key'])  
         ], 'COMPLETE')
         
 class _BootstrapPortal(_BootstrapCommon):
