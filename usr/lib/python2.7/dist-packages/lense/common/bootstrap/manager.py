@@ -17,7 +17,7 @@ from lense.common.utils import rstring
 from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG, USERS, GROUPS
 import lense.common.logger as logger
 from lense.common.config import LenseConfigEditor
-from lense.common.objects.json import JSONObject
+from lense.common.objects import JSONObject
 from lense.common.bootstrap.params import EngineParams, PortalParams, ClientParams, SocketParams
 
 try:
