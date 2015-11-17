@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 # Lense Libraries
 from lense.common.utils import rstring
-from lense.common.vars import G_ADMIN, U_ADMIN, DB_ENCRYPT_DIR
+from lense.common.vars import GROUPS, USERS, DB_ENCRYPT_DIR
 from lense.common.http import HTTP_GET, HTTP_POST, HTTP_PUT, HTTP_DELETE
 
 class _EngineACL(object):
@@ -48,57 +48,35 @@ class _EngineACL(object):
             {
                 "type": "utility",
                 "name": "API Utility",
-                "acl_mod": "lense.engine.api.app.gateway.models",
+                "acl_mod": "lense.common.objects.acl.models",
                 "acl_cls": "DBGatewayACLGroupObjectUtilityPermissions",
                 "acl_key": "utility",
-                "obj_mod": "lense.engine.api.app.gateway.models",
-                "obj_cls": "DBGatewayUtilities",
+                "obj_mod": "lense.common.objects.utility.models",
+                "obj_cls": "Utilities",
                 "obj_key": "uuid",
                 "def_acl": self._get_acl_key('util.view')
             },
             {
                 "type": "group",
                 "name": "API Group",
-                "acl_mod": "lense.engine.api.app.gateway.models",
+                "acl_mod": "lense.common.objects.acl.models",
                 "acl_cls": "DBGatewayACLGroupObjectGroupPermissions",
                 "acl_key": "group",
-                "obj_mod": "lense.engine.api.app.group.models",
-                "obj_cls": "DBGroupDetails",
+                "obj_mod": "lense.common.objects.group.models",
+                "obj_cls": "APIGroups",
                 "obj_key": "uuid",
                 "def_acl": self._get_acl_key('group.view')
             },
             {
                 "type": "user",
                 "name": "API User",
-                "acl_mod": "lense.engine.api.app.gateway.models",
+                "acl_mod": "lense.common.objects.acl.models",
                 "acl_cls": "DBGatewayACLGroupObjectUserPermissions",
                 "acl_key": "user",
-                "obj_mod": "lense.engine.api.app.user.models",
-                "obj_cls": "DBUser",
+                "obj_mod": "lense.common.objects.group.models",
+                "obj_cls": "APIUser",
                 "obj_key": "uuid",
                 "def_acl": self._get_acl_key('user.view')
-            },
-            {
-                "type": "connector",
-                "name": "API Connector",
-                "acl_mod": "lense.engine.api.app.gateway.models",
-                "acl_cls": "DBGatewayACLGroupObjectConnectorPermissions",
-                "acl_key": "connector",
-                "obj_mod": "lense.engine.api.app.connector.models",
-                "obj_cls": "DBConnectors",
-                "obj_key": "uuid",
-                "def_acl": self._get_acl_key('connector.view')
-            },
-            {
-                "type": "integrator",
-                "name": "API Integrator",
-                "acl_mod": "lense.engine.api.app.gateway.models",
-                "acl_cls": "DBGatewayACLGroupObjectIntegratorPermissions",
-                "acl_key": "integrator",
-                "obj_mod": "lense.engine.api.app.integrator.models",
-                "obj_cls": "DBIntegrators",
-                "obj_key": "uuid",
-                "def_acl": self._get_acl_key('integrator.view')
             }
         ]
     
@@ -113,49 +91,7 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                    "GatewayTokenGet"
-                ]
-            },
-            {
-                "name": "connector.view",
-                "desc": "ACL for allowing read-only access to API connectors.",
-                "type_object": True,
-                "type_global": False,
-                "util_classes": [
-                    "ConnectorsGet"
-                ]
-            },
-            {
-                "name": "connector.admin",
-                "desc": "ACL for allowing administration of API connectors.",
-                "type_object": False,
-                "type_global": True,
-                "util_classes": [
-                    "ConnectorsGet",
-                    "ConnectorsCreate",
-                    "ConnectorsUpdate",
-                    "ConnectorsDelete"
-                ]
-            },
-            {
-                "name": "integrator.view",
-                "desc": "ACL for allowing read-only access to API integrators.",
-                "type_object": True,
-                "type_global": False,
-                "util_classes": [
-                    "IntegratorsGet"
-                ]
-            },
-            {
-                "name": "integrator.admin",
-                "desc": "ACL for allowing administration of API integrators.",
-                "type_object": False,
-                "type_global": True,
-                "util_classes": [
-                    "IntegratorsGet",
-                    "IntegratorsCreate",
-                    "IntegratorsUpdate",
-                    "IntegratorsDelete"
+                    "Token_Get"
                 ]
             },
             {
@@ -164,12 +100,12 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                    "UserGet",
-                    "UserCreate",
-                    "UserDelete",
-                    "UserEnable",
-                    "UserDisable",
-                    "UserResetPassword"
+                    "User_Get",
+                    "User_Create",
+                    "User_Delete",
+                    "User_Enable",
+                    "User_Disable",
+                    "User_ResetPassword"
                 ]
             },
             {
@@ -178,7 +114,7 @@ class _EngineACL(object):
                 "type_object": True,
                 "type_global": False,
                 "util_classes": [
-                    "UserGet"
+                    "User_Get"
                 ]
             },
             {
@@ -187,12 +123,12 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                    "GroupGet",
-                    "GroupCreate",
-                    "GroupUpdate",
-                    "GroupDelete",
-                    "GroupMemberAdd",
-                    "GroupMemberRemove"
+                    "Group_Get",
+                    "Group_Create",
+                    "Group_Update",
+                    "Group_Delete",
+                    "Group_MemberAdd",
+                    "Group_MemberRemove"
                 ]
             },
             {
@@ -201,7 +137,7 @@ class _EngineACL(object):
                 "type_object": True,
                 "type_global": False,
                 "util_classes": [
-                    "GroupGet"
+                    "Group_Get"
                 ]
             },
             {
@@ -210,13 +146,13 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                    "GatewayUtilitiesGet",
-                    "GatewayUtilitiesCreate",
-                    "GatewayUtilitiesSave",
-                    "GatewayUtilitiesValidate",
-                    "GatewayUtilitiesDelete",
-                    "GatewayUtilitiesClose",
-                    "GatewayUtilitiesOpen"
+                    "Utility_Get",
+                    "Utility_Create",
+                    "Utility_Save",
+                    "Utility_Validate",
+                    "Utility_Delete",
+                    "Utility_Close",
+                    "Utility_Open"
                 ]
             },
             {
@@ -225,7 +161,7 @@ class _EngineACL(object):
                 "type_object": True,
                 "type_global": False,
                 "util_classes": [
-                    "GatewayUtilitiesGet"
+                    "Utility_Get"
                 ]
             },
             {
@@ -234,7 +170,7 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                     "GatewayACLGet"            
+                     "ACL_Get"            
                 ]
             },
             {
@@ -243,10 +179,10 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                     "GatewayACLGet",
-                     "GatewayACLCreate",
-                     "GatewayACLDelete",
-                     "GatewayACLUpdate"       
+                     "ACL_Get",
+                     "ACL_Create",
+                     "ACL_Delete",
+                     "ACL_Update"       
                 ]
             },
             {
@@ -255,7 +191,7 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                    "GatewayACLObjectsGet"
+                    "ACLObjects_Get"
                 ]
             },
             {
@@ -264,10 +200,10 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                    "GatewayACLObjectsGet",
-                    "GatewayACLObjectsCreate",
-                    "GatewayACLObjectsDelete",
-                    "GatewayACLObjectsUpdate"
+                    "ACLObjects_Get",
+                    "ACLObjects_Create",
+                    "ACLObjects_Delete",
+                    "ACLObjects_Update"
                 ]
             },
             {
@@ -276,7 +212,7 @@ class _EngineACL(object):
                 "type_object": False,
                 "type_global": True,
                 "util_classes": [
-                    "StatsRequestGet"
+                    "StatsRequest_Get"
                 ]
             }
         ]
@@ -379,7 +315,13 @@ class _EngineInput(object):
                     "default": "10550",
                     "prompt": "Please enter the port for the API server (10550): ",
                     "value": None
-                } 
+                },
+                "api_service_email": {
+                    "type": "str",
+                    "default": None,
+                    "prompt": "Please enter the email address for the default service account: ",
+                    "value": None  
+                }
             })             
         }
         
@@ -436,8 +378,8 @@ class EngineParams(object):
         self.acl    = _EngineACL()
         
         # Groups/users/database/file parameters
-        self.group  = self._set_group()
-        self.user   = self._set_user()
+        self.groups = self._set_groups()
+        self.users  = self._set_users()
         self.utils  = self._set_utils()
         self.db     = None
     
@@ -502,77 +444,77 @@ class EngineParams(object):
             }
         }
         
-    def _set_group(self):
+    def _set_groups(self):
         """
         Set default group parameters.
         """
-        return {
-            "name": U_ADMIN,
-            "uuid": G_ADMIN,
-            "desc": "Default administrator group",
-            "protected": True   
-        }
+        return [
+            {
+                "name": GROUPS.ADMIN.NAME,
+                "uuid": GROUPS.ADMIN.UUID,
+                "desc": "Default administrator group",
+                "protected": True
+            },
+            {
+                "name": GROUPS.SERVICE.NAME,
+                "uuid": GROUPS.SERVICE.UUID,
+                "desd": "Service accounts group",
+                "protected": True
+            }
+        ]
         
-    def _set_user(self):
+    def _set_users(self):
         """
         Set default user parameters.
         """
-        return {
-            "username": U_ADMIN,
-            "group": G_ADMIN,
-            "email": None,
-            "password": None,
-            "key": None
-        }
+        return [
+            {
+                "username": USERS.ADMIN.NAME,
+                "group": GROUPS.ADMIN.UUID,
+                "email": None,
+                "password": None,
+                "key": None,
+                "_keys": {
+                    "email": "api_admin_email",
+                    "password": "api_admin_password"
+                }
+            },
+            {
+                "username": USERS.SERVICE.NAME,
+                "group": GROUPS.SERVICE.UUID,
+                "email": None,
+                "password": rstring(12),
+                "key": None,
+                "_keys": {
+                    "email": "api_service_email"
+                }
+            }
+        ]
         
     def _set_utils(self):
         """
         Set default utility parameters
         """
         
-        # Set the utility modules
+        # Set the utility handlers
         umod = {
-            'gateway': 'lense.engine.api.app.gateway.utils',
-            'group': 'lense.engine.api.app.group.utils',
-            'user': 'lense.engine.api.app.user.utils',
-            'callback': 'lense.engine.api.app.callback.utils',
-            'connector': 'lense.engine.api.app.connector.utils',
-            'integrator': 'lense.engine.api.app.integrator.utils',
-            'stats': 'lense.engine.api.app.stats.utils'
+            'acl':     'lense.engine.api.handlers.acl',
+            'group':   'lense.engine.api.handlers.group',
+            'user':    'lense.engine.api.handlers.user',
+            'stats':   'lense.engine.api.handlers.stats',
+            'utility': 'lense.engine.api.handlers.utility',
+            'token':   'lense.engine.api.handlers.token'
         }
         
         
         # Return the database parameters
         return [
             {
-                "cls": "CallbackHandle",
-                "name": "Callback_Handle",
-                "path": "callback",
-                "method": HTTP_GET,
-                "desc": "Handle callbacks from 3rd party APIs",
-                "mod": umod['callback'],
-                "protected": True,
-                "enabled": True,
-                "object": None,
-                "object_key": None,
-                "allow_anon": True,
-                "rmap": {
-                    "_required": ["provider"],
-                    "_optional": ["*"],
-                    "_type": "dict",
-                    "_children": {
-                        "provider": {
-                            "_type": "str"
-                        }
-                    }
-                }
-            },
-            {
-                "cls": "GatewayTokenGet",
+                "cls": "Token_Get",
                 "name": "Token_Get",
-                "path": "gateway/token",
+                "path": "token",
                 "method": HTTP_GET,
-                "desc": "Make a token request to the API gateway",
+                "desc": "Make an API token request",
                 "mod": umod['gateway'],
                 "protected": True,
                 "enabled": True,
@@ -586,9 +528,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayACLGet",
+                "cls": "ACL_Get",
                 "name": "ACL_Get",
-                "path": "gateway/acl",
+                "path": "acl",
                 "method": HTTP_GET,
                 "desc": "Retrieve an ACL definition",
                 "mod": umod['gateway'],
@@ -608,9 +550,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayACLCreate",
+                "cls": "ACL_Create",
                 "name": "ACL_Create",
-                "path": "gateway/acl",
+                "path": "acl",
                 "method": HTTP_POST,
                 "desc": "Create a new ACL definition",
                 "mod": umod['gateway'],
@@ -639,9 +581,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayACLDelete",
+                "cls": "ACL_Delete",
                 "name": "ACL_Delete",
-                "path": "gateway/acl",
+                "path": "acl",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing ACL definition",
                 "mod": umod['gateway'],
@@ -661,9 +603,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayACLUpdate",
+                "cls": "ACL_Update",
                 "name": "ACL_Update",
-                "path": "gateway/acl",
+                "path": "acl",
                 "method": HTTP_PUT,
                 "desc": "Update an existing ACL definition",
                 "mod": umod['gateway'],
@@ -695,9 +637,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayACLObjectsGet",
+                "cls": "ACLObjects_Get",
                 "name": "ACLObjects_Get",
-                "path": "gateway/acl/objects",
+                "path": "acl/objects",
                 "method": HTTP_GET,
                 "desc": "Get a listing of ACL objects",
                 "mod": umod['gateway'],
@@ -717,9 +659,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayACLObjectsUpdate",
+                "cls": "ACLObjects_Update",
                 "name": "ACLObjects_Update",
-                "path": "gateway/acl/objects",
+                "path": "acl/objects",
                 "method": HTTP_PUT,
                 "desc": "Update an ACL object definition",
                 "mod": umod['gateway'],
@@ -766,9 +708,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayACLObjectsCreate",
+                "cls": "ACLObjects_Create",
                 "name": "ACLObjects_Create",
-                "path": "gateway/acl/objects",
+                "path": "acl/objects",
                 "method": HTTP_POST,
                 "desc": "Create a new ACL object definition",
                 "mod": umod['gateway'],
@@ -812,9 +754,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayACLObjectsDelete",
+                "cls": "ACLObjects_Delete",
                 "name": "ACLObjects_Delete",
-                "path": "gateway/acl/objects",
+                "path": "acl/objects",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing ACL object definition",
                 "mod": umod['gateway'],
@@ -834,9 +776,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayUtilitiesGet",
-                "name": "Utilities_Get",
-                "path": "gateway/utilities",
+                "cls": "Utility_Get",
+                "name": "Utility_Get",
+                "path": "utility",
                 "method": HTTP_GET,
                 "desc": "Get a listing of API utilities",
                 "mod": umod['gateway'],
@@ -856,9 +798,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayUtilitiesOpen",
-                "name": "Utilities_Open",
-                "path": "gateway/utilities/open",
+                "cls": "Utility_Open",
+                "name": "Utility_Open",
+                "path": "utility/open",
                 "method": HTTP_PUT,
                 "desc": "Open an API utility for editing",
                 "mod": umod['gateway'],
@@ -878,9 +820,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayUtilitiesClose",
-                "name": "Utilities_Close",
-                "path": "gateway/utilities/close",
+                "cls": "Utility_Close",
+                "name": "Utility_Close",
+                "path": "utility/close",
                 "method": HTTP_PUT,
                 "desc": "Close the editing lock on an API utility",
                 "mod": umod['gateway'],
@@ -900,9 +842,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayUtilitiesValidate",
-                "name": "Utilities_Validate",
-                "path": "gateway/utilities/validate",
+                "cls": "Utility_Validate",
+                "name": "Utility_Validate",
+                "path": "utility/validate",
                 "method": HTTP_PUT,
                 "desc": "Validate changes to an API utility",
                 "mod": umod['gateway'],
@@ -962,9 +904,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayUtilitiesSave",
-                "name": "Utilities_Save",
-                "path": "gateway/utilities",
+                "cls": "Utility_Save",
+                "name": "Utility_Save",
+                "path": "utility",
                 "method": HTTP_PUT,
                 "desc": "Save changes to an API utility",
                 "mod": umod['gateway'],
@@ -1024,9 +966,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayUtilitiesCreate",
-                "name": "Utilities_Create",
-                "path": "gateway/utilities",
+                "cls": "Utility_Create",
+                "name": "Utility_Create",
+                "path": "utility",
                 "method": HTTP_POST,
                 "desc": "Create a new API utility",
                 "mod": umod['gateway'],
@@ -1083,9 +1025,9 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GatewayUtilitiesDelete",
-                "name": "Utilities_Delete",
-                "path": "gateway/utilities",
+                "cls": "Utility_Delete",
+                "name": "Utility_Delete",
+                "path": "utility",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API utility",
                 "mod": umod['gateway'],
@@ -1105,8 +1047,8 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GroupMemberRemove",
-                "name": "Group_RemoveMember",
+                "cls": "GroupMember_Remove",
+                "name": "GroupMember_Remove",
                 "path": "group/member",
                 "method": HTTP_DELETE,
                 "desc": "Remove a user from an API group",
@@ -1130,8 +1072,8 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GroupMemberAdd",
-                "name": "Group_AddMember",
+                "cls": "GroupMember_Add",
+                "name": "GroupMember_Add",
                 "path": "group/member",
                 "method": HTTP_POST,
                 "desc": "Add a user to an API group",
@@ -1155,7 +1097,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GroupUpdate",
+                "cls": "Group_Update",
                 "name": "Group_Update",
                 "path": "group",
                 "method": HTTP_PUT,
@@ -1186,7 +1128,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GroupCreate",
+                "cls": "Group_Create",
                 "name": "Group_Create",
                 "path": "group",
                 "method": HTTP_POST,
@@ -1217,7 +1159,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GroupDelete",
+                "cls": "Group_Delete",
                 "name": "Group_Delete",
                 "path": "group",
                 "method": HTTP_DELETE,
@@ -1239,7 +1181,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "GroupGet",
+                "cls": "Group_Get",
                 "name": "Group_Get",
                 "path": "group",
                 "method": HTTP_GET,
@@ -1261,7 +1203,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "UserEnable",
+                "cls": "User_Enable",
                 "name": "User_Enable",
                 "path": "user/enable",
                 "method": HTTP_PUT,
@@ -1283,7 +1225,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "UserDisable",
+                "cls": "User_Disable",
                 "name": "User_Disable",
                 "path": "user/disable",
                 "method": HTTP_PUT,
@@ -1305,7 +1247,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "UserResetPassword",
+                "cls": "User_ResetPassword",
                 "name": "User_ResetPassword",
                 "path": "user/pwreset",
                 "method": HTTP_PUT,
@@ -1327,7 +1269,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "UserDelete",
+                "cls": "User_Delete",
                 "name": "User_Delete",
                 "path": "user",
                 "method": HTTP_DELETE,
@@ -1349,7 +1291,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "UserCreate",
+                "cls": "User_Create",
                 "name": "User_Create",
                 "path": "user",
                 "method": HTTP_POST,
@@ -1383,7 +1325,7 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "UserGet",
+                "cls": "User_Get",
                 "name": "User_Get",
                 "path": "user",
                 "method": HTTP_GET,
@@ -1405,237 +1347,8 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "ConnectorsGet",
-                "name": "Connectors_Get",
-                "path": "connector",
-                "method": HTTP_GET,
-                "desc": "Get API connector details",
-                "mod": umod['connector'],
-                "protected": True,
-                "enabled": True,
-                "object": "connector",
-                "object_key": "uuid",
-                "rmap": {
-                    "_required": [],
-                    "_optional": ["uuid"],
-                    "_type": "dict",
-                    "_children": {
-                        "uuid": {
-                            "_type": "uuid"
-                        }
-                    }
-                }
-            },
-            {
-                "cls": "ConnectorsDelete",
-                "name": "Connectors_Delete",
-                "path": "connector",
-                "method": HTTP_DELETE,
-                "desc": "Delete an existing API connector",
-                "mod": umod['connector'],
-                "protected": True,
-                "enabled": True,
-                "object": "connector",
-                "object_key": "uuid",
-                "rmap": {
-                    "_required": ["uuid"],
-                    "_optional": [],
-                    "_type": "dict",
-                    "_children": {
-                        "uuid": {
-                            "_type": "uuid"
-                        }
-                    }
-                }
-            },
-            {
-                "cls": "ConnectorsUpdate",
-                "name": "Connectors_Update",
-                "path": "connector",
-                "method": HTTP_PUT,
-                "desc": "Update an existing API connector",
-                "mod": umod['connector'],
-                "protected": True,
-                "enabled": True,
-                "object": "connector",
-                "object_key": "uuid",
-                "rmap": {
-                    "_required": ["uuid"],
-                    "_optional": ["name", "is_oauth2", "key_file", "token_url", "auth_url"],
-                    "_type": "dict",
-                    "_children": {
-                        "uuid": {
-                            "_type": "uuid"
-                        },
-                        "name": {
-                            "_type": "str"
-                        },
-                        "is_oauth2": {
-                            "_type": "bool"
-                        },
-                        "key_file": {
-                            "_type": "str"
-                        },
-                        "token_url": {
-                            "_type": "str"
-                        },
-                        "auth_url": {
-                            "_type": ""
-                        }
-                                  
-                    }
-                }
-            },
-            {
-                "cls": "ConnectorsCreate",
-                "name": "Connectors_Create",
-                "path": "connector",
-                "method": HTTP_POST,
-                "desc": "Create a new API connector",
-                "mod": umod['connector'],
-                "protected": True,
-                "enabled": True,
-                "object": "connector",
-                "object_key": "uuid",
-                "rmap": {
-                    "_required": ["name"],
-                    "_optional": ["is_oauth2", "key_file", "token_url", "auth_url"],
-                    "_type": "dict",
-                    "_children": {
-                        "uuid": {
-                            "_type": "uuid"
-                        },
-                        "name": {
-                            "_type": "str"
-                        },
-                        "is_oauth2": {
-                            "_type": "bool"
-                        },
-                        "key_file": {
-                            "_type": "str"
-                        },
-                        "token_url": {
-                            "_type": "str"
-                        },
-                        "auth_url": {
-                            "_type": ""
-                        }
-                                  
-                    }
-                }
-            },
-            {
-                "cls": "IntegratorsGet",
-                "name": "Integrators_Get",
-                "path": "integrator",
-                "method": HTTP_GET,
-                "desc": "Get API integrator details",
-                "mod": umod['integrator'],
-                "protected": True,
-                "enabled": True,
-                "object": "integrator",
-                "object_key": "uuid",
-                "rmap": {
-                    "_required": [],
-                    "_optional": ["uuid"],
-                    "_type": "dict",
-                    "_children": {
-                        "uuid": {
-                            "_type": "uuid"
-                        }
-                    }
-                }
-            },
-            {
-                "cls": "IntegratorsDelete",
-                "name": "Integrators_Delete",
-                "path": "integrator",
-                "method": HTTP_DELETE,
-                "desc": "Delete an existing API integrator",
-                "mod": umod['integrator'],
-                "protected": True,
-                "enabled": True,
-                "object": "integrator",
-                "object_key": "uuid",
-                "rmap": {
-                    "_required": ["uuid"],
-                    "_optional": [],
-                    "_type": "dict",
-                    "_children": {
-                        "uuid": {
-                            "_type": "uuid"
-                        }
-                    }
-                }
-            },
-            {
-                "cls": "IntegratorsUpdate",
-                "name": "Integrators_Update",
-                "path": "integrator",
-                "method": HTTP_PUT,
-                "desc": "Update an existing API integrator",
-                "mod": umod['integrator'],
-                "protected": True,
-                "enabled": True,
-                "object": "integrator",
-                "object_key": "uuid",
-                "rmap": {
-                    "_required": ["uuid"],
-                    "_optional": ["name", "path", "method", "imap"],
-                    "_type": "dict",
-                    "_children": {
-                        "uuid": {
-                            "_type": "uuid"
-                        },
-                        "name": {
-                            "_type": "str"
-                        },
-                        "path": {
-                            "_type": "str"
-                        },
-                        "method": {
-                            "_type": "str"
-                        },
-                        "imap": {
-                            "_type": "str"
-                        }        
-                    }
-                }
-            },
-            {
-                "cls": "IntegratorsCreate",
-                "name": "Integrators_Create",
-                "path": "integrator",
-                "method": HTTP_POST,
-                "desc": "Create a new API integrator",
-                "mod": umod['integrator'],
-                "protected": True,
-                "enabled": True,
-                "object": "integrator",
-                "object_key": "uuid",
-                "rmap": {
-                    "_required": ["name", "path", "method", "imap"],
-                    "_optional": [],
-                    "_type": "dict",
-                    "_children": {
-                        "name": {
-                            "_type": "str"
-                        },
-                        "path": {
-                            "_type": "str"
-                        },
-                        "method": {
-                            "_type": "str"
-                        },
-                        "imap": {
-                            "_type": "str"
-                        }         
-                    }
-                }
-            },
-            {
-                "cls": "StatsRequestGet",
-                "name": "Stats_Request_Get",
+                "cls": "StatsRequest_Get",
+                "name": "StatsRequest_Get",
                 "path": "stats/request",
                 "method": HTTP_GET,
                 "desc": "Get API request statistics",

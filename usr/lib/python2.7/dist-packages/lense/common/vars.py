@@ -43,3 +43,31 @@ TEMPLATES      = Collection({
     'ENGINE': '/usr/share/lense/engine/templates',
     'PORTAL': '/usr/share/lense/portal/templates'                     
 }).get()
+
+# API Groups
+GROUPS         = Collection({
+    'SERVICE': {
+        'UUID': '99999999-9999-9999-9999-999999999999',
+        'NAME': 'service'
+    },
+    'ADMIN': {
+        'UUID': '00000000-0000-0000-0000-000000000000',
+        'NAME': 'admin'
+    },
+    'DEFAULT': {
+        'UUID': '11111111-1111-1111-1111-111111111111',
+        'NAME': 'default'
+    }
+}).get()
+
+# API Users
+USERS          = Collection({
+    'SERVICE': {
+        'GROUP': GROUPS.SERVICE.UUID,
+        'NAME': 'service'
+    },
+    'ADMIN': {
+        'GROUP': GROUPS.ADMIN.UUID,
+        'NAME': 'lense'
+    }
+}).get()

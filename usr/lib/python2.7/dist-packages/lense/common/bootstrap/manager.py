@@ -13,7 +13,8 @@ from feedback import Feedback
 os.environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 
 # Lense Libraries
-from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG
+from lense.common.utils import rstring
+from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG, USERS, GROUPS
 import lense.common.logger as logger
 from lense.common.config import LenseConfigEditor
 from lense.common.objects import JSONObject
@@ -336,7 +337,7 @@ class _BootstrapEngine(_BootstrapCommon):
             if not m(enc_attrs):
                 return False
     
-    def _create_group(self, obj):
+    def _create_groups(self, obj):
         """
         Create the default administrator group.
         """
@@ -359,35 +360,44 @@ class _BootstrapEngine(_BootstrapCommon):
         # Return the group object
         return group
     
-    def _create_user(self, obj):
+    def _create_users(self, obj):
         """
         Create the default administrator user account.
         """
         
-        # Set the new user email/password
-        user_email = self.params.input.response.get('api_admin_email', self.params.user['email'])
-        user_passwd = self.params.input.response.get('api_admin_password', self.params.user['password'])
+        # Users container
+        _users = []
         
-        # Create a new user object
-        user = obj(APIBare(
-            data = {
+        # Create each new user
+        for user in self.params.users:
+            _keys = user.get('_keys')
+            
+            # User password
+            password = self.params.input.response.get(_keys['password'], self.params.user['password'])
+            
+            # User data
+            _data = {
                 'username': self.params.user['username'],
                 'group': self.params.user['group'],
-                'email': user_email,
-                'password': user_passwd,
-                'password_confirm': user_passwd
-            },
-            path = 'user'             
-        )).launch()
-        self.log.info('Received response from <{}>: {}'.format(str(obj), json.dumps(user)))
+                'email': self.params.input.response.get(_keys['email'], self.params.user['email']),
+                'password': password,
+                'password_confirm': password    
+            }
+            
+            # Create a new user object
+            user = obj(APIBare(data=_data, path='user')).launch()
+            self.log.info('Received response from <{}>: {}'.format(str(obj), json.dumps(user)))
+            
+            # If the user was not created
+            if not user['valid']:
+                self._die('HTTP {0}: {1}'.format(user['code'], user['content']))
+            self.feedback.success('Created Lense account: {0}'.format(_data['username']))
         
-        # If the user was not created
-        if not user['valid']:
-            self._die('HTTP {0}: {1}'.format(user['code'], user['content']))
-        self.feedback.success('Created default Lense administrator account')
-    
+            # Add to the users object
+            _users.append(user)
+        
         # Return the user object
-        return user
+        return _users
     
     def _create_utils(self, obj):
         """
@@ -526,8 +536,12 @@ class _BootstrapEngine(_BootstrapCommon):
         django.setup()
         
         # Create the administrator group and user
-        group = self._create_group(GroupCreate)
-        user = self._create_user(UserCreate)
+        group = self._create_groups(GroupCreate)
+        users = self._create_users(UserCreate)
+    
+        # Create the user accounts
+        for user in self._create_users(UserCreate):
+            
     
         # Store the new username and API key
         self.params.user['username'] = user['data']['username']
