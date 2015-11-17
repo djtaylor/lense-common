@@ -341,24 +341,30 @@ class _BootstrapEngine(_BootstrapCommon):
         """
         Create the default administrator group.
         """
-        group = obj(APIBare(
-            data = {
-                'uuid': self.params.group['uuid'],
-                'name': self.params.group['name'],
-                'desc': self.params.group['desc'],
-                'protected': self.params.group['protected']
-            },
-            path = 'group'
-        )).launch()
-        self.log.info('Received response from <{0}>: {1}'.format(str(obj), json.dumps(group)))
         
-        # If the group was not created
-        if not group['valid']:
-            self._die('HTTP {0}: {1}'.format(group['code'], group['content']))
-        self.feedback.success('Created default Lense administrator group')
+        # Groups container
+        _groups = []
         
-        # Return the group object
-        return group
+        # Create each new group
+        for group in self.params.groups:
+            group = obj(APIBare(
+                data = {
+                    'uuid': group['uuid'],
+                    'name': group['name'],
+                    'desc': group['desc'],
+                    'protected': group['protected']
+                },
+                path = 'group'
+            )).launch()
+            self.log.info('Received response from <{0}>: {1}'.format(str(obj), json.dumps(group)))
+        
+            # If the group was not created
+            if not group['valid']:
+                self._die('HTTP {0}: {1}'.format(group['code'], group['content']))
+            self.feedback.success('Created Lense group: {0}'.format(group['name']))
+        
+        # Return the groups object
+        return _groups
     
     def _create_users(self, obj):
         """
@@ -523,44 +529,50 @@ class _BootstrapEngine(_BootstrapCommon):
         Seed the database with the base information needed to run Lense.
         """
         
-        # Import modules now to get the new configuration
-        from lense.engine.api.app.group.utils import GroupCreate
-        from lense.engine.api.app.user.utils import UserCreate
-        from lense.engine.api.app.group.models import DBGroupDetails
-        from lense.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions, DBGatewayACLKeys, \
-                                                             DBGatewayACLAccessGlobal, DBGatewayUtilities
-        from lense.engine.api.app.gateway.utils import GatewayUtilitiesCreate, GatewayACLObjectsCreate, \
-                                                            GatewayACLCreate
+        # Request handlers
+        from lense.engine.api.handlers.user import User_Create
+        from lense.engine.api.handlers.group import Group_Create
+        from lense.engine.api.handlers.utility import Utility_Create
+        from lense.engine.api.handlers.acl import ACLObjects_Create, ACL_Create
+        
+        # Common object models
+        from lense.common.objects.group.models import APIGroups
+        from lense.common.objects.utility.models import Utilities
+        from lense.common.objects.acl.models import ACLGroupPermissions_Global, ACLKeys, ACLGlobalAccess
         
         # Setup Django models
         django.setup()
         
         # Create the administrator group and user
-        group = self._create_groups(GroupCreate)
-        users = self._create_users(UserCreate)
-    
-        # Create the user accounts
-        for user in self._create_users(UserCreate):
-            
+        group = self._create_groups(Group_Create)
+        users = self._create_users(User_Create)
     
         # Store the new username and API key
-        self.params.user['username'] = user['data']['username']
-        self.params.user['key'] = user['data']['api_key']
+        for user in users:
+            if not user['username'] == USERS.ADMIN.NAME:
+                continue
+            
+            # Get the user parameters
+            user_params = self.params.get_user(USERS.ADMIN.NAME)
+            
+            # Default administrator
+            self.set_user(USERS.ADMIN.NAME, 'key', user['data']['api_key'])
+            self.set_user(USERS.ADMIN.NAME, 'username', user['data']['username'])
     
-        # Update administrator info in the server configuration
-        lce = LenseConfigEditor('ENGINE')
-        lce.set('admin/user', user['data']['username'])
-        lce.set('admin/group', self.params.user['group'])
-        lce.set('admin/key', user['data']['api_key'])
-        lce.save()
-        self.feedback.success('[{0}] Set API administrator values'.format(LENSE_CONFIG.ENGINE))
+            # Update administrator info in the server configuration
+            lce = LenseConfigEditor('ENGINE')
+            lce.set('admin/user', user['data']['username'])
+            lce.set('admin/group', user_params['group'])
+            lce.set('admin/key', user['data']['api_key'])
+            lce.save()
+            self.feedback.success('[{0}] Set API administrator values'.format(LENSE_CONFIG.ENGINE))
     
         # Create API utilities / ACL objects / ACL keys / access entries
-        self._create_utils(GatewayUtilitiesCreate)
-        self._create_acl_keys(GatewayACLCreate)
-        self._create_utils_access(DBGatewayACLAccessGlobal, DBGatewayACLKeys, DBGatewayUtilities)
-        self._create_acl_objects(GatewayACLObjectsCreate)
-        self._create_acl_access(DBGatewayACLGroupGlobalPermissions, DBGatewayACLKeys, DBGroupDetails)
+        self._create_utils(Utility_Create)
+        self._create_acl_keys(ACL_Create)
+        self._create_utils_access(ACLGlobalAccess, ACLKeys, Utilities)
+        self._create_acl_objects(ACLObjects_Create)
+        self._create_acl_access(ACLGroupPermissions_Global, ACLKeys, APIGroups)
     
     def _database(self):
         """

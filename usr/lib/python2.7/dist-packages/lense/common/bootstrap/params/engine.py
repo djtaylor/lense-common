@@ -463,6 +463,23 @@ class EngineParams(object):
             }
         ]
         
+    def get_user(self, name):
+        """
+        Extract attributes for a specific user.
+        """
+        for user in self.users:
+            if user['username'] == name:
+                return user
+        return None
+        
+    def set_user(self, name, key, value):
+        """
+        Set user attributes.
+        """
+        for user in self.users:
+            if user['username'] == name:
+                user[key] = value
+        
     def _set_users(self):
         """
         Set default user parameters.
