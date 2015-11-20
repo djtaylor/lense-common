@@ -44,6 +44,26 @@ TEMPLATES      = Collection({
     'PORTAL': '/usr/share/lense/portal/templates'                     
 }).get()
 
+# Lense Projects
+LENSE_PROJECTS = Collection({
+    'ENGINE': {
+        'LOG':  '/var/log/lense/engine.log',
+        'CONF': '/etc/lense/engine.conf'
+    },
+    'PORTAL': {
+        'LOG':  '/var/log/lense/portal.log',
+        'CONF': '/etc/lense/portal.conf'
+    },
+    'CLIENT': {
+        'LOG':  '/var/log/lense/client.log',
+        'CONF': '/etc/lense/client.conf'
+    },
+    'SOCKET': {
+        'LOG':  '/var/log/lense/socket.log',
+        'CONF': '/etc/lense/socket.conf'
+    }
+})
+
 # API Groups
 GROUPS         = Collection({
     'SERVICE': {

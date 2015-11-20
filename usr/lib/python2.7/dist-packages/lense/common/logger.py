@@ -4,6 +4,9 @@ import logging.handlers
 from os import makedirs
 from os.path import isdir, dirname
 
+# Lense Libraries
+from lense.common.projects import LenseProject
+
 class LogFormat(logging.Formatter):
     """
     Custom log format object to use with the Python logging module. Used
@@ -62,6 +65,15 @@ class Logger:
             lfm = LogFormat(fmt='%(asctime)s %(name)s - %(levelname)s: %(message)s', datefmt='%d-%m-%Y %I:%M:%S')
             lfh.setFormatter(lfm)
         return logger
+    
+def create_project(project):
+    """
+    Wrapper method for creating a project logger instance.
+    """
+    project = LenseProject(project)
+    
+    # Return a logger object
+    return create(project.log.name, project.log.file)
     
 def create(name=False, log_file=None):
     """
