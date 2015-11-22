@@ -15,7 +15,7 @@ from Crypto.Cipher import AES
 # Lense Libraries
 from lense.common import config
 from lense.common import logger
-from lense.common.vars import LENSE_CONFIG
+from lense.common.vars import CONFIG
 
 def set_response(rsp_obj, default):
     """
@@ -238,7 +238,7 @@ class UtilsBase(object):
         log_name  = '{}.{}'.format(__name__, child.__class__.__name__)
 
         # Running utilities on the server
-        if os.path.isfile(LENSE_CONFIG.ENGINE):
+        if os.path.isfile(CONFIG.ENGINE):
             self.conf = config.parse('ENGINE')
             self.log  = logger.create(log_name, self.conf.utils.log)
             

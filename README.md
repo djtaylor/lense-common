@@ -1,12 +1,34 @@
-# Lense API Common Libraries
+# Lense Common Libraries
 
-Common libraries shared by the Lense API engine, client, and portal applications.
+Common libraries shared by the Lense engine, client, and portal applications.
 
-### Lense All-in-One
+### Repository
 
-If you are running all lense services on one host, you must install the following packages with pip:
+To make the Lense packages available, you will need to add the following PPA and import the signing key:
 
 ```sh
-$ sudo apt-get install python-pip
-$ sudo pip install Django==1.8.5 django_auth_ldap django_encrypted_fields feedback lsbinit socketIO-client oauth2client
+$ sudo add-apt-repository ppa:djtaylor13/main
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DAA6AF94
+$ sudo apt-get update
+```
+
+### Installation
+
+You can install 'lense-common' and its requirements with the following commands:
+
+```sh
+$ sudo apt-get install lense-common
+$ sudo pip install -r /usr/share/doc/lense/requirements.txt
+```
+
+Note that this will satisfy Python requirements for: lense-client, lense-engine, lense-portal
+
+### Installation (All-in-One)
+
+If you are installing of the Lense projects on one machine, you can run the following commands to get your installation up and running:
+
+```sh
+$ sudo apt-get install lense-common lense-client lense-engine lense-portal
+$ sudo pip install -r /usr/share/doc/lense/requirements.txt
+$ sudo lense-bootstrap
 ```

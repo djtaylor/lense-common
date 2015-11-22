@@ -12,7 +12,7 @@ class ACLGlobalAccess(Model):
     Main database model for storing global ACL access keys.
     """
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    utility    = ForeignKey('utility.Utilities', to_field='uuid', db_column='utility')
+    handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
@@ -23,7 +23,7 @@ class ACLObjectAccess(Model):
     Main database model for storing object level ACL access keys.
     """
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    utility    = ForeignKey('utility.Utilities', to_field='uuid', db_column='utility')
+    handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
@@ -95,12 +95,12 @@ class ACLGroupPermissions_Object_User(Model):
     class Meta:
         db_table = 'acl_group_permissions_object_user'
         
-class ACLGroupPermissions_Object_Utility(Model):
+class ACLGroupPermissions_Object_Handler(Model):
     """
-    Main database model for storing object ACL permissions for utility objects.
+    Main database model for storing object ACL permissions for handler objects.
     """
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    utility    = ForeignKey('utility.Utilities', to_field='uuid', db_column='utility')
+    handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='utility')
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
     allowed    = NullBooleanField()
         

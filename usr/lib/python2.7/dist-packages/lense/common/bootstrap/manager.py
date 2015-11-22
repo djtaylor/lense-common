@@ -13,11 +13,11 @@ from feedback import Feedback
 os.environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 
 # Lense Libraries
+from lense.common import logger
 from lense.common.utils import rstring
-from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG, USERS, GROUPS
-import lense.common.logger as logger
-from lense.common.config import LenseConfigEditor
 from lense.common.objects import JSONObject
+from lense.common.config import LenseConfigEditor
+from lense.common.vars import LOG_DIR, RUN_DIR, WSGI_CONFIG, LENSE_CONFIG, USERS, GROUPS
 from lense.common.bootstrap.params import EngineParams, PortalParams, ClientParams, SocketParams
 
 try:
@@ -405,36 +405,36 @@ class _BootstrapEngine(_BootstrapCommon):
         # Return the user object
         return _users
     
-    def _create_utils(self, obj):
+    def _create_handlers(self, obj):
         """
-        Create API utility entries.
+        Create API handler entries.
         """
-        for _util in self.params.utils:
-            util = obj(APIBare(
+        for _handler in self.params.handlers:
+            handler = obj(APIBare(
                 data = {
-                    'path': _util['path'],
-                    'name': _util['name'],
-                    'desc': _util['desc'],
-                    'method': _util['method'],
-                    'mod': _util['mod'],
-                    'cls': _util['cls'],
-                    'protected': _util['protected'],
-                    'enabled': _util['enabled'],
-                    'object': _util['object'],
-                    'object_key': _util['object_key'],
-                    'allow_anon': _util.get('allow_anon', False),
-                    'rmap': json.dumps(_util['rmap'])
+                    'path': _handler['path'],
+                    'name': _handler['name'],
+                    'desc': _handler['desc'],
+                    'method': _handler['method'],
+                    'mod': _handler['mod'],
+                    'cls': _handler['cls'],
+                    'protected': _handler['protected'],
+                    'enabled': _handler['enabled'],
+                    'object': _handler['object'],
+                    'object_key': _handler['object_key'],
+                    'allow_anon': _handler.get('allow_anon', False),
+                    'rmap': json.dumps(_handler['rmap'])
                 },
-                path = 'utilities'
+                path = 'handlers'
             )).launch()
             
-            # If the utility was not created
-            if not util['valid']:
-                self._die('HTTP {0}: {1}'.format(util['code'], util['content']))
+            # If the handler was not created
+            if not handler['valid']:
+                self._die('HTTP {0}: {1}'.format(handler['code'], handler['content']))
             
-            # Store the utility UUID
-            _util['uuid'] = util['data']['uuid']
-            self.feedback.success('Created database entry for utility "{0}": Path={1}, Method={2}'.format(_util['name'], _util['path'], _util['method']))
+            # Store the handler UUID
+            _handler['uuid'] = handler['data']['uuid']
+            self.feedback.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(_handler['name'], _handler['path'], _handler['method']))
     
     def _create_acl_keys(self, obj):
         """
@@ -462,27 +462,27 @@ class _BootstrapEngine(_BootstrapCommon):
         # Setup ACL objects
         self.params.acl.set_objects()
     
-    def _create_utils_access(self, g_access, key, util):
+    def _create_handlers_access(self, g_access, key, handler):
         """
-        Permit access to utilities by ACL key.
+        Permit access to handlers by ACL key.
         
         @param g_access: Global ACL access model
-        @type  g_access: DBGatewayACLAccessGlobal
+        @type  g_access: ACLGlobalAccess
         @param key:      ACL key database model
-        @type  key:      DBGatewayACLKeys
-        @param util:     Utility database model
-        @type  util:     DBGatewayUtilities
+        @type  key:      ACLKeys
+        @param handler:  Handler database model
+        @type  handler:  Handlers
         """
         
         # Process ACL keys
         for k in self.params.acl.keys:
             if k['type_global']:
-                for u in k['util_classes']:
+                for u in k['handler_classes']:
                     g_access.objects.create(
                         acl = key.objects.get(uuid=k['uuid']),
-                        utility = util.objects.get(cls=u)
+                        handler = handler.objects.get(cls=u)
                     ).save()
-                    self.feedback.success('Granted global access to utility "{0}" with ACL "{1}"'.format(u, k['name']))
+                    self.feedback.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
     
     def _create_acl_objects(self, obj):
         """
@@ -532,12 +532,12 @@ class _BootstrapEngine(_BootstrapCommon):
         # Request handlers
         from lense.engine.api.handlers.user import User_Create
         from lense.engine.api.handlers.group import Group_Create
-        from lense.engine.api.handlers.utility import Utility_Create
+        from lense.engine.api.handlers.handler import Utility_Create
         from lense.engine.api.handlers.acl import ACLObjects_Create, ACL_Create
         
         # Common object models
         from lense.common.objects.group.models import APIGroups
-        from lense.common.objects.utility.models import Utilities
+        from lense.common.objects.handler.models import Handlers
         from lense.common.objects.acl.models import ACLGroupPermissions_Global, ACLKeys, ACLGlobalAccess
         
         # Setup Django models
@@ -567,10 +567,10 @@ class _BootstrapEngine(_BootstrapCommon):
             lce.save()
             self.feedback.success('[{0}] Set API administrator values'.format(LENSE_CONFIG.ENGINE))
     
-        # Create API utilities / ACL objects / ACL keys / access entries
-        self._create_utils(Utility_Create)
+        # Create API handlers / ACL objects / ACL keys / access entries
+        self._create_handlers(Utility_Create)
         self._create_acl_keys(ACL_Create)
-        self._create_utils_access(ACLGlobalAccess, ACLKeys, Utilities)
+        self._create_handlers_access(ACLGlobalAccess, ACLKeys, Handlers)
         self._create_acl_objects(ACLObjects_Create)
         self._create_acl_access(ACLGroupPermissions_Global, ACLKeys, APIGroups)
     

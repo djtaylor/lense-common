@@ -1,7 +1,7 @@
 import re
 import json
-from types import InstanceType, ClassType
 from collections import namedtuple
+from types import InstanceType, ClassType
 
 class Collection(object):
     """

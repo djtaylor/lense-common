@@ -46,15 +46,15 @@ class _EngineACL(object):
         """
         self.objects = [
             {
-                "type": "utility",
-                "name": "API Utility",
+                "type": "handler",
+                "name": "API Handler",
                 "acl_mod": "lense.common.objects.acl.models",
-                "acl_cls": "ACLGroupPermissions_Object_Utility",
-                "acl_key": "utility",
-                "obj_mod": "lense.common.objects.utility.models",
-                "obj_cls": "Utilities",
+                "acl_cls": "ACLGroupPermissions_Object_Handler",
+                "acl_key": "handler",
+                "obj_mod": "lense.common.objects.handler.models",
+                "obj_cls": "Handlers",
                 "obj_key": "uuid",
-                "def_acl": self._get_acl_key('util.view')
+                "def_acl": self._get_acl_key('handler.view')
             },
             {
                 "type": "group",
@@ -90,7 +90,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing API token requests.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
+                "handler_classes": [
                     "Token_Get"
                 ]
             },
@@ -99,7 +99,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing global administration of users.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
+                "handler_classes": [
                     "User_Get",
                     "User_Create",
                     "User_Delete",
@@ -113,7 +113,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing read-only access to user objects.",
                 "type_object": True,
                 "type_global": False,
-                "util_classes": [
+                "handler_classes": [
                     "User_Get"
                 ]
             },
@@ -122,7 +122,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing global administration of groups.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
+                "handler_classes": [
                     "Group_Get",
                     "Group_Create",
                     "Group_Update",
@@ -136,32 +136,32 @@ class _EngineACL(object):
                 "desc": "ACL for allowing read-only access to group objects.",
                 "type_object": True,
                 "type_global": False,
-                "util_classes": [
+                "handler_classes": [
                     "Group_Get"
                 ]
             },
             {
-                "name": "util.admin",
-                "desc": "ACL for allowing administration of API utilities.",
+                "name": "handler.admin",
+                "desc": "ACL for allowing administration of API handlers.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
-                    "Utility_Get",
-                    "Utility_Create",
-                    "Utility_Save",
-                    "Utility_Validate",
-                    "Utility_Delete",
-                    "Utility_Close",
-                    "Utility_Open"
+                "handler_classes": [
+                    "Handler_Get",
+                    "Handler_Create",
+                    "Handler_Save",
+                    "Handler_Validate",
+                    "Handler_Delete",
+                    "Handler_Close",
+                    "Handler_Open"
                 ]
             },
             {
-                "name": "util.view",
-                "desc": "ACL for allowing read-only access to utility objects.",
+                "name": "handler.view",
+                "desc": "ACL for allowing read-only access to handler objects.",
                 "type_object": True,
                 "type_global": False,
-                "util_classes": [
-                    "Utility_Get"
+                "handler_classes": [
+                    "Handler_Get"
                 ]
             },
             {
@@ -169,7 +169,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing read-only access to ACL definitions.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
+                "handler_classes": [
                      "ACL_Get"            
                 ]
             },
@@ -178,7 +178,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing administration of ACL definitions.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
+                "handler_classes": [
                      "ACL_Get",
                      "ACL_Create",
                      "ACL_Delete",
@@ -190,7 +190,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing read-only access to ACL object definitions.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
+                "handler_classes": [
                     "ACLObjects_Get"
                 ]
             },
@@ -199,7 +199,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing administration of ACL object definitions.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
+                "handler_classes": [
                     "ACLObjects_Get",
                     "ACLObjects_Create",
                     "ACLObjects_Delete",
@@ -211,7 +211,7 @@ class _EngineACL(object):
                 "desc": "ACL for allowing administration of API statistics.",
                 "type_object": False,
                 "type_global": True,
-                "util_classes": [
+                "handler_classes": [
                     "StatsRequest_Get"
                 ]
             }
@@ -380,14 +380,14 @@ class EngineParams(object):
     def __init__(self):
         
         # User input / ACL objects
-        self.input  = _EngineInput()
-        self.acl    = _EngineACL()
+        self.input    = _EngineInput()
+        self.acl      = _EngineACL()
         
         # Groups/users/database/file parameters
-        self.groups = self._set_groups()
-        self.users  = self._set_users()
-        self.utils  = self._set_utils()
-        self.db     = None
+        self.groups   = self._set_groups()
+        self.users    = self._set_users()
+        self.handlers = self._set_handlers()
+        self.db       = None
     
     def get_config(self):
         """
@@ -515,18 +515,18 @@ class EngineParams(object):
             }
         ]
         
-    def _set_utils(self):
+    def _set_handlers(self):
         """
-        Set default utility parameters
+        Set default handler parameters
         """
         
-        # Set the utility handlers
+        # Set the handler handlers
         umod = {
             'acl':     'lense.engine.api.handlers.acl',
             'group':   'lense.engine.api.handlers.group',
             'user':    'lense.engine.api.handlers.user',
             'stats':   'lense.engine.api.handlers.stats',
-            'utility': 'lense.engine.api.handlers.utility',
+            'handler': 'lense.engine.api.handlers.handler',
             'token':   'lense.engine.api.handlers.token'
         }
         
@@ -800,88 +800,88 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "Utility_Get",
-                "name": "Utility_Get",
-                "path": "utility",
+                "cls": "Handler_Get",
+                "name": "Handler_Get",
+                "path": "handler",
                 "method": HTTP_GET,
-                "desc": "Get a listing of API utilities",
-                "mod": umod['utility'],
+                "desc": "Get a listing of API handlers",
+                "mod": umod['handler'],
                 "protected": True,
                 "enabled": True,
-                "object": "utility",
+                "object": "handler",
                 "object_key": "uuid",
                 "rmap": {
                     "_required": [],
-                    "_optional": ["utility"],
+                    "_optional": ["handler"],
                     "_type": "dict",
                     "_children": {
-                        "utility": {
+                        "handler": {
                             "_type": "uuid"
                         }
                     }
                 }
             },
             {
-                "cls": "Utility_Open",
-                "name": "Utility_Open",
-                "path": "utility/open",
+                "cls": "Handler_Open",
+                "name": "Handler_Open",
+                "path": "handler/open",
                 "method": HTTP_PUT,
-                "desc": "Open an API utility for editing",
-                "mod": umod['utility'],
+                "desc": "Open an API handler for editing",
+                "mod": umod['handler'],
                 "protected": True,
                 "enabled": True,
-                "object": "utility",
+                "object": "handler",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["utility"],
+                    "_required": ["handler"],
                     "_optional": [],
                     "_type": "dict",
                     "_children": {
-                        "utility": {
+                        "handler": {
                             "_type": "uuid"
                         }
                     }
                 }
             },
             {
-                "cls": "Utility_Close",
-                "name": "Utility_Close",
-                "path": "utility/close",
+                "cls": "Handler_Close",
+                "name": "Handler_Close",
+                "path": "handler/close",
                 "method": HTTP_PUT,
-                "desc": "Close the editing lock on an API utility",
-                "mod": umod['utility'],
+                "desc": "Close the editing lock on an API handler",
+                "mod": umod['handler'],
                 "protected": True,
                 "enabled": True,
-                "object": "utility",
+                "object": "handler",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["utility"],
+                    "_required": ["handler"],
                     "_optional": [],
                     "_type": "dict",
                     "_children": {
-                        "utility": {
+                        "handler": {
                             "_type": "uuid"
                         }
                     }
                 }
             },
             {
-                "cls": "Utility_Validate",
-                "name": "Utility_Validate",
-                "path": "utility/validate",
+                "cls": "Handler_Validate",
+                "name": "Handler_Validate",
+                "path": "handler/validate",
                 "method": HTTP_PUT,
-                "desc": "Validate changes to an API utility",
-                "mod": umod['utility'],
+                "desc": "Validate changes to an API handler",
+                "mod": umod['handler'],
                 "protected": True,
                 "enabled": True,
-                "object": "utility",
+                "object": "handler",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["utility"],
-                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
+                    "_required": ["handler"],
+                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "handlers", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
                     "_type": "dict",
                     "_children": {
-                        "utility": {
+                        "handler": {
                             "_type": "uuid"
                         },
                         "name": {
@@ -903,7 +903,7 @@ class EngineParams(object):
                         "cls": {
                             "_type": "str"
                         },
-                        "utils": {
+                        "handlers": {
                             "_type": "list"
                         },
                         "rmap": {
@@ -928,22 +928,22 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "Utility_Save",
-                "name": "Utility_Save",
-                "path": "utility",
+                "cls": "Handler_Save",
+                "name": "Handler_Save",
+                "path": "handler",
                 "method": HTTP_PUT,
-                "desc": "Save changes to an API utility",
-                "mod": umod['utility'],
+                "desc": "Save changes to an API handler",
+                "mod": umod['handler'],
                 "protected": True,
                 "enabled": True,
-                "object": "utility",
+                "object": "handler",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["utility"],
-                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
+                    "_required": ["handler"],
+                    "_optional": ["path", "name", "desc", "method", "mod", "cls", "handlers", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
                     "_type": "dict",
                     "_children": {
-                        "utility": {
+                        "handler": {
                             "_type": "uuid"
                         },
                         "name": {
@@ -965,7 +965,7 @@ class EngineParams(object):
                         "cls": {
                             "_type": "str"
                         },
-                        "utils": {
+                        "handlers": {
                             "_type": "list"
                         },
                         "rmap": {
@@ -990,18 +990,18 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "Utility_Create",
-                "name": "Utility_Create",
-                "path": "utility",
+                "cls": "Handler_Create",
+                "name": "Handler_Create",
+                "path": "handler",
                 "method": HTTP_POST,
-                "desc": "Create a new API utility",
-                "mod": umod['utility'],
+                "desc": "Create a new API handler",
+                "mod": umod['handler'],
                 "protected": True,
                 "enabled": True,
-                "object": "utility",
+                "object": "handler",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["path", "name", "desc", "method", "mod", "cls", "utils", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
+                    "_required": ["path", "name", "desc", "method", "mod", "cls", "handlers", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
                     "_optional": [],
                     "_type": "dict",
                     "_children": {
@@ -1024,7 +1024,7 @@ class EngineParams(object):
                         "cls": {
                             "_type": "str"
                         },
-                        "utils": {
+                        "handlers": {
                             "_type": "list"
                         },
                         "rmap": {
@@ -1049,22 +1049,22 @@ class EngineParams(object):
                 }
             },
             {
-                "cls": "Utility_Delete",
-                "name": "Utility_Delete",
-                "path": "utility",
+                "cls": "Handler_Delete",
+                "name": "Handler_Delete",
+                "path": "handler",
                 "method": HTTP_DELETE,
-                "desc": "Delete an existing API utility",
-                "mod": umod['utility'],
+                "desc": "Delete an existing API handler",
+                "mod": umod['handler'],
                 "protected": True,
                 "enabled": True,
-                "object": "utility",
+                "object": "handler",
                 "object_key": "uuid",
                 "rmap": {
-                    "_required": ["utility"],
+                    "_required": ["handler"],
                     "_optional": [],
                     "_type": "dict",
                     "_children": {
-                        "utility": {
+                        "handler": {
                             "_type": "uuid"
                         }
                     }

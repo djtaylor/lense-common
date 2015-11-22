@@ -4,7 +4,7 @@ from importlib import import_module
 from django.db.models.query import QuerySet
 
 # Lense Libraries
-from lense.common.objects.utility.models import Utilities
+from lense.common.objects.handler.models import Handlers
 
 class ACLKeysQuerySet(QuerySet):
     """
@@ -21,9 +21,9 @@ class ACLKeysQuerySet(QuerySet):
         self.ACLObjectAccess = ACLObjectAccess
         self.ACLGlobalAccess = ACLGlobalAccess
         
-        # ACL object types / utilities
+        # ACL object types / handlers
         self.obj_types = self._get_objects()
-        self.utilities = {x['uuid']: x for x in list(Utilities.objects.all().values())}
+        self.handlers = {x['uuid']: x for x in list(Handlers.objects.all().values())}
         
     def _get_objects(self):
         """
@@ -39,52 +39,52 @@ class ACLKeysQuerySet(QuerySet):
             'details': {x['type']: x for x in acl_objects},
         }
         
-    def _extract_utilities(self, utilities):
+    def _extract_handlers(self, handlers):
         """
-        Extract utility information from an ACL utility assignment.
+        Extract handler information from an ACL handler assignment.
         """
         
-        # ACL utlities return object
-        utilities_obj = []
+        # ACL handlers return object
+        handlers_obj = []
         
         # Object type
         obj_type      = None
         
-        # Construct the ACL utilities object
-        for util in utilities:
-            util_uuid = util['utility_id']
-            utilities_obj.append({
-                'uuid':   self.utilities[util_uuid]['uuid'],
-                'path':   self.utilities[util_uuid]['path'],
-                'desc':   self.utilities[util_uuid]['desc'],
-                'method': self.utilities[util_uuid]['method'],
-                'object': self.utilities[util_uuid]['object']
+        # Construct the ACL handlers object
+        for handler in handlers:
+            handler_uuid = handler['handler_id']
+            handlers_obj.append({
+                'uuid':   selfhandlerss[handler_uuid]['uuid'],
+                'path':   self.handlers[handler_uuid]['path'],
+                'desc':   self.handlers[handler_uuid]['desc'],
+                'method': self.handlers[handler_uuid]['method'],
+                'object': self.handlers[handler_uuid]['object']
             })
             
             # If the object type is defined
-            obj_type = obj_type if not self.utilities[util_uuid]['object'] else self.utilities[util_uuid]['object']
+            obj_type = obj_type if not self.handlers[handler_uuid]['object'] else self.handlers[handler_uuid]['object']
             
-        # Return the ACL utilities object and object type
-        return utilities_obj, obj_type
+        # Return the ACL handlers object and object type
+        return handlers_obj, obj_type
         
     def _extract(self, acl):
         """
         Extract and construct each ACL definition.
         """
         
-        # Extract all utility access definitions
-        object_util = self._extract_utilities(list(self.ACLObjectAccess.objects.filter(acl=acl['uuid']).values()))
-        global_util = self._extract_utilities(list(self.ACLGlobalAccess.objects.filter(acl=acl['uuid']).values()))
+        # Extract all handler access definitions
+        object_handler = self._extract_handlers(list(self.ACLObjectAccess.objects.filter(acl=acl['uuid']).values()))
+        global_handler = self._extract_handlers(list(self.ACLGlobalAccess.objects.filter(acl=acl['uuid']).values()))
         
-        # Contstruct the utilities for each ACL access type
-        acl['utilities'] = {
+        # Contstruct the handlers for each ACL access type
+        acl['handlers'] = {
             'object': {
-                'type': object_util[1],
-                'list': object_util[0]
+                'type': object_handler[1],
+                'list': object_handler[0]
             },
             'global': {
-                'type': global_util[1],
-                'list': global_util[0]
+                'type': global_handler[1],
+                'list': global_handler[0]
             }          
         }
         
@@ -154,7 +154,7 @@ class ACLObjectsQuerySet(QuerySet):
                 })
         
             # Utility objects
-            if acl_object['type'] == 'utility':
+            if acl_object['type'] == 'handler':
                 acl_object['objects'].append({
                     'id':    obj_details[obj_key],
                     'path':  obj_details['path'],

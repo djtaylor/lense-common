@@ -3,8 +3,8 @@ from os.path import isfile
 from json import dumps as dump_json
 
 # Lense Libraries
+from lense.common.vars import CONFIG
 from lense.common.objects import JSONObject
-from lense.common.vars import LENSE_CONFIG
 from lense.common.collection import Collection
 
 class LenseConfigEditor(object):
