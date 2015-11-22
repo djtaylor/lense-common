@@ -1,0 +1,6 @@
+Django==1.8.6
+django_encrypted_fields
+django_auth_ldap
+feedback
+lsbinit
+socketIO-client
