@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 import os
 import sys
@@ -10,12 +11,21 @@ import hashlib
 import operator
 import importlib
 import subprocess
+from os import geteuid
 from Crypto.Cipher import AES
 
 # Lense Libraries
 from lense.common import config
 from lense.common import logger
 from lense.common.vars import CONFIG
+
+def ensure_root():
+    """
+    Make sure the current process is being run as root or with sudo privileges.
+    """
+    if not geteuid() == 0:
+        print('ERROR: This script must be run as root or with sudo privileges')
+        sys.exit(1)
 
 def set_response(rsp_obj, default):
     """

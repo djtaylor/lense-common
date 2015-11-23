@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+from lense.common.utils import ensure_root
 from lense.bootstrap.interface import Bootstrap
 
 # Bootstrap the Lense installation
 if __name__ == '__main__':
+    ensure_root()
     Bootstrap.run()

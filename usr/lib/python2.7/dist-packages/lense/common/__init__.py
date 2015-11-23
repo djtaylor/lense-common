@@ -15,7 +15,7 @@ from lense import MODULE_ROOT, DROPIN_ROOT
 from lense.common.objects import JSONObject
 from lense.common.utils import valid, invalid
 from lense.common.collection import Collection
-from lense.common.projects import LenseProjects
+from lense.common.project import LenseProject
 from lense.common.vars import PROJECTS, TEMPLATES
 from lense.common.request import LenseRequestObject
 from lense.common.exceptions import InvalidProjectID

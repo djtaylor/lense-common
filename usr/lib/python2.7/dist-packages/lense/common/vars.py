@@ -60,7 +60,7 @@ PROJECTS = Collection({
         'REQUEST': False,
         'OBJECTS': False
     }
-})
+}).get()
 
 # API Groups
 GROUPS = Collection({

@@ -1,6 +1,6 @@
 from lense.common import LenseCommon
-from lense.common.bootstrap.args import BootstrapArgs
-from lense.common.bootstrap.answers import BootstrapAnswers
+from lense.bootstrap.args import BootstrapArgs
+from lense.bootstrap.answers import BootstrapAnswers
 from lense.bootstrap.params import EngineParams, PortalParams, ClientParams, SocketParams
 from lense.bootstrap.projects import BootstrapClient, BootstrapPortal, BootstrapEngine, BootstrapSocket
 

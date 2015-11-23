@@ -5,7 +5,7 @@ from os import makedirs
 from os.path import isdir, dirname
 
 # Lense Libraries
-from lense.common.projects import LenseProject
+from lense.common.project import LenseProject
 
 class LogFormat(logging.Formatter):
     """

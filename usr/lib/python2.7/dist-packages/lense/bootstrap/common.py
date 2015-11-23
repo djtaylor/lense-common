@@ -1,5 +1,5 @@
 from subprocess import Popen, PIPE
-from os import geteuid, path, makedirs
+from os import path, makedirs
 
 # Lense Libraries
 from lense.common import LenseCommon
@@ -16,16 +16,6 @@ class BootstrapCommon(object):
     def __init__(self, project=None):
         self.project = project
         self.ATTRS   = getattr(PROJECTS, upper(project))
-        
-        # Make sure being run as root
-        self._check_root()
-
-    def _check_root(self):
-        """
-        Bootstrap manager needs to be run as root.
-        """
-        if not geteuid() == 0:
-            self.die('Lense bootstrap manager must be run with root privileges', log=False)
 
     def die(self, msg, log=True):
         """

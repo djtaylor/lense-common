@@ -9,4 +9,4 @@ class InvalidProjectID(Exception):
     Wrapper class for handling invalid project names.
     """
     def __init__(self, project):
-        self.message = 'Invalid project ID: {0}'.format(project)
+        super(InvalidProjectID, self).__init__('Invalid project ID: {0}'.format(project))
