@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager
 
 # Lense Libraries
-from lense.common.vars import G_DEFAULT
+from lense.common.vars import GROUPS
 from lense.common.objects.user.queryset import APIUserQuerySet
 
 class APIUserManager(BaseUserManager):
@@ -36,7 +36,7 @@ class APIUserManager(BaseUserManager):
         # Return the created user
         return user, True
         
-    def create_user(self, group=G_DEFAULT, uuid=None, **attrs):
+    def create_user(self, group=GROUPS.DEFAULT.UUID, uuid=None, **attrs):
         """
         Create a new user account.
         """

@@ -1,6 +1,6 @@
 from lense.common import LenseCommon
-from lense.common.bootstrap.params import SocketParams
-from lense.common.bootstrap.common import BootstrapCommon
+from lense.bootstrap.params import SocketParams
+from lense.bootstrap.common import BootstrapCommon
 
 # Lense Common
 LENSE = LenseCommon('BOOTSTRAP')
@@ -9,8 +9,12 @@ class BootstrapSocket(BootstrapCommon):
     """
     Class object for handling bootstrap of the Lense API Socket.IO proxy.
     """
-    def __init__(self):
+    def __init__(self, args, answers):
         super(BootstrapSocket, self).__init__('socket')
+
+        # Arguments / answers
+        self.args     = args
+        self.answers  = answers
 
         # Bootstrap parameters
         self.params   = SocketParams()
@@ -36,6 +40,9 @@ class BootstrapSocket(BootstrapCommon):
         
         # Get user input
         self.read_input(self.answers.get('socket', {}))
+        
+        # Create required directories
+        self.mkdirs([self.get_file_path(self.ATTRS.LOG), self.get_file_path(self.ATTRS.RUN)])
         
         # Update the configuration
         self.update_config('socket')

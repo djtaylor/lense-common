@@ -33,7 +33,7 @@ class LenseModules(object):
         # Built-in/drop-in module roots
         self.ROOT    = MODULE_ROOT
         self.DROPIN  = self._get_dropin_modules()
-        self.BUILTIN = self._get_builin_modules()
+        self.BUILTIN = self._get_builtin_modules()
     
     def _dropin_path_map(self, rel):
         """
@@ -52,7 +52,7 @@ class LenseModules(object):
         Drop-in module attributes.
         """
         return Collection({
-            'CLIENT': [self._dropin_path_map('client/modules'), 'lense_d.client.modules']
+            'CLIENT': [self._dropin_path_map('client/module'), 'lense_d.client.module']
         }).get()
     
     def _get_builtin_modules(self):
@@ -60,7 +60,7 @@ class LenseModules(object):
         Built-in module attributes.
         """
         return Collection({
-            'CLIENT': [self._builtin_path_map('client/modules'), 'lense.client.modules']
+            'CLIENT': [self._builtin_path_map('client/module'), 'lense.client.module']
         }).get()
     
     def NAME(self, file):

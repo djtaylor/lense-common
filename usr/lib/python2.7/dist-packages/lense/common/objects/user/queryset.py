@@ -2,7 +2,7 @@
 from django.db.models.query import QuerySet
 
 # Lense Libraries
-from lense.common.vars import G_ADMIN
+from lense.common.vars import GROUPS
 
 class APIUserQuerySet(QuerySet):
     """
@@ -29,7 +29,7 @@ class APIUserQuerySet(QuerySet):
         """
         groups = self._get_groups(user)
         for group in groups:
-            if group['uuid'] == G_ADMIN:
+            if group['uuid'] == GROUPS.ADMIN.UUID:
                 return True
         return False
 

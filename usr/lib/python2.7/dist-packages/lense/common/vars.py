@@ -1,9 +1,13 @@
+from os.path import expanduser
 from lense.common.collection import Collection
 
 """
 Common attributes shared by various Lense modules. Defines string
 constants, messages, system paths, and other shared information.
 """
+
+# Database encryption keys
+DB_ENCRYPT_DIR = '/etc/lense/dbkey'
 
 # Lense Configuration Files
 CONFIG = Collection({
@@ -30,19 +34,17 @@ PROJECTS = Collection({
     'ENGINE': {
         'LOG':  '/var/log/lense/engine.log',
         'CONF': '/etc/lense/engine.conf',
-        'RUN': '/var/run/lense',
         'REQUEST': True,
         'OBJECTS': True
     },
     'PORTAL': {
         'LOG':  '/var/log/lense/portal.log',
         'CONF': '/etc/lense/portal.conf',
-        'RUN': '/var/run/lense',
         'REQUEST': True,
         'OBJECTS': False
     },
     'CLIENT': {
-        'LOG':  '/var/log/lense/client.log',
+        'LOG':  expanduser('~/lense-client.log'),
         'CONF': '/etc/lense/client.conf',
         'REQUEST': False,
         'OBJECTS': False

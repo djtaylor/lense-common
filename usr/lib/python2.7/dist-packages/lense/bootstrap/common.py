@@ -1,5 +1,6 @@
-from subprocess import Popen, PIPE
+from sys import exit
 from os import path, makedirs
+from subprocess import Popen, PIPE
 
 # Lense Libraries
 from lense.common import LenseCommon
@@ -15,7 +16,7 @@ class BootstrapCommon(object):
     """
     def __init__(self, project=None):
         self.project = project
-        self.ATTRS   = getattr(PROJECTS, upper(project))
+        self.ATTRS   = getattr(PROJECTS, project.upper())
 
     def die(self, msg, log=True):
         """
@@ -28,7 +29,13 @@ class BootstrapCommon(object):
             
         # Show the error and quit
         LENSE.FEEDBACK.error(msg)
-        sys.exit(1)
+        exit(1)
+
+    def get_file_path(self, file):
+        """
+        Return the parent directory of a file.
+        """
+        return path.dirname(file)
 
     def deploy_apache(self, project):
         """
@@ -63,19 +70,24 @@ class BootstrapCommon(object):
             else:
                 LENSE.FEEDBACK.info('Directory "{0}" already exists, skipping...'.format(d))
 
-    def chown_logs(self, project, user, group):
+    def chown_logs(self, project, user='root', group='root'):
         """
         Set permissions on log files.
         """
+        log_file = '/var/log/lense/{0}.log'.format(project)
+        
+        # Make sure the log file exists
+        if not path.isfile(log_file):
+            open(log_file, 'a').close()
         
         # Change log file permissions
-        proc = Popen(['chown', '-R', 'www-data:www-data', '/var/log/lense'], stdout=PIPE, stderr=PIPE)
+        proc = Popen(['chown', '-R', '{0}:{1}'.format(user,group), log_file], stdout=PIPE, stderr=PIPE)
         out, err = proc.communicate()
         
         # Make sure the command returned successfully
         if not proc.returncode == 0:
             self.die('Failed to set log permissions: {0}'.format(str(err)))
-        LENSE.FEEDBACK.success('Set log permissions for Lense API engine'.format(project))
+        LENSE.FEEDBACK.success('Set log permissions for Lense project: {0}'.format(project))
 
     def _get_password(self, prompt, min_length=8):
         _pass = getpass(prompt)
@@ -94,7 +106,7 @@ class BootstrapCommon(object):
             return self._get_password(prompt, min_length)
         return _pass
 
-    def get_input(self, prompt, default=None):
+    def _get_input(self, prompt, default=None):
         _input = raw_input(prompt) or default
         
         # If no input found

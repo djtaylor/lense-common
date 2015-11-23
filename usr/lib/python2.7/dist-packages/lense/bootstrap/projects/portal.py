@@ -1,6 +1,6 @@
 from lense.common import LenseCommon
-from lense.common.bootstrap.params import PortalParams
-from lense.common.bootstrap.common import BootstrapCommon
+from lense.bootstrap.params import PortalParams
+from lense.bootstrap.common import BootstrapCommon
 
 # Lense Common
 LENSE = LenseCommon('BOOTSTRAP')
@@ -9,9 +9,13 @@ class BootstrapPortal(BootstrapCommon):
     """
     Class object for handling bootstrap of the Lense API portal.
     """
-    def __init__(self):
+    def __init__(self, args, answers):
         super(BootstrapPortal, self).__init__('portal')
 
+        # Arguments / answers
+        self.args     = args
+        self.answers  = answers
+        
         # Bootstrap parameters
         self.params   = PortalParams()
 
@@ -36,14 +40,14 @@ class BootstrapPortal(BootstrapCommon):
         self.read_input(self.answers.get('portal', {}))
         
         # Create required directories and update the configuration
-        self.mkdirs([LOG_DIR])
+        self.mkdirs([self.get_file_path(self.ATTRS.LOG)])
         self.update_config('portal')
             
         # Deploy the Apache configuration
         self.deploy_apache('portal')
             
         # Set log file permissions
-        self.chown_logs('portal')
+        self.chown_logs('portal', user='www-data', group='www-data')
             
         # Show to bootstrap complete summary
         self._bootstrap_complete()

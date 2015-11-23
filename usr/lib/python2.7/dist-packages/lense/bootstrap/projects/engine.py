@@ -1,6 +1,7 @@
-from os import environ
+from os import environ, path
 from subprocess import Popen
 from json import dumps as json_dumps
+from django import setup as django_setup
 from MySQLdb import connect as mysql_connect
 
 # Set the Django settings module
@@ -8,9 +9,12 @@ environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 
 # Lense Libraries
 from lense.common import LenseCommon
+from lense.common.utils import rstring
+from lense.engine.api.bare import APIBare
 from lense.common.vars import USERS, GROUPS
-from lense.common.bootstrap.params import EngineParams
-from lense.common.bootstrap.common import BootstrapCommon
+from lense.bootstrap.params import EngineParams
+from lense.common.config import LenseConfigEditor
+from lense.bootstrap.common import BootstrapCommon
 
 # Lense Common
 LENSE = LenseCommon('BOOTSTRAP')
@@ -19,8 +23,12 @@ class BootstrapEngine(BootstrapCommon):
     """
     Class object for handling bootstrap of the Lense API engine.
     """
-    def __init__(self):
+    def __init__(self, args, answers):
         super(BootstrapEngine, self).__init__('engine')
+        
+        # Arguments / answers
+        self.args     = args
+        self.answers  = answers
         
         # Bootstrap parameters
         self.params   = EngineParams()
@@ -88,7 +96,7 @@ class BootstrapEngine(BootstrapCommon):
         }
         
         # Make sure neither file exists
-        if os.path.isfile(enc_attrs['key']) or os.path.isfile(enc_attrs['meta']):
+        if path.isfile(enc_attrs['key']) or path.isfile(enc_attrs['meta']):
             return LENSE.FEEDBACK.warn('Database encryption key/meta properties already exist')
         
         # Generate / add encryption key
@@ -105,22 +113,22 @@ class BootstrapEngine(BootstrapCommon):
         _groups = []
         
         # Create each new group
-        for _g in self.params.groups:
-            g = obj(APIBare(
-                data = {
-                    'uuid':      _g['uuid'],
-                    'name':      _g['name'],
-                    'desc':      _g['desc'],
-                    'protected': _g['protected']
-                },
-                path = 'group'
-            )).launch()
-            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(g)))
+        for _group in self.params.groups:
+            data = {
+                'uuid': _group['uuid'],
+                'name': _group['name'],
+                'desc': _group['desc'],
+                'protected': _group['protected']
+            }
+            
+            # Create the group
+            group = obj(APIBare(data=data, path='group')).launch()
+            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(group)))
         
             # If the group was not created
-            if not g['valid']:
-                self.die('HTTP {0}: {1}'.format(g['code'], g['content']))
-            LENSE.FEEDBACK.success('Created Lense group: {0}'.format(g['data']['name']))
+            if not group['valid']:
+                self.die('HTTP {0}: {1}'.format(group['code'], group['content']))
+            LENSE.FEEDBACK.success('Created Lense group: {0}'.format(group['data']['name']))
         
         # Return the groups object
         return _groups
@@ -141,7 +149,7 @@ class BootstrapEngine(BootstrapCommon):
             password = self.params.input.response.get(_keys['password'], rstring(12))
             
             # User data
-            _data = {
+            data = {
                 'username': user['username'],
                 'group': user['group'],
                 'email': self.params.input.response.get(_keys['email'], user['email']),
@@ -150,13 +158,13 @@ class BootstrapEngine(BootstrapCommon):
             }
             
             # Create a new user object
-            user = obj(APIBare(data=_data, path='user')).launch()
+            user = obj(APIBare(data=data, path='user')).launch()
             LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(user)))
             
             # If the user was not created
             if not user['valid']:
                 self.die('HTTP {0}: {1}'.format(user['code'], user['content']))
-            LENSE.FEEDBACK.success('Created Lense account: {0}'.format(_data['username']))
+            LENSE.FEEDBACK.success('Created Lense account: {0}'.format(data['username']))
         
             # Add to the users object
             _users.append(user)
@@ -168,58 +176,86 @@ class BootstrapEngine(BootstrapCommon):
         """
         Create API handler entries.
         """
-        for _h in self.params.handlers:
-            h = obj(APIBare(
-                data = {
-                    'path':       _h['path'],
-                    'name':       _h['name'],
-                    'desc':       _h['desc'],
-                    'method':     _h['method'],
-                    'mod':        _h['mod'],
-                    'cls':        _h['cls'],
-                    'protected':  _h['protected'],
-                    'enabled':    _h['enabled'],
-                    'object':     _h['object'],
-                    'object_key': _h['object_key'],
-                    'allow_anon': _h.get('allow_anon', False),
-                    'rmap':       json_dumps(_h['rmap'])
-                },
-                path = 'handler'
-            )).launch()
+        for _handler in self.params.handlers:
+            data = {
+                'path': _handler['path'],
+                'name': _handler['name'],
+                'desc': _handler['desc'],
+                'method': _handler['method'],
+                'mod': _handler['mod'],
+                'cls': _handler['cls'],
+                'protected': _handler['protected'],
+                'enabled': _handler['enabled'],
+                'object': _handler['object'],
+                'object_key': _handler['object_key'],
+                'allow_anon': _handler.get('allow_anon', False),
+                'rmap': json_dumps(_handler['rmap'])
+            }
+            
+            # Create the request handler
+            handler = obj(APIBare(data=data, path='handler')).launch()
+            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(handler)))
             
             # If the handler was not created
-            if not h['valid']:
-                self.die('HTTP {0}: {1}'.format(h['code'], h['content']))
+            if not handler['valid']:
+                self.die('HTTP {0}: {1}'.format(handler['code'], handler['content']))
             
             # Store the handler UUID
-            _h['uuid'] = h['data']['uuid']
-            LENSE.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(_h['name'], _h['path'], _h['method']))
+            _handler['uuid'] = handler['data']['uuid']
+            LENSE.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(_handler['name'], _handler['path'], _handler['method']))
     
     def _create_acl_keys(self, obj):
         """
         Create ACL key definitions.
         """
-        for _a in self.params.acl.keys:
-            a = obj(APIBare(
-                data = {
-                    "name":        _a['name'],
-                    "desc":        _a['desc'],
-                    "type_object": _a['type_object'],
-                    "type_global": _a['type_global']
-                },
-                path = 'gateway/acl/objects'
-            )).launch()
+        for _acl_key in self.params.acl.keys:
+            data = {
+                "name": _acl_key['name'],
+                "desc": _acl_key['desc'],
+                "type_object": _acl_key['type_object'],
+                "type_global": _acl_key['type_global']
+            }
+            
+            # Create the ACL key
+            acl_key = obj(APIBare(data=data, path='acl')).launch()
+            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(acl_key)))
             
             # If the ACL key was not created
-            if not a['valid']:
-                self.die('HTTP {0}: {1}'.format(a['code'], a['content']))
+            if not acl_key['valid']:
+                self.die('HTTP {0}: {1}'.format(acl_key['code'], acl_key['content']))
                 
             # Store the new ACL key UUID
-            _a['uuid'] = a['data']['uuid']
-            LENSE.FEEDBACK.success('Created database entry for ACL key "{0}"'.format(_a['name']))
+            _acl_key['uuid'] = acl_key['data']['uuid']
+            LENSE.FEEDBACK.success('Created database entry for ACL key "{0}"'.format(_acl_key['name']))
             
         # Setup ACL objects
         self.params.acl.set_objects()
+    
+    def _create_acl_objects(self, obj):
+        """
+        Create ACL object definitions.
+        """
+        for _acl_object in self.params.acl.objects:
+            data = {
+                "type": _acl_object['type'],
+                "name": _acl_object['name'],
+                "acl_mod": _acl_object['acl_mod'],
+                "acl_cls": _acl_object['acl_cls'],
+                "acl_key": _acl_object['acl_key'],
+                "obj_mod": _acl_object['obj_mod'],
+                "obj_cls": _acl_object['obj_cls'],
+                "obj_key": _acl_object['obj_key'],
+                "def_acl": _acl_object['def_acl']
+            }
+            
+            # Create the ACL object
+            acl_object = obj(APIBare(data=data, path='acl/objects')).launch()
+            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(acl_object)))
+            
+            # If the ACL object was not created
+            if not acl_object['valid']:
+                self.die('HTTP {}: {}'.format(acl_object['code'], acl_object['content']))
+            LENSE.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(_acl_object['type'], _acl_object['name']))
     
     def _create_handlers_access(self, g_access, key, handler):
         """
@@ -242,31 +278,6 @@ class BootstrapEngine(BootstrapCommon):
                         handler = handler.objects.get(cls=u)
                     ).save()
                     LENSE.FEEDBACK.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
-    
-    def _create_acl_objects(self, obj):
-        """
-        Create ACL object definitions.
-        """
-        for _a in self.params.acl.objects:
-            a = obj(APIBare(
-                data = {
-                    "type": _a['type'],
-                    "name": _a['name'],
-                    "acl_mod": _a['acl_mod'],
-                    "acl_cls": _a['acl_cls'],
-                    "acl_key": _a['acl_key'],
-                    "obj_mod": _a['obj_mod'],
-                    "obj_cls": _a['obj_cls'],
-                    "obj_key": _a['obj_key'],
-                    "def_acl": _a['def_acl']
-                },
-                path = 'gateway/acl/objects'
-            )).launch()
-            
-            # If the ACL object was not created
-            if not a['valid']:
-                self.die('HTTP {}: {}'.format(a['code'], a['content']))
-            LENSE.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(_a['type'], _a['name']))
     
     def _create_acl_access(self, obj, keys, groups):
         """
@@ -300,7 +311,7 @@ class BootstrapEngine(BootstrapCommon):
         from lense.common.objects.acl.models import ACLGroupPermissions_Global, ACLKeys, ACLGlobalAccess
         
         # Setup Django models
-        django.setup()
+        django_setup()
         
         # Create the administrator group and user
         group = self._create_groups(Group_Create)
@@ -324,7 +335,7 @@ class BootstrapEngine(BootstrapCommon):
             lce.set('admin/group', user_params['group'])
             lce.set('admin/key', user['data']['api_key'])
             lce.save()
-            LENSE.FEEDBACK.success('[{0}] Set API administrator values'.format(LENSE_CONFIG.ENGINE))
+            LENSE.FEEDBACK.success('[{0}] Set API administrator values'.format(self.ATTRS.CONF))
     
         # Create API handlers / ACL objects / ACL keys / access entries
         self._create_handlers(Handler_Create)
@@ -332,7 +343,7 @@ class BootstrapEngine(BootstrapCommon):
         self._create_handlers_access(ACLGlobalAccess, ACLKeys, Handlers)
         self._create_acl_objects(ACLObjects_Create)
         self._create_acl_access(ACLGroupPermissions_Global, ACLKeys, APIGroups)
-    
+     
     def _database(self):
         """
         Bootstrap the database and create all required tables and entries.
@@ -413,17 +424,17 @@ class BootstrapEngine(BootstrapCommon):
         self.read_input(self.answers.get('engine', {}))
         
         # Create required directories and update the configuration
-        self.mkdirs([self.ATTRS.LOG, self.ATTRS.RUN])
+        self.mkdirs([self.get_file_path(self.ATTRS.LOG)])
         self.update_config('engine')
             
         # Deploy the Apache configuration
         self.deploy_apache('engine')
         
         # Set log file permissions
-        self.chown_logs('portal')
+        self.chown_logs('engine', user='www-data', group='www-data')
         
         # Bootstrap the database
-        self.database()
+        self._database()
         
         # Show to bootstrap complete summary
         self._bootstrap_complete()

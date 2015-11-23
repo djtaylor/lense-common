@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
 # Lense Libraries
+from lense.common.vars import GROUPS
 from lense.common.utils import rstring
-from lense.common.vars import G_ADMIN, U_ADMIN
 
 class _PortalInput(object):
     """
@@ -38,8 +38,8 @@ class _PortalInput(object):
                 },
                 "admin_group": {
                     "type": "str",
-                    "default": G_ADMIN,
-                    "prompt": "Please enter the group UUID for the API administrator ({0}): ".format(G_ADMIN),
+                    "default": GROUPS.ADMIN.UUID,
+                    "prompt": "Please enter the group UUID for the API administrator ({0}): ".format(GROUPS.ADMIN.UUID),
                     "value": None
                 },
                 "admin_key": {

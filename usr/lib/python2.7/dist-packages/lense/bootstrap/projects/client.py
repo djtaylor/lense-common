@@ -1,6 +1,6 @@
 from lense.common import LenseCommon
-from lense.common.bootstrap.params import ClientParams
-from lense.common.bootstrap.common import BootstrapCommon
+from lense.bootstrap.params import ClientParams
+from lense.bootstrap.common import BootstrapCommon
 
 # Lense Common
 LENSE = LenseCommon('BOOTSTRAP')
@@ -9,8 +9,12 @@ class BootstrapClient(BootstrapCommon):
     """
     Class object for handling bootstrap of the Lense API client.
     """
-    def __init__(self):
+    def __init__(self, args, answers):
         super(BootstrapClient, self).__init__('client')
+
+        # Arguments / answers
+        self.args     = args
+        self.answers  = answers
 
         # Bootstrap parameters
         self.params   = ClientParams()
@@ -31,7 +35,7 @@ class BootstrapClient(BootstrapCommon):
         self.read_input(self.answers.get('client', {}))
         
         # Create required directories and update the configuration
-        self.mkdirs([LOG_DIR])
+        self.mkdirs([self.get_file_path(self.ATTRS.LOG)])
         self.update_config('client')
         
         # Show the bootstrap complete summary

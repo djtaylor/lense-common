@@ -1,5 +1,9 @@
+from collections import OrderedDict
+
+# Lense Libraries
 from lense.common import LenseCommon
 from lense.bootstrap.args import BootstrapArgs
+from lense.bootstrap.common import BootstrapCommon
 from lense.bootstrap.answers import BootstrapAnswers
 from lense.bootstrap.params import EngineParams, PortalParams, ClientParams, SocketParams
 from lense.bootstrap.projects import BootstrapClient, BootstrapPortal, BootstrapEngine, BootstrapSocket
@@ -18,11 +22,11 @@ class Bootstrap(BootstrapCommon):
     includes setting up the database and the admin user account.
     """
     def __init__(self):
-        super(Bootstrap, self).__init__()
-    
+        super(Bootstrap, self).__init__('bootstrap')
+        
         # Arguments / answers
-        self.args    = BootstrapArgs()
-        self.answers = BootstrapAnswers(self.args.get('answers', None)).read()
+        self.args    = None
+        self.answers = None
             
     def _bootstrap_project(self, project):
         """
@@ -37,8 +41,8 @@ class Bootstrap(BootstrapCommon):
         
         # Run the project bootstrap method
         if project in interfaces:
-            LENSE.FEEDBACK.info('Running bootstrap manager for Lense API {0}...\n'.format(project))
-            interfaces[project]().run()
+            LENSE.FEEDBACK.info('Running bootstrap manager for Lense projet: {0}\n'.format(project))
+            interfaces[project](self.args, self.answers).run()
             
     def _run(self):
         """
@@ -46,23 +50,26 @@ class Bootstrap(BootstrapCommon):
         """
         
         # Show bootstrap information
-        self._bootstrap_info()
+        self.bootstrap_info()
+        
+        # Get command line arguments and answer file
+        self.args    = BootstrapArgs()
+        self.answers = BootstrapAnswers(self.args.get('answers', None)).read()
         
         # Bootstrap projects
-        projects = {
-            'engine': self.args.get('engine', False),
-            'portal': self.args.get('portal', False),
-            'client': self.args.get('client', False),
-            'socket': self.args.get('socket', False)
-        }
-        
+        projects = OrderedDict()
+        projects['engine'] = self.args.get('engine', False)
+        projects['portal'] = self.args.get('portal', False)
+        projects['client'] = self.args.get('client', False)
+        projects['socket'] = self.args.get('socket', False)
+    
         # None selected, bootstrap everything
-        if not [(None if not x in projects else x) for x in [
+        if all(v is None for v in [(None if not projects[x] else x) for x in [
             'engine', 
             'portal', 
             'client', 
             'socket'
-        ]]:
+        ]]):
             results = [self._bootstrap_project(x) for x in projects]
             
         # Bootstrapping specific projects

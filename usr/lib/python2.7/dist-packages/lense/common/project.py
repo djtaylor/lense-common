@@ -10,7 +10,7 @@ class _LenseProjectLog(object):
         @param project: The target project
         @type  project: str
         """
-        self.name = 'lense.{0}'.format(project)
+        self.name = 'lense.{0}'.format(project.lower())
         self.file = getattr(getattr(PROJECTS, project), 'LOG', None)
 
 class LenseProject(object):

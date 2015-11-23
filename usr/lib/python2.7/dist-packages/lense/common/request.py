@@ -1,3 +1,6 @@
+from sys import getsizeof
+
+# Lense Libraries
 from lense.common import logger 
 from lense.common.utils import truncate
 from lense.common.collection import Collection
@@ -115,7 +118,7 @@ class LenseRequestObject(object):
         _file  = self._project.log.file.replace(self._project.name, '{0}.request'.format(self._project.name))
 
         # Construct and return the logger
-        self._log = logger.create(_name, _file)
+        return logger.create(_name, _file)
     
     def _get_group(self):
         """
@@ -129,7 +132,7 @@ class LenseRequestObject(object):
            
         # Portal user
         if self._project.name == 'PORTAL': 
-            return None if not self.request.user.is_authenticated() else self.request.session['active_group']
+            return None if not self.RAW.user.is_authenticated() else self.RAW.session['active_group']
     
     def _get_user(self):
         """
@@ -143,7 +146,7 @@ class LenseRequestObject(object):
            
         # Portal user
         if self._project.name == 'PORTAL': 
-            return None if not hasattr(self.request, 'user') else self.request.user.username
+            return None if not hasattr(self.RAW, 'user') else self.RAW.user.username
     
     def _get_key(self):
         """
@@ -161,20 +164,20 @@ class LenseRequestObject(object):
         """
         Attempt to retrieve a session key from the request object.
         """
-        return None if not hasattr(self.request, 'session') else self.request.session.session_key
+        return None if not hasattr(self.RAW, 'session') else self.RAW.session.session_key
     
     def _get_admin(self):
         """
         Attempt to determine if the request user has administrative privileges.
         """
         if self._project.name == 'PORTAL':
-            return False if not self.request.user.is_authenticated() else self.request.session['is_admin']
+            return False if not self.RAW.user.is_authenticated() else self.RAW.session['is_admin']
     
     def _get_header_value(self, k, default=None):
         """
         Extract a value from the request headers.
         """
-        return self.request.META.get(k, default)
+        return self.RAW.META.get(k, default)
     
     def SET(self, request):
         """
@@ -216,3 +219,6 @@ class LenseRequestObject(object):
     
         # Debug logging for each request
         self._log_request()
+        
+        # Return the request object
+        return self

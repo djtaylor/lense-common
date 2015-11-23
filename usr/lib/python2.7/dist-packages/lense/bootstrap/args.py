@@ -1,4 +1,5 @@
 from sys import argv
+from copy import copy
 from json import dumps
 from argparse import ArgumentParser, RawTextHelpFormatter
 
@@ -41,8 +42,9 @@ class BootstrapArgs(object):
         self.parser.add_argument('-a', '--answers', help='Path to an optional answers file to speed up bootstrapping', action='append')
       
         # Parse CLI arguments
-        argv.pop(0)
-        self._args = vars(self.parser.parse_args(argv))
+        _argv = copy(argv)
+        _argv.pop(0)
+        self._args = vars(self.parser.parse_args(_argv))
         
     def set(self, k, v):
         """

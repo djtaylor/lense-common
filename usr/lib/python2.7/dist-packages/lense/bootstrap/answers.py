@@ -14,10 +14,11 @@ class BootstrapAnswers(object):
         """
         Return the structure of any supplied answer file.
         """
+        answers = {}
         if self.file :
             try:
-                answers = JSONObject()
-                return answers.from_file(self.file)
+                answers = LENSE.JSON.from_file(self.file)
+                LENSE.FEEDBACK.success('Loaded answers file: {0}'.format(self.file))
             except Exception as e:
                 LENSE.FEEDBACK.warn('Could not read answer file: {0}'.format(str(e)))
-                return {}
+        return answers

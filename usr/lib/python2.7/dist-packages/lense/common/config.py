@@ -12,7 +12,7 @@ class LenseConfigEditor(object):
     Public class for editing an existing JSON configuration file.
     """
     def __init__(self, config_id):
-        if not hasattr(LENSE_CONFIG, config_id):
+        if not hasattr(CONFIG, config_id):
             raise Exception('Invalid configuration ID: {0}'.format(config_id))
 
         # Open the configuration object
@@ -94,8 +94,8 @@ def parse(config_id=None):
     """
     
     # Make sure the ID is valid
-    if hasattr(LENSE_CONFIG, config_id):
-        return _LenseConfig(getattr(LENSE_CONFIG, config_id)).collection
+    if hasattr(CONFIG, config_id):
+        return _LenseConfig(getattr(CONFIG, config_id)).collection
     
     # Invalid configuration ID
     raise Exception('Invalid configuration ID: {0}'.format(config_id))
