@@ -11,7 +11,7 @@ class _LenseProjectLog(object):
         @type  project: str
         """
         self.name = 'lense.{0}'.format(project)
-        self.file = getattr(getattr(LENSE_PROJECTS, project), 'LOG')
+        self.file = getattr(getattr(PROJECTS, project), 'LOG', None)
 
 class LenseProject(object):
     """
@@ -22,18 +22,24 @@ class LenseProject(object):
         @param project: The target project
         @type  project: str
         """
-        if not hasattr(LENSE_PROJECTS, project):
+        if not hasattr(PROJECTS, project):
             raise InvalidProjectID(project)
         
         # Project name
         self.name      = project
         
         # Get the project attributes
-        self._attrs    = getattr(LENSE_PROJECTS, project, None)
+        self._attrs    = getattr(PROJECTS, project, None)
         
         # Configuration and log files
         self.log       = _LenseProjectLog(project)
         self.conf      = getattr(self._attrs, 'CONF', None)
         
         # Project templates
-        self.TEMPLATES = getattr(TEMPLATES. project, None)
+        self.TEMPLATES = getattr(TEMPLATES, project, None)
+        
+        # Use a Django request object or not
+        self.use_request = getattr(self._attrs, 'REQUEST', False)
+        
+        # Use the objects manager or not
+        self.use_objects = getattr(self._attrs, 'OBJECTS', False)

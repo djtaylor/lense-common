@@ -1,7 +1,6 @@
-#!/usr/bin/python
-from lense.common.bootstrap.manager import Bootstrap
+#!/usr/bin/env python
+from lense.bootstrap.interface import Bootstrap
 
-# Launch the bootstrap manager
+# Bootstrap the Lense installation
 if __name__ == '__main__':
-    bootstrap = Bootstrap()
-    bootstrap.run()
+    Bootstrap.run()

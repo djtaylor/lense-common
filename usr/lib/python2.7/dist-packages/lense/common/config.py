@@ -17,7 +17,7 @@ class LenseConfigEditor(object):
 
         # Open the configuration object
         self.json = JSONObject()
-        self.file = getattr(LENSE_CONFIG, config_id)
+        self.file = getattr(CONFIG, config_id)
         self.conf = self.json.from_config_file(self.file)
 
     def set(self, path, value):

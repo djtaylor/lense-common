@@ -29,19 +29,36 @@ TEMPLATES = Collection({
 PROJECTS = Collection({
     'ENGINE': {
         'LOG':  '/var/log/lense/engine.log',
-        'CONF': '/etc/lense/engine.conf'
+        'CONF': '/etc/lense/engine.conf',
+        'RUN': '/var/run/lense',
+        'REQUEST': True,
+        'OBJECTS': True
     },
     'PORTAL': {
         'LOG':  '/var/log/lense/portal.log',
-        'CONF': '/etc/lense/portal.conf'
+        'CONF': '/etc/lense/portal.conf',
+        'RUN': '/var/run/lense',
+        'REQUEST': True,
+        'OBJECTS': False
     },
     'CLIENT': {
         'LOG':  '/var/log/lense/client.log',
-        'CONF': '/etc/lense/client.conf'
+        'CONF': '/etc/lense/client.conf',
+        'REQUEST': False,
+        'OBJECTS': False
     },
     'SOCKET': {
         'LOG':  '/var/log/lense/socket.log',
-        'CONF': '/etc/lense/socket.conf'
+        'CONF': '/etc/lense/socket.conf',
+        'RUN': '/var/run/lense',
+        'REQUEST': False,
+        'OBJECTS': False
+    },
+    'BOOTSTRAP': {
+        'LOG':  '/var/log/lense/bootstrap.log',
+        'CONF': None,
+        'REQUEST': False,
+        'OBJECTS': False
     }
 })
 

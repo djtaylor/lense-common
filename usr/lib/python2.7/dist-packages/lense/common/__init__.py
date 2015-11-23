@@ -3,6 +3,7 @@ __version__ = '0.1.1'
 # Python Libraries
 import re
 import json
+from feedback import Feedback
 from sys import getsizeof, path
 from importlib import import_module
 
@@ -84,23 +85,26 @@ class LenseCommon(object):
         # Get the project attributes
         self.PROJECT     = LenseProject(project)
         
-        # Configuration and logger
-        self.CONF        = config.parse(project)
-        self.LOG         = logger.create_project(project)
+        """
+        Project Objects
         
-        # Valid / invalid response handlers
-        self.VALID       = valid
-        self.INVALID     = invalid
-        
-        # Collection Manager
+        COLLECTION: Immutable collection generator
+        REQUEST:    Generate a request object or not
+        LOG:        Create the log handler if needed
+        OBJECTS:    Create the object manager if needed
+        MODULE:     The module helper
+        JSON:       JSON object manager
+        INVALID:    Error relay
+        VALID:      Success relay 
+        FEEDBACK:   CLI feedback handler
+        """
         self.COLLECTION  = Collection
-        
-        # Objects manager
-        self.OBJECTS     = ObjectsManager()
-        self.JSON        = JSONObject()
-        
-        # Module helper
+        self.REQUEST     = None if not self.PROJECT.use_request else LenseRequestObject(self.PROJECT)
+        self.LOG         = None if not self.PROJECT.log.file else logger.create_project(project)
+        self.OBJECTS     = None if not self.PROJECT.use_objects else ObjectsManager()
+        self.CONF        = None if not self.PROJECT.conf else config.parse(project)
         self.MODULE      = LenseModules()
-        
-        # Request object
-        self.REQUEST     = LenseRequestObject(self.PROJECT)
+        self.JSON        = JSONObject()
+        self.INVALID     = invalid
+        self.VALID       = valid
+        self.FEEDBACK    = Feedback()
