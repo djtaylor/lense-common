@@ -54,7 +54,7 @@ class ACLKeysQuerySet(QuerySet):
         for handler in handlers:
             handler_uuid = handler['handler_id']
             handlers_obj.append({
-                'uuid':   selfhandlerss[handler_uuid]['uuid'],
+                'uuid':   self.handlers[handler_uuid]['uuid'],
                 'path':   self.handlers[handler_uuid]['path'],
                 'desc':   self.handlers[handler_uuid]['desc'],
                 'method': self.handlers[handler_uuid]['method'],

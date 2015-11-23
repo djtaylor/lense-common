@@ -432,6 +432,7 @@ class BootstrapEngine(BootstrapCommon):
         
         # Set log file permissions
         self.chown_logs('engine', user='www-data', group='www-data')
+        self.group_add_user('www-data')
         
         # Bootstrap the database
         self._database()

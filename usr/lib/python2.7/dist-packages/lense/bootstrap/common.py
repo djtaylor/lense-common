@@ -1,5 +1,6 @@
 from sys import exit
-from os import path, makedirs
+from pwd import getpwnam
+from os import path, makedirs, system
 from subprocess import Popen, PIPE
 
 # Lense Libraries
@@ -31,6 +32,43 @@ class BootstrapCommon(object):
         LENSE.FEEDBACK.error(msg)
         exit(1)
 
+    def group_add_user(self, user):
+        """
+        Add a user account to the lense system group.
+        """
+        try:
+            pwd.getpwnam(user)
+            
+            # Create the user account
+            proc = Popen(['/usr/sbin/usermod', '-a', '-G', 'lense', user], stdout=PIPE, stderr=PIPE)
+            out, err = proc.communicate()
+            
+            # Make sure the command returned successfully
+            if not proc.returncode == 0:
+                self.die('Failed to add user "{0}" to lense group: {1}'.format(user, str(err)))
+            LENSE.FEEDBACK.success('Added user "{0}" to lense group'.format(user))
+        except Exception as e:
+            self.die('Could not add user "{0}" to lense group: {1}'.format(user, str(e)))        
+
+    def create_system_user(self):
+        """
+        Create the lense system account.
+        """
+        try:
+            pwd.getpwnam('lense')
+            return LENSE.FEEDBACK.info('System account "lense" already exists, skipping...')
+        except KeyError:
+            pass
+            
+        # Create the user account
+        proc = Popen(['/usr/sbin/useradd', '-M', '-s', '/usr/sbin/nologin', 'lense'], stdout=PIPE, stderr=PIPE)
+        out, err = proc.communicate()
+        
+        # Make sure the command returned successfully
+        if not proc.returncode == 0:
+            self.die('Failed to create system account: {0}'.format(str(err)))
+        LENSE.FEEDBACK.success('Created system account "lense"')
+            
     def get_file_path(self, file):
         """
         Return the parent directory of a file.

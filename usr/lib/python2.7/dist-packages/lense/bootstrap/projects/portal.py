@@ -48,6 +48,7 @@ class BootstrapPortal(BootstrapCommon):
             
         # Set log file permissions
         self.chown_logs('portal', user='www-data', group='www-data')
+        self.group_add_user('www-data')
             
         # Show to bootstrap complete summary
         self._bootstrap_complete()

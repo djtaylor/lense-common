@@ -1,4 +1,3 @@
-from os.path import expanduser
 from lense.common.collection import Collection
 
 """
@@ -44,7 +43,7 @@ PROJECTS = Collection({
         'OBJECTS': False
     },
     'CLIENT': {
-        'LOG':  expanduser('~/lense-client.log'),
+        'LOG':  '/var/log/lense/client.log',
         'CONF': '/etc/lense/client.conf',
         'REQUEST': False,
         'OBJECTS': False

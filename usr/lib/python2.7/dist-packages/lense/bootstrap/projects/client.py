@@ -26,7 +26,10 @@ class BootstrapClient(BootstrapCommon):
         
         # Print the summary
         LENSE.FEEDBACK.block([
-            'Finished bootstrapping Lense API client!'
+            'Finished bootstrapping Lense API client!\n',
+            'You will need to add yourself to the "lense" group for write access',
+            'to the client log:\n',
+            'usermod -a -G lense <username>'
         ], 'COMPLETE')
         
     def run(self):
@@ -37,6 +40,9 @@ class BootstrapClient(BootstrapCommon):
         # Create required directories and update the configuration
         self.mkdirs([self.get_file_path(self.ATTRS.LOG)])
         self.update_config('client')
+        
+        # Set log permissions
+        self.chown_logs('client', user='lense', group='lense')
         
         # Show the bootstrap complete summary
         self._bootstrap_complete()

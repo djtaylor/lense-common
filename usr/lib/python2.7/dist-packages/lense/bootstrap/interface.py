@@ -56,6 +56,9 @@ class Bootstrap(BootstrapCommon):
         self.args    = BootstrapArgs()
         self.answers = BootstrapAnswers(self.args.get('answers', None)).read()
         
+        # Make sure the system account exists
+        self.create_system_user()
+        
         # Bootstrap projects
         projects = OrderedDict()
         projects['engine'] = self.args.get('engine', False)
