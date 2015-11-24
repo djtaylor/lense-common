@@ -423,15 +423,16 @@ class BootstrapEngine(BootstrapCommon):
         # Get user input
         self.read_input(self.answers.get('engine', {}))
         
-        # Create required directories and update the configuration
-        self.mkdirs([self.get_file_path(self.ATTRS.LOG)])
+        # Update the configuration
         self.update_config('engine')
             
         # Deploy the Apache configuration
         self.deploy_apache('engine')
         
         # Set log file permissions
-        self.chown_logs('engine', user='www-data', group='www-data')
+        self.set_permissions(self.ATTRS.LOG, owner='www-data:www-data')
+        
+        # Add the Apache user to the lense group
         self.group_add_user('www-data')
         
         # Bootstrap the database

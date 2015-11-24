@@ -19,6 +19,50 @@ class BootstrapCommon(object):
         self.project = project
         self.ATTRS   = getattr(PROJECTS, project.upper())
 
+    def _shell_exec(self, cmd):
+        """
+        Private method for running an arbitrary shell command.
+        """
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        out, err = proc.communicate()
+
+        # Return code, stdout, stderr
+        return proc.returncode, out, err
+
+    def _chmod(self, file, mode, recursive=False):
+        """
+        Wrapper method for chmoding a file path.
+        """
+        chmod_cmd = ['chmod']
+        if recursive:
+            chmod_cmd.append('-R')
+        chmod_cmd += [mode, file]
+        
+        # Change the permissions
+        code, out, err = self._shell_exec(chmod_cmd)
+    
+        # If the command failed
+        if not code == 0:
+            self.die('Failed to chown file "{0}": {1}'.format(file, err))
+        LENSE.FEEDBACK.success('Changed owner on file "{0}" -> "{1}"'.format(file, owner))
+
+    def _chown(self, file, owner, recursive=False):
+        """
+        Wrapper method for chowning a file path.
+        """
+        chown_cmd = ['chown']
+        if recursive:
+            chown_cmd.append('-R')
+        chown_cmd += [owner, file]
+        
+        # Change the owner
+        code, out, err = self._shell_exec(chown_cmd)
+
+        # If the command failed
+        if not code == 0:
+            self.die('Failed to chown file "{0}": {1}'.format(file, err))
+        LENSE.FEEDBACK.success('Changed owner on file "{0}" -> "{1}"'.format(file, owner))
+
     def die(self, msg, log=True):
         """
         Quit the program
@@ -37,14 +81,13 @@ class BootstrapCommon(object):
         Add a user account to the lense system group.
         """
         try:
-            pwd.getpwnam(user)
+            getpwnam(user)
             
             # Create the user account
-            proc = Popen(['/usr/sbin/usermod', '-a', '-G', 'lense', user], stdout=PIPE, stderr=PIPE)
-            out, err = proc.communicate()
+            code, out, err = self._shell_exec(['/usr/sbin/usermod', '-a', '-G', 'lense', user])
             
             # Make sure the command returned successfully
-            if not proc.returncode == 0:
+            if not code == 0:
                 self.die('Failed to add user "{0}" to lense group: {1}'.format(user, str(err)))
             LENSE.FEEDBACK.success('Added user "{0}" to lense group'.format(user))
         except Exception as e:
@@ -55,21 +98,20 @@ class BootstrapCommon(object):
         Create the lense system account.
         """
         try:
-            pwd.getpwnam('lense')
+            getpwnam('lense')
             return LENSE.FEEDBACK.info('System account "lense" already exists, skipping...')
         except KeyError:
             pass
             
         # Create the user account
-        proc = Popen(['/usr/sbin/useradd', '-M', '-s', '/usr/sbin/nologin', 'lense'], stdout=PIPE, stderr=PIPE)
-        out, err = proc.communicate()
+        code, out, err = self._shell_exec(['/usr/sbin/useradd', '-M', '-s', '/usr/sbin/nologin', 'lense'])
         
         # Make sure the command returned successfully
-        if not proc.returncode == 0:
+        if not code == 0:
             self.die('Failed to create system account: {0}'.format(str(err)))
         LENSE.FEEDBACK.success('Created system account "lense"')
             
-    def get_file_path(self, file):
+    def dirname(self, file):
         """
         Return the parent directory of a file.
         """
@@ -87,45 +129,76 @@ class BootstrapCommon(object):
         }
     
         # Enable the site configuration
-        proc = Popen(['a2ensite', _project_config[project]], stdout=PIPE, stderr=PIPE)
-        out, err = proc.communicate()
+        code, out, err = self._shell_exec(['a2ensite', _project_config[project]])
         
         # Make sure the command returned successfully
-        if not proc.returncode == 0:
+        if not code == 0:
             self.die('Failed to enable virtual host: {0}'.format(str(err)))
         LENSE.FEEDBACK.success('Enabled virtual host configuration for Lense API {0}'.format(project))
+
+    def mkdir(self, d):
+        """
+        Make sure a directory structure exists.
+        
+        :param d: The directory to created
+        :type  d: str
+        """
+        if not path.isdir(d):
+            LENSE.FEEDBACK.info('Created directory: {0}'.format(d))
+            return makedirs(d)
+        LENSE.FEEDBACK.info('Directory already exists: {0}'.format(d))
 
     def mkdirs(self, dirs):
         """
         Make required directories.
+        
+        :param dirs: A list of directories to create
+        :type  dirs: list
         """
-    
-        # Create the log and run directories
         for d in dirs:
-            if not path.isdir(d):
-                makedirs(d)
-                LENSE.FEEDBACK.info('Created directory "{0}"'.format(d))
-            else:
-                LENSE.FEEDBACK.info('Directory "{0}" already exists, skipping...'.format(d))
-
-    def chown_logs(self, project, user='root', group='root'):
+            self.mkdir(d)
+    
+    def set_permissions(self, file, owner=None, mode=None, recursive=False, create=True, mkdir=True):
         """
-        Set permissions on log files.
+        Convenience method for setting permissions on files.
+        
+        :param file:      The file path to modify permissions for
+        :type  file:      str
+        :param owner:     The new file owner (i.e., "user", "user:group")
+        :type  owner:     str
+        :param mode:      The new file mode (i.e., "755", "g+x")
+        :type  mode:      str
+        :param recursive: Change permissions recursively or not
+        :type  recursive: bool
+        :param create:    Create the file if it doesn't exist
+        :type  create:    bool
+        :param mkdir:     Create the directory structure if it doesn't exist
+        :type  mkdir:     bool
         """
-        log_file = '/var/log/lense/{0}.log'.format(project)
         
-        # Make sure the log file exists
-        if not path.isfile(log_file):
-            open(log_file, 'a').close()
+        # Make sure the directory exists if the flag is given
+        if mkdir:
+            self.mkdir(self.dirname(file))
         
-        # Change log file permissions
-        proc = Popen(['chown', '-R', '{0}:{1}'.format(user,group), log_file], stdout=PIPE, stderr=PIPE)
-        out, err = proc.communicate()
+        # Make sure the file exists if the flag is given
+        if create and not path.isfile(file):
+            open(file, 'w').close()
         
-        # Make sure the command returned successfully
-        if not proc.returncode == 0:
-            self.die('Failed to set log permissions: {0}'.format(str(err)))
-        LENSE.FEEDBACK.success('Set log permissions for Lense project: {0}'.format(project))
+        if path.isfile(file):
+            
+            # Changing owner
+            if owner:
+                self._chown(file, owner, recursive)
+            
+            # Changing file permissions
+            if mode:
+                self._chmod(file, mode, recursive)
+            
+            # Permissions set
+            return True
+            
+        # File does not exist
+        return False
 
     def _get_password(self, prompt, min_length=8):
         _pass = getpass(prompt)

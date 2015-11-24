@@ -42,7 +42,7 @@ class BootstrapSocket(BootstrapCommon):
         self.read_input(self.answers.get('socket', {}))
         
         # Create required directories
-        self.mkdirs([self.get_file_path(self.ATTRS.LOG), self.get_file_path(self.ATTRS.RUN)])
+        self.mkdirs([self.dirname(self.ATTRS.LOG), self.ATTRS.RUN])
         
         # Update the configuration
         self.update_config('socket')

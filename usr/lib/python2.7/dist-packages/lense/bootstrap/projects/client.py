@@ -37,12 +37,11 @@ class BootstrapClient(BootstrapCommon):
         # Get user input
         self.read_input(self.answers.get('client', {}))
         
-        # Create required directories and update the configuration
-        self.mkdirs([self.get_file_path(self.ATTRS.LOG)])
+        # Update the configuration
         self.update_config('client')
         
         # Set log permissions
-        self.chown_logs('client', user='lense', group='lense')
+        self.set_permissions(self.ATTRS.LOG, owner='lense:lense', mode='g+x')
         
         # Show the bootstrap complete summary
         self._bootstrap_complete()
