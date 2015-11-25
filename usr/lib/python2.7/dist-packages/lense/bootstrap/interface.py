@@ -5,16 +5,10 @@ from lense.common import LenseCommon
 from lense.bootstrap.args import BootstrapArgs
 from lense.bootstrap.common import BootstrapCommon
 from lense.bootstrap.answers import BootstrapAnswers
-from lense.bootstrap.params import EngineParams, PortalParams, ClientParams, SocketParams
 from lense.bootstrap.projects import BootstrapClient, BootstrapPortal, BootstrapEngine, BootstrapSocket
 
 # Lense Common
 LENSE = LenseCommon('BOOTSTRAP')
-
-try:
-    from lense.engine.api.base import APIBare
-except:
-    pass
 
 class Bootstrap(BootstrapCommon):
     """
@@ -41,7 +35,7 @@ class Bootstrap(BootstrapCommon):
         
         # Run the project bootstrap method
         if project in interfaces:
-            LENSE.FEEDBACK.info('Running bootstrap manager for Lense projet: {0}\n'.format(project))
+            LENSE.FEEDBACK.info('Running bootstrap manager for Lense project: {0}\n'.format(project))
             interfaces[project](self.args, self.answers).run()
             
     def _run(self):
@@ -56,8 +50,8 @@ class Bootstrap(BootstrapCommon):
         self.args    = BootstrapArgs()
         self.answers = BootstrapAnswers(self.args.get('answers', None)).read()
         
-        # Make sure the system account exists
-        self.create_system_user()
+        # Run the preflight bootstrap methods
+        self.bootstrap_preflight()
         
         # Bootstrap projects
         projects = OrderedDict()

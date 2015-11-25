@@ -45,7 +45,7 @@ class BootstrapSocket(BootstrapCommon):
         self.mkdirs([self.dirname(self.ATTRS.LOG), self.ATTRS.RUN])
         
         # Update the configuration
-        self.update_config('socket')
+        self.update_config()
         
         # Show the bootstrap complete summary
         self._bootstrap_complete()

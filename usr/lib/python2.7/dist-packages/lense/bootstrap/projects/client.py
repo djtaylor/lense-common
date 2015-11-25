@@ -38,7 +38,7 @@ class BootstrapClient(BootstrapCommon):
         self.read_input(self.answers.get('client', {}))
         
         # Update the configuration
-        self.update_config('client')
+        self.update_config()
         
         # Set log permissions
         self.set_permissions(self.ATTRS.LOG, owner='lense:lense', mode='g+x')

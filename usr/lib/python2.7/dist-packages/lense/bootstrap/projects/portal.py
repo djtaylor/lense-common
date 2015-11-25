@@ -40,10 +40,10 @@ class BootstrapPortal(BootstrapCommon):
         self.read_input(self.answers.get('portal', {}))
         
         # Update the configuration
-        self.update_config('portal')
+        self.update_config()
             
         # Deploy the Apache configuration
-        self.deploy_apache('portal')
+        self.deploy_apache()
             
         # Set log file permissions
         self.chown_logs(self.ATTRS.LOG, owner='www-data:www-data')

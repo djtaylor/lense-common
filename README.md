@@ -2,7 +2,7 @@
 
 Common libraries shared by the Lense engine, client, and portal applications.
 
-### Repository
+### Repository (Unavailable)
 
 To make the Lense packages available, you will need to add the following PPA and import the signing key:
 

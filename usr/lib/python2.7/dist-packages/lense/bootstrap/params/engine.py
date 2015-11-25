@@ -14,24 +14,6 @@ class _EngineACL(object):
         self.objects = None
         self.access  = None
         
-    def set_access(self, acls):
-        """
-        Set ACL access keys for the administrator group.
-        
-        @param acls: List of ACLs to grant the administrator group
-        @type  acls: list
-        """
-        _access = []
-        for acl in acls:
-            _access.append({
-                "acl": acl['uuid'],
-                "acl_name": acl['name'],
-                "owner": GROUPS.ADMIN.UUID,
-                "allowed": True          
-            })
-        self.access = _access
-        return _access
-        
     def _get_acl_key(self, name):
         """
         Return the UUID for an ACL key by name.
@@ -39,46 +21,6 @@ class _EngineACL(object):
         for k in self.keys:
             if k['name'] == name:
                 return k['uuid']
-        
-    def set_objects(self):
-        """
-        Set attributes for ACL objects.
-        """
-        self.objects = [
-            {
-                "type": "handler",
-                "name": "API Handler",
-                "acl_mod": "lense.common.objects.acl.models",
-                "acl_cls": "ACLGroupPermissions_Object_Handler",
-                "acl_key": "handler",
-                "obj_mod": "lense.common.objects.handler.models",
-                "obj_cls": "Handlers",
-                "obj_key": "uuid",
-                "def_acl": self._get_acl_key('handler.view')
-            },
-            {
-                "type": "group",
-                "name": "API Group",
-                "acl_mod": "lense.common.objects.acl.models",
-                "acl_cls": "ACLGroupPermissions_Object_Group",
-                "acl_key": "group",
-                "obj_mod": "lense.common.objects.group.models",
-                "obj_cls": "APIGroups",
-                "obj_key": "uuid",
-                "def_acl": self._get_acl_key('group.view')
-            },
-            {
-                "type": "user",
-                "name": "API User",
-                "acl_mod": "lense.common.objects.acl.models",
-                "acl_cls": "ACLGroupPermissions_Object_User",
-                "acl_key": "user",
-                "obj_mod": "lense.common.objects.user.models",
-                "obj_cls": "APIUser",
-                "obj_key": "uuid",
-                "def_acl": self._get_acl_key('user.view')
-            }
-        ]
     
     def _set_keys(self):
         """
@@ -216,6 +158,63 @@ class _EngineACL(object):
                 ]
             }
         ]
+        
+    def set_objects(self):
+        """
+        Set attributes for ACL objects.
+        """
+        self.objects = [
+            {
+                "type": "handler",
+                "name": "API Handler",
+                "acl_mod": "lense.common.objects.acl.models",
+                "acl_cls": "ACLGroupPermissions_Object_Handler",
+                "acl_key": "handler",
+                "obj_mod": "lense.common.objects.handler.models",
+                "obj_cls": "Handlers",
+                "obj_key": "uuid",
+                "def_acl": self._get_acl_key('handler.view')
+            },
+            {
+                "type": "group",
+                "name": "API Group",
+                "acl_mod": "lense.common.objects.acl.models",
+                "acl_cls": "ACLGroupPermissions_Object_Group",
+                "acl_key": "group",
+                "obj_mod": "lense.common.objects.group.models",
+                "obj_cls": "APIGroups",
+                "obj_key": "uuid",
+                "def_acl": self._get_acl_key('group.view')
+            },
+            {
+                "type": "user",
+                "name": "API User",
+                "acl_mod": "lense.common.objects.acl.models",
+                "acl_cls": "ACLGroupPermissions_Object_User",
+                "acl_key": "user",
+                "obj_mod": "lense.common.objects.user.models",
+                "obj_cls": "APIUser",
+                "obj_key": "uuid",
+                "def_acl": self._get_acl_key('user.view')
+            }
+        ]
+    
+    def set_access(self, acls):
+        """
+        Set ACL access keys for the administrator group.
+        
+        @param acls: List of ACLs to grant the administrator group
+        @type  acls: list
+        """
+        self.access = [{
+            'acl':      acl['uuid'],
+            'acl_name': acl['name'],
+            'owner':    GROUPS.ADMIN.UUID,
+            'allowed':  True
+        } for x in acls]
+        
+        # Return a copy of the access object
+        return self.access
 
 class _EngineInput(object):
     """
@@ -427,7 +426,7 @@ class EngineParams(object):
         """
         
         # Database attributes
-        db_attrs = {
+        attrs = {
             'name': self.input.response.get('db_name'),
             'user': self.input.response.get('db_user'),
             'host': self.input.response.get('db_host'),
@@ -441,11 +440,11 @@ class EngineParams(object):
         
         # Return the database queries
         self.db = {
-            "attrs": db_attrs,
+            "attrs": attrs,
             "query": {
-                "create_db": "CREATE DATABASE IF NOT EXISTS {0}".format(db_attrs['name']),
-                "create_user": "CREATE USER '{0}'@'{1}' IDENTIFIED BY '{2}'".format(db_attrs['user'], db_attrs['host'], db_attrs['passwd']),
-                "grant_user": "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'{2}'".format(db_attrs['name'], db_attrs['user'], db_attrs['host']),
+                "create_db": "CREATE DATABASE IF NOT EXISTS {0}".format(attrs['name']),
+                "create_user": "CREATE USER '{0}'@'{1}' IDENTIFIED BY '{2}'".format(attrs['user'], attrs['host'], attrs['passwd']),
+                "grant_user": "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'{2}'".format(attrs['name'], attrs['user'], attrs['host']),
                 "flush_priv": "FLUSH PRIVILEGES"
             }
         }

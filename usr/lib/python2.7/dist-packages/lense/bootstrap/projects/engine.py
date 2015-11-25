@@ -55,12 +55,11 @@ class BootstrapEngine(BootstrapCommon):
         """
         Create a new database encryption key.
         """
-        proc = Popen(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
-        proc.communicate()
+        code, out, err = self._shell_exec(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
         
         # Failed to generate key
-        if not proc.returncode == 0:
-            LENSE.FEEDBACK.error('Failed to create database encryption key')
+        if not code == 0:
+            LENSE.FEEDBACK.error('Failed to create database encryption key: {0}'.format(str(err)))
             return False
         
         # Generated encryption key
@@ -69,14 +68,13 @@ class BootstrapEngine(BootstrapCommon):
     
     def _keyczart_add(self, enc_attrs):
         """
-        Add a bew database encryption key.
+        Add a new database encryption key.
         """
-        proc = Popen(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
-        proc.communicate()
+        code, out, err = self._shell_exec(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
         
         # Failed to add key
-        if not proc.returncode == 0:
-            LENSE.FEEDBACK.error('Failed to add database encryption key')
+        if not code == 0:
+            LENSE.FEEDBACK.error('Failed to add database encryption key: {0}'.format(str(err)))
             return False
         
         # Added key
@@ -380,13 +378,11 @@ class BootstrapEngine(BootstrapCommon):
         
         # Run Django syncdb
         try:
-            app  = '/usr/lib/python2.7/dist-packages/lense/engine/api/manage.py'
-            proc = Popen(['python', app, 'migrate'])
-            proc.communicate()
+            code, err = self._shell_exec(['python', '/usr/lib/python2.7/dist-packages/lense/engine/api/manage.py', 'migrate'])
             
             # Make sure the command ran successfully
-            if not proc.returncode == 0:
-                self.die('Failed to sync Django application database')
+            if not code == 0:
+                self.die('Failed to sync Django application database: {0}'.format(str(err)))
                 
             # Sync success
             LENSE.FEEDBACK.success('Synced Django application database')
@@ -424,10 +420,10 @@ class BootstrapEngine(BootstrapCommon):
         self.read_input(self.answers.get('engine', {}))
         
         # Update the configuration
-        self.update_config('engine')
+        self.update_config()
             
         # Deploy the Apache configuration
-        self.deploy_apache('engine')
+        self.deploy_apache()
         
         # Set log file permissions
         self.set_permissions(self.ATTRS.LOG, owner='www-data:www-data')
