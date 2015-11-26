@@ -28,15 +28,16 @@ class BootstrapCommon(object):
         :param cmd: The command list to run
         :type  cmd: list
         """
-        kwargs = { 'stderr': PIPE }
         
-        # If hiding output
-        if not show_stdout:
-            kwargs['stdout'] = PIPE
-        
-        # Run the command
-        proc = Popen(cmd, **kwargs)
-        err = proc.communicate()
+        # If showing stdout
+        if show_stdout:
+            proc = Popen(cmd, stderr=PIPE)
+            err = proc.communicate()
+            
+        # If supressing stdout
+        else:
+            proc = Popen(cmd, stderr=PIPE, stdout=PIPE)
+            out, err = proc.communicate()
 
         # Return code, stderr
         return proc.returncode, err
