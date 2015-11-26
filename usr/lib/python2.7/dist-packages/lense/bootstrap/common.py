@@ -1,6 +1,7 @@
 from __future__ import print_function
 from sys import exit
 from pwd import getpwnam
+from getpass import getpass
 from os import path, makedirs, system
 from subprocess import Popen, PIPE
 
@@ -20,14 +21,21 @@ class BootstrapCommon(object):
         self.project = project
         self.ATTRS   = getattr(PROJECTS, project.upper())
 
-    def _shell_exec(self, cmd):
+    def _shell_exec(self, cmd, show_stdout=True):
         """
         Private method for running an arbitrary shell command.
         
         :param cmd: The command list to run
         :type  cmd: list
         """
-        proc = Popen(cmd, stderr=PIPE)
+        kwargs = { 'stderr': PIPE }
+        
+        # If hiding output
+        if not show_stdout:
+            kwargs['stdout'] = PIPE
+        
+        # Run the command
+        proc = Popen(cmd, **kwargs)
         err = proc.communicate()
 
         # Return code, stderr
@@ -54,8 +62,8 @@ class BootstrapCommon(object):
     
         # If the command failed
         if not code == 0:
-            self.die('Failed to chown file "{0}": {1}'.format(file, err))
-        LENSE.FEEDBACK.success('Changed owner on file "{0}" -> "{1}"'.format(file, owner))
+            self.die('Failed to chmod file "{0}": {1}'.format(file, err))
+        LENSE.FEEDBACK.success('Changed mode on file "{0}" -> "{1}"'.format(file, mode))
 
     def _chown(self, file, owner, recursive=False):
         """
@@ -195,12 +203,12 @@ class BootstrapCommon(object):
         if hasattr(WSGI_CONFIG, self.project.upper()):
             
             # Deploy the virtual host if the project has one
-            code, err = self._shell_exec(['a2ensite', getattr(WSGI_CONFIG, self.project.upper())])
+            code, err = self._shell_exec(['a2ensite', getattr(WSGI_CONFIG, self.project.upper())[0]], show_stdout=False)
         
             # Make sure the command returned successfully
             if not code == 0:
                 self.die('Failed to enable virtual host: {0}'.format(str(err)))
-            LENSE.FEEDBACK.success('Enabled virtual host configuration for Lense API {0}'.format(project))
+            LENSE.FEEDBACK.success('Enabled virtual host configuration for Lense API {0}'.format(self.project))
 
     def mkdir(self, d):
         """

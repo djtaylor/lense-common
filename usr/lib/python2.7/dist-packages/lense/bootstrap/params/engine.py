@@ -211,7 +211,7 @@ class _EngineACL(object):
             'acl_name': acl['name'],
             'owner':    GROUPS.ADMIN.UUID,
             'allowed':  True
-        } for x in acls]
+        } for acl in acls]
         
         # Return a copy of the access object
         return self.access
@@ -442,7 +442,9 @@ class EngineParams(object):
         self.db = {
             "attrs": attrs,
             "query": {
+                "check_db": "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='{0}'".format(attrs['name']),
                 "create_db": "CREATE DATABASE IF NOT EXISTS {0}".format(attrs['name']),
+                "check_user": "SELECT User FROM mysql.user WHERE User='{0}'".format(attrs['user']),
                 "create_user": "CREATE USER '{0}'@'{1}' IDENTIFIED BY '{2}'".format(attrs['user'], attrs['host'], attrs['passwd']),
                 "grant_user": "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'{2}'".format(attrs['name'], attrs['user'], attrs['host']),
                 "flush_priv": "FLUSH PRIVILEGES"

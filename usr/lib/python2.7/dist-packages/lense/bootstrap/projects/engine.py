@@ -342,6 +342,22 @@ class BootstrapEngine(BootstrapCommon):
         self._create_acl_objects(ACLObjects_Create)
         self._create_acl_access(ACLGroupPermissions_Global, ACLKeys, APIGroups)
      
+    def _database_user_exists(self):
+        """
+        Helper method for checking if the lense database user exists.
+        """
+        c = self._connection.cursor()
+        return False if int(c.execute(self.params.db['query']['check_user'])) == 0 else True
+        c.close()
+     
+    def _database_exists(self):
+        """
+        Helper method for checking if the lense database exists.
+        """
+        c = self._connection.cursor()
+        return False if int(c.execute(self.params.db['query']['check_db'])) == 0 else True
+        c.close()
+     
     def _database(self):
         """
         Bootstrap the database and create all required tables and entries.
@@ -357,15 +373,26 @@ class BootstrapEngine(BootstrapCommon):
         try:
             c = self._connection.cursor()
             
-            # Create the database
+            # If the database already exists
+            if self._database_exists():
+                self.die('Database "{0}" already exists'.format(self.params.db['attrs']['name']))
+            
+            # If the database user already exists
+            if self._database_user_exists():
+                self.die('Database user "{0}" already exists'.format(self.params.db['attrs']['user']))
+            
+            # Create the database    
             c.execute(self.params.db['query']['create_db'])
             LENSE.FEEDBACK.success('Created database "{0}"'.format(self.params.db['attrs']['name']))
             
             # Create the database user
             c.execute(self.params.db['query']['create_user'])
+            LENSE.FEEDBACK.success('Created database user "{0}"'.format(self.params.db['attrs']['user']))
+                
+            # Grant privileges
             c.execute(self.params.db['query']['grant_user'])
             c.execute(self.params.db['query']['flush_priv'])
-            LENSE.FEEDBACK.success('Created database user "{0}" with grants'.format(self.params.db['attrs']['user']))
+            LENSE.FEEDBACK.success('Granted database permissions to user "{0}"'.format(self.params.db['attrs']['user']))
             
         except Exception as e:
             self.die('Failed to bootstrap Lense database: {0}'.format(str(e)))

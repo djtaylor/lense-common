@@ -64,7 +64,7 @@ class Logger:
             # Set the format
             lfm = LogFormat(fmt='%(asctime)s %(name)s - %(levelname)s: %(message)s', datefmt='%d-%m-%Y %I:%M:%S')
             lfh.setFormatter(lfm)
-        return logger
+        return logging.getLogger(name)
     
 def create_project(project):
     """
