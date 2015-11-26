@@ -55,7 +55,7 @@ class BootstrapEngine(BootstrapCommon):
         """
         Create a new database encryption key.
         """
-        code, out, err = self._shell_exec(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
+        code, err = self._shell_exec(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
         
         # Failed to generate key
         if not code == 0:
@@ -70,7 +70,7 @@ class BootstrapEngine(BootstrapCommon):
         """
         Add a new database encryption key.
         """
-        code, out, err = self._shell_exec(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
+        code, err = self._shell_exec(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
         
         # Failed to add key
         if not code == 0:
