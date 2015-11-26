@@ -249,15 +249,20 @@ class BootstrapCommon(object):
         :type  mkdir:     bool
         """
         
+        # Is the target path a directory or a file
+        is_dir  = path.isdir(file)
+        is_file = path.isfile(file)
+        
         # Make sure the directory exists if the flag is given
         if mkdir:
-            self.mkdir(self.dirname(file))
+            self.mkdir(file if is_dir else self.dirname(file))
         
         # Make sure the file exists if the flag is given
         if create and not path.isfile(file):
             open(file, 'w').close()
         
-        if path.isfile(file):
+        # If the path exists
+        if is_dir or is_file:
             
             # Changing owner
             if owner:
@@ -338,6 +343,10 @@ class BootstrapCommon(object):
         
         # Make sure the system user/group exists
         self._create_system_user()
+        
+        # Make sure the log directory exists and has the correct permissions
+        self.mkdir('/var/log/lense')
+        self.set_permissions('/var/log/lense', owner='www-data:lense', mode='755', create=False)
     
     def bootstrap_info(self):
         """
