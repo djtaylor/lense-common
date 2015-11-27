@@ -21,7 +21,7 @@ class BootstrapClient(BootstrapCommon):
         """
         
         # Print the summary
-        LENSE.FEEDBACK.block([
+        BOOTSTRAP.FEEDBACK.block([
             'Finished bootstrapping Lense API client!\n',
             'You will need to add yourself to the "lense" group for write access',
             'to the client log:\n',

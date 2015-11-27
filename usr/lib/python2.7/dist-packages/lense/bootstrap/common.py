@@ -60,7 +60,7 @@ class BootstrapCommon(object):
         # If the command failed
         if not code == 0:
             self.die('Failed to chmod file "{0}": {1}'.format(file, err))
-        LENSE.FEEDBACK.success('Changed mode on file "{0}" -> "{1}"'.format(file, mode))
+        BOOTSTRAP.FEEDBACK.success('Changed mode on file "{0}" -> "{1}"'.format(file, mode))
 
     def _chown(self, file, owner, recursive=False):
         """
@@ -84,7 +84,7 @@ class BootstrapCommon(object):
         # If the command failed
         if not code == 0:
             self.die('Failed to chown file "{0}": {1}'.format(file, err))
-        LENSE.FEEDBACK.success('Changed owner on file "{0}" -> "{1}"'.format(file, owner))
+        BOOTSTRAP.FEEDBACK.success('Changed owner on file "{0}" -> "{1}"'.format(file, owner))
 
     def _create_system_user(self):
         """
@@ -92,7 +92,7 @@ class BootstrapCommon(object):
         """
         try:
             getpwnam('lense')
-            return LENSE.FEEDBACK.info('System account "lense" already exists, skipping...')
+            return BOOTSTRAP.FEEDBACK.info('System account "lense" already exists, skipping...')
         except KeyError:
             pass
             
@@ -102,7 +102,7 @@ class BootstrapCommon(object):
         # Make sure the command returned successfully
         if not code == 0:
             self.die('Failed to create system account: {0}'.format(str(err)))
-        LENSE.FEEDBACK.success('Created system account "lense"')
+        BOOTSTRAP.FEEDBACK.success('Created system account "lense"')
 
     def _get_password(self, prompt, min_length=8):
         """
@@ -117,7 +117,7 @@ class BootstrapCommon(object):
         
         # Make sure the password is long enough
         if not len(_pass) >= min_length:
-            LENSE.FEEDBACK.error('Password cannot be empty and must be at least {0} characters long'.format(str(min_length)))
+            BOOTSTRAP.FEEDBACK.error('Password cannot be empty and must be at least {0} characters long'.format(str(min_length)))
             return self._get_password(prompt, min_length)
             
         # Confirm the password
@@ -125,7 +125,7 @@ class BootstrapCommon(object):
             
         # Make sure the passwords match
         if not _pass == _pass_confirm:
-            LENSE.FEEDBACK.error('Passwords do not match, try again')
+            BOOTSTRAP.FEEDBACK.error('Passwords do not match, try again')
             return self._get_password(prompt, min_length)
         return _pass
 
@@ -142,7 +142,7 @@ class BootstrapCommon(object):
         
         # If no input found
         if not _input:
-            LENSE.FEEDBACK.error('Must provide a value')
+            BOOTSTRAP.FEEDBACK.error('Must provide a value')
             return self._get_input(prompt, default)
         return _input
 
@@ -158,10 +158,10 @@ class BootstrapCommon(object):
         
         # Log the message unless explicitly specified otherwise
         if log:
-            LENSE.LOG.error(msg)
+            BOOTSTRAP.LOG.error(msg)
             
         # Show the error and quit
-        LENSE.FEEDBACK.error(msg)
+        BOOTSTRAP.FEEDBACK.error(msg)
         exit(1)
 
     def group_add_user(self, user):
@@ -180,7 +180,7 @@ class BootstrapCommon(object):
             # Make sure the command returned successfully
             if not code == 0:
                 self.die('Failed to add user "{0}" to lense group: {1}'.format(user, str(err)))
-            LENSE.FEEDBACK.success('Added user "{0}" to lense group'.format(user))
+            BOOTSTRAP.FEEDBACK.success('Added user "{0}" to lense group'.format(user))
         except Exception as e:
             self.die('Could not add user "{0}" to lense group: {1}'.format(user, str(e)))        
             
@@ -205,7 +205,7 @@ class BootstrapCommon(object):
             # Make sure the command returned successfully
             if not code == 0:
                 self.die('Failed to enable virtual host: {0}'.format(str(err)))
-            LENSE.FEEDBACK.success('Enabled virtual host configuration for Lense API {0}'.format(self.project))
+            BOOTSTRAP.FEEDBACK.success('Enabled virtual host configuration for Lense API {0}'.format(self.project))
 
     def mkdir(self, d):
         """
@@ -215,9 +215,9 @@ class BootstrapCommon(object):
         :type  d: str
         """
         if not path.isdir(d):
-            LENSE.FEEDBACK.info('Created directory: {0}'.format(d))
+            BOOTSTRAP.FEEDBACK.info('Created directory: {0}'.format(d))
             return makedirs(d)
-        LENSE.FEEDBACK.info('Directory already exists: {0}'.format(d))
+        BOOTSTRAP.FEEDBACK.info('Directory already exists: {0}'.format(d))
 
     def mkdirs(self, dirs):
         """
@@ -293,7 +293,7 @@ class BootstrapCommon(object):
                 
                 # If an answer already defined
                 if key in answers:
-                    LENSE.FEEDBACK.info('Value for {0} found in answer file'.format(key))
+                    BOOTSTRAP.FEEDBACK.info('Value for {0} found in answer file'.format(key))
                     val = answers[key]
                     
                 else:
@@ -327,11 +327,11 @@ class BootstrapCommon(object):
                 lce.set('{0}/{1}'.format(section, key), val)
             
                 # Format the value output
-                LENSE.FEEDBACK.success('[{0}] Set key value for "{1}->{2}"'.format(self.ATTRS.CONF, section, key))
+                BOOTSTRAP.FEEDBACK.success('[{0}] Set key value for "{1}->{2}"'.format(self.ATTRS.CONF, section, key))
             
         # Apply the configuration changes
         lce.save()
-        LENSE.FEEDBACK.success('Applied updated {0} configuration'.format(self.project))
+        BOOTSTRAP.FEEDBACK.success('Applied updated {0} configuration'.format(self.project))
     
     def bootstrap_preflight(self):
         """
@@ -349,7 +349,7 @@ class BootstrapCommon(object):
         """
         Show a brief introduction and summary on the bootstrapping process.
         """
-        LENSE.FEEDBACK.block([
+        BOOTSTRAP.FEEDBACK.block([
             'Lense Bootstrap Utility',
             'The bootstrap utility is used to get a new Lense installation up and',
             'running as quickly as possible. This will set up the database, make sure',

@@ -24,6 +24,22 @@ from lense.common.objects.manager import ObjectsManager
 # Drop-in Python path
 path.append(DROPIN_ROOT)
 
+class LenseAPIConstructor(object):
+    """
+    Helper class for constructing API classes.
+    """
+    def BASE(self, *args, **kwargs):
+        from lense.engine.api.base import APIBase
+    
+        # Construct and return APIBase
+        return APIBase(*args, **kwargs).construct()
+    
+    def BARE(self, *args, **kwargs):
+        from lense.engine.api.bare import APIBare
+
+        # Construct and return APIBare
+        return APIBare(*args, **kwargs)
+
 class LenseUser(object):
     """
     User abstraction class.
@@ -294,6 +310,7 @@ class LenseCommon(object):
         OBJECTS:    Create the object manager if needed
         USER:       User handler
         CONF:       The projects configuration
+        API:        API base constructor
         MODULE:     The module helper
         JSON:       JSON object manager
         INVALID:    Error relay
@@ -306,6 +323,7 @@ class LenseCommon(object):
         self.OBJECTS     = self._requires('get_objects', ObjectsManager)
         self.USER        = self._requires('get_user', LenseUser, [self.PROJECT.name, self.LOG])
         self.CONF        = self._requires('get_conf', config.parse, [project])
+        self.API         = LenseAPIConstructor()
         self.MODULE      = LenseModules()
         self.JSON        = JSONObject()
         self.FEEDBACK    = Feedback()
@@ -327,7 +345,7 @@ class LenseCommon(object):
             return obj(*args, **kwargs)
         return None
     
-def init_project(project):
+def init_project(project, name='LENSE'):
     """
     Method for registering a project's common object in the global namespace.
     
@@ -338,4 +356,4 @@ def init_project(project):
         raise InvalidProjectID(project)
     
     # Set up the project singleton
-    setattr(__builtin__, 'LENSE', LenseCommon(project))
+    setattr(__builtin__, name, LenseCommon(project))

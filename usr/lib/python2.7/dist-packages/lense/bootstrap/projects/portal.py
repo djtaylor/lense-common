@@ -21,7 +21,7 @@ class BootstrapPortal(BootstrapCommon):
         """
         
         # Print the summary
-        LENSE.FEEDBACK.block([
+        BOOTSTRAP.FEEDBACK.block([
             'Finished bootstrapping Lense API portal!\n',
             'You should restart your Apache service to load the new virtual host',
             'configuration. You can connect to the Lense API portal using the',

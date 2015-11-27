@@ -21,7 +21,7 @@ class BootstrapSocket(BootstrapCommon):
         """
         
         # Print the summary
-        LENSE.FEEDBACK.block([
+        BOOTSTRAP.FEEDBACK.block([
             'Finished bootstrapping Lense API Socket.IO proxy server!\n',
             'You may enable and start the Socket.IO proxy server with the',
             'following commands:\n',

@@ -12,8 +12,8 @@ class BootstrapAnswers(object):
         answers = {}
         if self.file :
             try:
-                answers = LENSE.JSON.from_file(self.file)
-                LENSE.FEEDBACK.success('Loaded answers file: {0}'.format(self.file))
+                answers = BOOTSTRAP.JSON.from_file(self.file)
+                BOOTSTRAP.FEEDBACK.success('Loaded answers file: {0}'.format(self.file))
             except Exception as e:
-                LENSE.FEEDBACK.warn('Could not read answer file: {0}'.format(str(e)))
+                BOOTSTRAP.FEEDBACK.warn('Could not read answer file: {0}'.format(str(e)))
         return answers

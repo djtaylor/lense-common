@@ -9,7 +9,6 @@ environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 
 # Lense Libraries
 from lense.common.utils import rstring
-from lense.engine.api.bare import APIBare
 from lense.common.vars import USERS, GROUPS
 from lense.bootstrap.params import EngineParams
 from lense.common.config import LenseConfigEditor
@@ -43,7 +42,7 @@ class BootstrapEngine(BootstrapCommon):
                 user   = 'root',
                 passwd = self.params.input.response.get('db_root_password')
             )
-            LENSE.FEEDBACK.success('Connected to MySQL using root user')
+            BOOTSTRAP.FEEDBACK.success('Connected to MySQL using root user')
         except Exception as e:
             self.die('Unable to connect to MySQL with root user: {0}'.format(str(e)))
     
@@ -55,11 +54,11 @@ class BootstrapEngine(BootstrapCommon):
         
         # Failed to generate key
         if not code == 0:
-            LENSE.FEEDBACK.error('Failed to create database encryption key: {0}'.format(str(err)))
+            BOOTSTRAP.FEEDBACK.error('Failed to create database encryption key: {0}'.format(str(err)))
             return False
         
         # Generated encryption key
-        LENSE.FEEDBACK.success('Created database encryption key')
+        BOOTSTRAP.FEEDBACK.success('Created database encryption key')
         return True
     
     def _keyczart_add(self, enc_attrs):
@@ -70,11 +69,11 @@ class BootstrapEngine(BootstrapCommon):
         
         # Failed to add key
         if not code == 0:
-            LENSE.FEEDBACK.error('Failed to add database encryption key: {0}'.format(str(err)))
+            BOOTSTRAP.FEEDBACK.error('Failed to add database encryption key: {0}'.format(str(err)))
             return False
         
         # Added key
-        LENSE.FEEDBACK.success('Added database encryption key')
+        BOOTSTRAP.FEEDBACK.success('Added database encryption key')
         return True
     
     def _database_encryption(self):
@@ -91,7 +90,7 @@ class BootstrapEngine(BootstrapCommon):
         
         # Make sure neither file exists
         if path.isfile(enc_attrs['key']) or path.isfile(enc_attrs['meta']):
-            return LENSE.FEEDBACK.warn('Database encryption key/meta properties already exist')
+            return BOOTSTRAP.FEEDBACK.warn('Database encryption key/meta properties already exist')
         
         # Generate / add encryption key
         for m in [self._keyczart_create, self._keyczart_add]:
@@ -114,15 +113,14 @@ class BootstrapEngine(BootstrapCommon):
                 'desc': _group['desc'],
                 'protected': _group['protected']
             }
-            
-            # Create the group
-            group = obj(APIBare(data=data, path='group')).launch()
-            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(group)))
+    
+            group = obj(BOOTSTRAP.API.BARE(data=data, path='group')).launch()
+            BOOTSTRAP.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(group)))
         
             # If the group was not created
             if not group['valid']:
                 self.die('HTTP {0}: {1}'.format(group['code'], group['content']))
-            LENSE.FEEDBACK.success('Created Lense group: {0}'.format(group['data']['name']))
+            BOOTSTRAP.FEEDBACK.success('Created Lense group: {0}'.format(group['data']['name']))
         
         # Return the groups object
         return _groups
@@ -152,13 +150,13 @@ class BootstrapEngine(BootstrapCommon):
             }
             
             # Create a new user object
-            user = obj(APIBare(data=data, path='user')).launch()
-            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(user)))
+            user = obj(BOOTSTRAP.API.BARE(data=data, path='user')).launch()
+            BOOTSTRAP.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(user)))
             
             # If the user was not created
             if not user['valid']:
                 self.die('HTTP {0}: {1}'.format(user['code'], user['content']))
-            LENSE.FEEDBACK.success('Created Lense account: {0}'.format(data['username']))
+            BOOTSTRAP.FEEDBACK.success('Created Lense account: {0}'.format(data['username']))
         
             # Add to the users object
             _users.append(user)
@@ -187,8 +185,8 @@ class BootstrapEngine(BootstrapCommon):
             }
             
             # Create the request handler
-            handler = obj(APIBare(data=data, path='handler')).launch()
-            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(handler)))
+            handler = obj(BOOTSTRAP.API.BARE(data=data, path='handler')).launch()
+            BOOTSTRAP.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(handler)))
             
             # If the handler was not created
             if not handler['valid']:
@@ -196,7 +194,7 @@ class BootstrapEngine(BootstrapCommon):
             
             # Store the handler UUID
             _handler['uuid'] = handler['data']['uuid']
-            LENSE.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(_handler['name'], _handler['path'], _handler['method']))
+            BOOTSTRAP.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(_handler['name'], _handler['path'], _handler['method']))
     
     def _create_acl_keys(self, obj):
         """
@@ -211,8 +209,8 @@ class BootstrapEngine(BootstrapCommon):
             }
             
             # Create the ACL key
-            acl_key = obj(APIBare(data=data, path='acl')).launch()
-            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(acl_key)))
+            acl_key = obj(BOOTSTRAP.API.BARE(data=data, path='acl')).launch()
+            BOOTSTRAP.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(acl_key)))
             
             # If the ACL key was not created
             if not acl_key['valid']:
@@ -220,7 +218,7 @@ class BootstrapEngine(BootstrapCommon):
                 
             # Store the new ACL key UUID
             _acl_key['uuid'] = acl_key['data']['uuid']
-            LENSE.FEEDBACK.success('Created database entry for ACL key "{0}"'.format(_acl_key['name']))
+            BOOTSTRAP.FEEDBACK.success('Created database entry for ACL key "{0}"'.format(_acl_key['name']))
             
         # Setup ACL objects
         self.params.acl.set_objects()
@@ -243,13 +241,13 @@ class BootstrapEngine(BootstrapCommon):
             }
             
             # Create the ACL object
-            acl_object = obj(APIBare(data=data, path='acl/objects')).launch()
-            LENSE.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(acl_object)))
+            acl_object = obj(BOOTSTRAP.API.BARE(data=data, path='acl/objects')).launch()
+            BOOTSTRAP.LOG.info('Received response from <{0}>: {1}'.format(str(obj), json_dumps(acl_object)))
             
             # If the ACL object was not created
             if not acl_object['valid']:
                 self.die('HTTP {}: {}'.format(acl_object['code'], acl_object['content']))
-            LENSE.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(_acl_object['type'], _acl_object['name']))
+            BOOTSTRAP.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(_acl_object['type'], _acl_object['name']))
     
     def _create_handlers_access(self, g_access, key, handler):
         """
@@ -271,7 +269,7 @@ class BootstrapEngine(BootstrapCommon):
                         acl = key.objects.get(uuid=k['uuid']),
                         handler = handler.objects.get(cls=u)
                     ).save()
-                    LENSE.FEEDBACK.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
+                    BOOTSTRAP.FEEDBACK.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
     
     def _create_acl_access(self, obj, keys, groups):
         """
@@ -284,7 +282,7 @@ class BootstrapEngine(BootstrapCommon):
                     owner = groups.objects.get(uuid=a['owner']),
                     allowed = a['allowed']
                 ).save()
-                LENSE.FEEDBACK.success('Granted global administrator access for ACL "{0}"'.format(a['acl_name']))
+                BOOTSTRAP.FEEDBACK.success('Granted global administrator access for ACL "{0}"'.format(a['acl_name']))
             except Exception as e:
                 self.die('Failed to grant global access for ACL "{0}": {1}'.format(a['acl_name'], str(e)))
     
@@ -329,7 +327,7 @@ class BootstrapEngine(BootstrapCommon):
             lce.set('admin/group', user_params['group'])
             lce.set('admin/key', user['data']['api_key'])
             lce.save()
-            LENSE.FEEDBACK.success('[{0}] Set API administrator values'.format(self.ATTRS.CONF))
+            BOOTSTRAP.FEEDBACK.success('[{0}] Set API administrator values'.format(self.ATTRS.CONF))
     
         # Create API handlers / ACL objects / ACL keys / access entries
         self._create_handlers(Handler_Create)
@@ -379,16 +377,16 @@ class BootstrapEngine(BootstrapCommon):
             
             # Create the database    
             c.execute(self.params.db['query']['create_db'])
-            LENSE.FEEDBACK.success('Created database "{0}"'.format(self.params.db['attrs']['name']))
+            BOOTSTRAP.FEEDBACK.success('Created database "{0}"'.format(self.params.db['attrs']['name']))
             
             # Create the database user
             c.execute(self.params.db['query']['create_user'])
-            LENSE.FEEDBACK.success('Created database user "{0}"'.format(self.params.db['attrs']['user']))
+            BOOTSTRAP.FEEDBACK.success('Created database user "{0}"'.format(self.params.db['attrs']['user']))
                 
             # Grant privileges
             c.execute(self.params.db['query']['grant_user'])
             c.execute(self.params.db['query']['flush_priv'])
-            LENSE.FEEDBACK.success('Granted database permissions to user "{0}"'.format(self.params.db['attrs']['user']))
+            BOOTSTRAP.FEEDBACK.success('Granted database permissions to user "{0}"'.format(self.params.db['attrs']['user']))
             
         except Exception as e:
             self.die('Failed to bootstrap Lense database: {0}'.format(str(e)))
@@ -408,7 +406,7 @@ class BootstrapEngine(BootstrapCommon):
                 self.die('Failed to sync Django application database: {0}'.format(str(err)))
                 
             # Sync success
-            LENSE.FEEDBACK.success('Synced Django application database')
+            BOOTSTRAP.FEEDBACK.success('Synced Django application database')
         except Exception as e:
             self.die('Failed to sync Django application database: {0}'.format(str(e)))
             
@@ -424,7 +422,7 @@ class BootstrapEngine(BootstrapCommon):
         admin_user = self.params.get_user(USERS.ADMIN.NAME)
         
         # Print the summary
-        LENSE.FEEDBACK.block([
+        BOOTSTRAP.FEEDBACK.block([
             'Finished bootstrapping Lense API engine!\n',
             'You should restart your Apache service to load the new virtual host',
             'configuration. In order to use the Lense CLI client you should add the',

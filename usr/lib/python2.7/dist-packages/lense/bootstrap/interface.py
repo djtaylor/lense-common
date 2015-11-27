@@ -32,7 +32,7 @@ class Bootstrap(BootstrapCommon):
         
         # Run the project bootstrap method
         if project in interfaces:
-            LENSE.FEEDBACK.info('Running bootstrap manager for Lense project: {0}\n'.format(project))
+            BOOTSTRAP.FEEDBACK.info('Running bootstrap manager for Lense project: {0}\n'.format(project))
             interfaces[project](self.args, self.answers).run()
             
     def _run(self):
@@ -78,7 +78,8 @@ class Bootstrap(BootstrapCommon):
         """
         
         # Register project commons
-        init_project('BOOTSTRAP')
+        init_project('BOOTSTRAP', 'BOOTSTRAP')
+        init_project('ENGINE', 'LENSE')
         
         # Run the bootstrap manager
         return Bootstrap()._run()
