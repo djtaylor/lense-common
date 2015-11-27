@@ -4,7 +4,84 @@ from sys import getsizeof
 from lense.common import logger 
 from lense.common.utils import truncate
 from lense.common.collection import Collection
-from lense.common.http import HTTP_POST, HTTP_PUT, HEADER
+from lense.common.objects.user.models import APIUser
+from lense.common.http import HTTP_POST, HTTP_PUT, HEADER, PATH
+
+class LenseRequestSession(object):
+    """
+    Helper class for handling session attributes.
+    """
+    def __init__(self, session):
+        self._session = session
+        
+        # Session ID
+        self.id       = getattr(session, 'session_id', None)  
+        
+    def set(self, key, value):
+        """
+        Set a new session value or update an existing one
+        """
+        self._session[key] = value
+        
+    def get(self, key, default=None):
+        """
+        Retrieve a session value.
+        """
+        return getattr(self._session, key, default)
+
+class LenseRequestUser(object):
+    """
+    Helper class for extracting and storing user attributes.
+    """
+    def __init__(self, request):
+        
+        # Internal Django request / user object
+        self._request   = request
+        self.object     = request.user
+ 
+        # User attributes
+        self.name       = self._getattr('username', header=HEADER.API_USER)
+        self.group      = self._getattr('group', header=HEADER.API_GROUP, session='active_group')
+        self.authorized = self._getattr('is_authenticated', default=False)
+        self.admin      = self._getattr('is_superuser', default=False, session='is_admin')
+        self.active     = self._getattr('is_active', False)
+        
+        # User model
+        self.model      = self._getmodel()
+ 
+        # Construct the user object
+        self._construct()
+    
+    def _format_header(self, header):
+        """
+        Format a header into a Django recognizable string.
+        """
+        return 'HTTP_{0}'.format(header.upper().replace('-', '_'))
+    
+    def _getmodel(self):
+        """
+        Retrieve the user model.
+        """
+        return None if not self.name else APIUser.objects.filter(username=self.name).values()[0]
+    
+    def _getattr(self, key, default=None, header=None, session=None):
+        """
+        Helper method for retrieving a user attribute.
+        """
+        
+        # If retrieving from session
+        if session:
+            return self._request.session.get(session, default)
+        
+        # If retrieving from headers
+        if header:
+            return getattr(self._request.META, self._format_header(header), None)
+        
+        # Get attribute from user object
+        attr = getattr(self.object, key, default)
+        
+        # Return the attribute or return value of method
+        return attr if not callable(attr) else attr()
 
 class LenseRequestObject(object):
     """
@@ -28,8 +105,8 @@ class LenseRequestObject(object):
             self.method,
             self.path,
             self.client,
-            self.user,
-            self.group,
+            self.user.name,
+            self.user.group,
             self.key,
             self.token,
             truncate(str(self.data))
@@ -120,34 +197,6 @@ class LenseRequestObject(object):
         # Construct and return the logger
         return logger.create(_name, _file)
     
-    def _get_group(self):
-        """
-        Retrieve the group from either the request headers or request object
-        depending on the project.
-        """
-    
-        # Engine API user
-        if self._project.name == 'ENGINE':
-           return self.headers.get('HTTP_{0}'.format(HEADER.API_GROUP.upper().replace('-', '_')))
-           
-        # Portal user
-        if self._project.name == 'PORTAL': 
-            return None if not self.RAW.user.is_authenticated() else self.RAW.session['active_group']
-    
-    def _get_user(self):
-        """
-        Retrieve the user from either the request headers or request object
-        depending on the project.
-        """
-        
-        # Engine API user
-        if self._project.name == 'ENGINE':
-           return self.headers.get('HTTP_{0}'.format(HEADER.API_USER.upper().replace('-', '_')))
-           
-        # Portal user
-        if self._project.name == 'PORTAL': 
-            return None if not hasattr(self.RAW, 'user') else self.RAW.user.username
-    
     def _get_key(self):
         """
         Attempt to retrieve an API key from headers.
@@ -159,19 +208,6 @@ class LenseRequestObject(object):
         Attempt to retrieve an API token from headers.
         """
         return self.headers.get('HTTP_{0}'.format(HEADER.API_TOKEN.upper().replace('-', '_')), '')
-    
-    def _get_session(self):
-        """
-        Attempt to retrieve a session key from the request object.
-        """
-        return None if not hasattr(self.RAW, 'session') else self.RAW.session.session_key
-    
-    def _get_admin(self):
-        """
-        Attempt to determine if the request user has administrative privileges.
-        """
-        if self._project.name == 'PORTAL':
-            return False if not self.RAW.user.is_authenticated() else self.RAW.session['is_admin']
     
     def _get_header_value(self, k, default=None):
         """
@@ -190,32 +226,35 @@ class LenseRequestObject(object):
         self.headers     = request.META
         
         # Request method / path / client / host / agent / query string / script / current URI
-        self.method      = self._get_header_value('REQUEST_METHOD')
-        self.path        = self._get_header_value('PATH_INFO')[1:]
-        self.client      = self._get_header_value('REMOTE_ADDR')
-        self.host        = self._get_header_value('HTTP_HOST').split(':')[0]
-        self.agent       = self._get_header_value('HTTP_USER_AGENT')
-        self.query       = self._get_header_value('QUERY_STRING')
-        self.script      = self._get_header_value('SCRIPT_NAME')
-        self.current     = self._get_header_value('REQUEST_URI')
+        self.method       = self._get_header_value('REQUEST_METHOD')
+        self.path         = self._get_header_value('PATH_INFO')[1:]
+        self.client       = self._get_header_value('REMOTE_ADDR')
+        self.host         = self._get_header_value('HTTP_HOST').split(':')[0]
+        self.agent        = self._get_header_value('HTTP_USER_AGENT')
+        self.query        = self._get_header_value('QUERY_STRING')
+        self.script       = self._get_header_value('SCRIPT_NAME')
+        self.current      = self._get_header_value('REQUEST_URI')
         
         # Request size / payload
-        self.size        = int(getsizeof(getattr(request, 'body', '')))
-        self.data        = self._load_data()
+        self.size         = int(getsizeof(getattr(request, 'body', '')))
+        self.data         = self._load_data()
     
-        # User / group / key / token / session / is_admin
-        self.user        = self._get_user()
-        self.group       = self._get_group()
-        self.key         = self._get_key()
-        self.token       = self._get_token()
-        self.session     = self._get_session()
-        self.is_admin    = self._get_admin()
-        
+        # Request user / session
+        self.user         = LenseRequestUser(request)
+        self.session      = LenseRequestSession(request.session)
+    
+        # Anonymous / token request boolean flags
+        self.is_anonymous = True if not self.user.name else False
+        self.is_token     = True if (self.path == PATH.GET_TOKEN) else False
+    
+        # API key / token
+        self.key          = self._get_key()
+        self.token        = self._get_token()
         
         # Method / GET / POST / body data
-        self.GET         = Collection(request.GET).get()
-        self.POST        = Collection(request.POST).get()
-        self.body        = request.body
+        self.GET          = Collection(request.GET).get()
+        self.POST         = Collection(request.POST).get()
+        self.body         = request.body
     
         # Debug logging for each request
         self._log_request()
