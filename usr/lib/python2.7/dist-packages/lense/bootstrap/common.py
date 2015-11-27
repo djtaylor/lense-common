@@ -6,12 +6,8 @@ from os import path, makedirs, system
 from subprocess import Popen, PIPE
 
 # Lense Libraries
-from lense.common import LenseCommon
 from lense.common.config import LenseConfigEditor
 from lense.common.vars import WSGI_CONFIG, PROJECTS, CONFIG
-
-# Lense Common
-LENSE = LenseCommon('BOOTSTRAP')
 
 class BootstrapCommon(object):
     """

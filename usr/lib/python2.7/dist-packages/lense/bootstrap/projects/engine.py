@@ -8,16 +8,12 @@ from MySQLdb import connect as mysql_connect
 environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
 
 # Lense Libraries
-from lense.common import LenseCommon
 from lense.common.utils import rstring
 from lense.engine.api.bare import APIBare
 from lense.common.vars import USERS, GROUPS
 from lense.bootstrap.params import EngineParams
 from lense.common.config import LenseConfigEditor
 from lense.bootstrap.common import BootstrapCommon
-
-# Lense Common
-LENSE = LenseCommon('BOOTSTRAP')
 
 class BootstrapEngine(BootstrapCommon):
     """

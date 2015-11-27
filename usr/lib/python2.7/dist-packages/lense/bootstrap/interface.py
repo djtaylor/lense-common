@@ -1,14 +1,11 @@
 from collections import OrderedDict
 
 # Lense Libraries
-from lense.common import LenseCommon
+from lense.common import init_project
 from lense.bootstrap.args import BootstrapArgs
 from lense.bootstrap.common import BootstrapCommon
 from lense.bootstrap.answers import BootstrapAnswers
 from lense.bootstrap.projects import BootstrapClient, BootstrapPortal, BootstrapEngine, BootstrapSocket
-
-# Lense Common
-LENSE = LenseCommon('BOOTSTRAP')
 
 class Bootstrap(BootstrapCommon):
     """
@@ -79,4 +76,9 @@ class Bootstrap(BootstrapCommon):
         """
         Public static method for invoking the bootstrap manager.
         """
+        
+        # Register project commons
+        init_project('BOOTSTRAP')
+        
+        # Run the bootstrap manager
         return Bootstrap()._run()

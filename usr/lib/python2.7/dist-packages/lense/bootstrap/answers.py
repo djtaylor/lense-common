@@ -1,8 +1,3 @@
-from lense.common import LenseCommon
-
-# Lense Common
-LENSE = LenseCommon('BOOTSTRAP')
-
 class BootstrapAnswers(object):
     """
     Class object for storing answers supplied by a JSON file.

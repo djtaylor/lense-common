@@ -1,9 +1,5 @@
-from lense.common import LenseCommon
 from lense.bootstrap.params import SocketParams
 from lense.bootstrap.common import BootstrapCommon
-
-# Lense Common
-LENSE = LenseCommon('BOOTSTRAP')
 
 class BootstrapSocket(BootstrapCommon):
     """

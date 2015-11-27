@@ -3,8 +3,9 @@ __version__ = '0.1.1'
 # Python Libraries
 import re
 import json
+import __builtin__
 from feedback import Feedback
-from sys import getsizeof, path
+from sys import getsizeof, path, modules
 from importlib import import_module
 
 # Lense Libraries
@@ -301,7 +302,7 @@ class LenseCommon(object):
         """
         self.COLLECTION  = Collection
         self.REQUEST     = self._requires('get_request', LenseRequestObject, [self.PROJECT])
-        self.LOG         = self._requires('get_logger', logger.create_project(), [project])
+        self.LOG         = self._requires('get_logger', logger.create_project, [project])
         self.OBJECTS     = self._requires('get_objects', ObjectsManager)
         self.USER        = self._requires('get_user', LenseUser, [self.PROJECT.name, self.LOG])
         self.CONF        = self._requires('get_conf', config.parse, [project])
@@ -325,3 +326,16 @@ class LenseCommon(object):
         if getattr(self.PROJECT, key, False):
             return obj(*args, **kwargs)
         return None
+    
+def init_project(project):
+    """
+    Method for registering a project's common object in the global namespace.
+    
+    :param project: The project ID to register
+    :type  project: str
+    """
+    if not hasattr(PROJECTS, project):
+        raise InvalidProjectID(project)
+    
+    # Set up the project singleton
+    setattr(__builtin__, 'LENSE', LenseCommon(project))
