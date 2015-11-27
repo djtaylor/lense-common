@@ -38,8 +38,9 @@ class LenseProject(object):
         # Project templates
         self.TEMPLATES   = getattr(TEMPLATES, project, None)
         
-        # Use a Django request object or not
-        self.use_request = getattr(self._attrs, 'REQUEST', False)
-        
-        # Use the objects manager or not
-        self.use_objects = getattr(self._attrs, 'OBJECTS', False)
+        # Get request / objects / logger / user / configuration
+        self.get_request = getattr(self._attrs, 'REQUEST', False)
+        self.get_logger  = getattr(self._attrs, 'LOG', False)
+        self.get_objects = getattr(self._attrs, 'OBJECTS', False)
+        self.get_user    = getattr(self._attrs, 'USER', False)
+        self.get_conf    = getattr(self._attrs, 'CONF', False)

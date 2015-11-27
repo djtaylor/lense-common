@@ -4,7 +4,6 @@ from sys import getsizeof
 from lense.common import logger 
 from lense.common.utils import truncate
 from lense.common.collection import Collection
-from lense.common.objects.user.models import APIUser
 from lense.common.http import HTTP_POST, HTTP_PUT, HEADER, PATH
 
 class LenseRequestSession(object):
@@ -62,6 +61,11 @@ class LenseRequestUser(object):
         """
         Retrieve the user model.
         """
+        
+        # Import the user object
+        from lense.common.objects.user.models import APIUser
+        
+        # Return the user model
         return None if not self.name else APIUser.objects.filter(username=self.name).values()[0]
     
     def _getattr(self, key, default=None, header=None, session=None):

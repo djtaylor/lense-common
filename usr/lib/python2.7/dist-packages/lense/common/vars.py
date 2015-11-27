@@ -34,13 +34,15 @@ PROJECTS = Collection({
         'LOG':  '/var/log/lense/engine.log',
         'CONF': '/etc/lense/engine.conf',
         'REQUEST': True,
-        'OBJECTS': True
+        'OBJECTS': True,
+        'USER': True
     },
     'PORTAL': {
         'LOG':  '/var/log/lense/portal.log',
         'CONF': '/etc/lense/portal.conf',
         'REQUEST': True,
-        'OBJECTS': False
+        'OBJECTS': False,
+        'USER': True
     },
     'CLIENT': {
         'LOG':  '/var/log/lense/client.log',

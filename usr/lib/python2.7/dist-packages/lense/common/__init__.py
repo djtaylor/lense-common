@@ -7,24 +7,18 @@ from feedback import Feedback
 from sys import getsizeof, path
 from importlib import import_module
 
-# Django Libraries
-from django.contrib.auth import authenticate, login, logout
-
 # Lense Libraries
 from lense.common import config
 from lense.common import logger
 from lense.common.http import HEADER
 from lense import MODULE_ROOT, DROPIN_ROOT
 from lense.common.objects import JSONObject
-from lense.common.utils import valid, invalid
 from lense.common.collection import Collection
 from lense.common.project import LenseProject
 from lense.common.vars import PROJECTS, TEMPLATES
 from lense.common.request import LenseRequestObject
 from lense.common.exceptions import InvalidProjectID
 from lense.common.objects.manager import ObjectsManager
-from lense.common.objects.user.models import APIUser
-from lense.engine.api.auth import AuthAPIKey, AuthAPIToken
 
 # Drop-in Python path
 path.append(DROPIN_ROOT)
@@ -35,9 +29,26 @@ class LenseUser(object):
     """
     def __init__(self, project, log):
         
+        # Internal import
+        from lense.common.objects.user.models import APIUser
+        from lense.engine.api.auth import AuthAPIKey, AuthAPIToken
+        from django.contrib.auth import authenticate, login, logout
+        
+        # Lense user model
+        self._model        = APIUser
+        
+        # Authentication classes
+        self._auth_key     = AuthAPIKey
+        self._auth_token   = AuthAPIToken
+        
+        # Django methods
+        self._authenticate = authenticate
+        self._login        = login
+        self._logout       = logout
+        
         # Project ID / logger
-        self._project   = project
-        self._log       = log
+        self._project      = project
+        self._log          = log
     
         # Most recent authentication error
         self.AUTH_ERROR = 'An unknown authentication error occurred'
@@ -51,7 +62,7 @@ class LenseUser(object):
         :param  key: The user's API request key
         :type   key: str
         """
-        if not AuthAPIKey.validate(user, key):
+        if not self._auth_key.validate(user, key):
             return False
     
     def _authenticate_engine_token(self, user, token):
@@ -63,7 +74,7 @@ class LenseUser(object):
         :param token: The user's API request token
         :type  token: str
         """
-        if not AuthAPIToken.validate(user, token):
+        if not self._auth_token.validate(user, token):
             return False
         
     def _authenticate_portal(self, user, password):
@@ -75,7 +86,7 @@ class LenseUser(object):
         :param password: The user's request password
         :type  password: str
         """
-        auth = authenticate(username=user, password=password)
+        auth = self._authenticate(username=user, password=password)
         
         # Username/password incorrect
         if not auth:
@@ -98,7 +109,7 @@ class LenseUser(object):
         
         # Make sure the group exists and the user is a member
         is_member = False
-        for _group in APIUser.objects.filter(username=user).values()[0]['groups']:
+        for _group in self._model.objects.filter(username=user).values()[0]['groups']:
             if _group['uuid'] == group:
                 is_member = True
                 break
@@ -119,9 +130,9 @@ class LenseUser(object):
         :type  user:       str
         :param get_object: If the user exists and set to true, return the user object
         """
-        if APIUser.objects.filter(username=user).count():
+        if self._model.objects.filter(username=user).count():
             if get_object:
-                return APIUser.objects.get(username=user)
+                return self._model.objects.get(username=user)
             return True
             
         # User doesn't exist
@@ -138,7 +149,7 @@ class LenseUser(object):
         :type     user: str
         """
         try:
-            login(request, user)
+            self._login(request, user)
             self._log.info('Logged in user: {0}'.format(user))
             return True
         
@@ -154,7 +165,7 @@ class LenseUser(object):
         :type  request: HttpRequest
         """
         try:
-            logout(request)
+            self._logout(request)
             self._log.info('Logged out user: {0}'.format(user))
             return True
         
@@ -280,8 +291,8 @@ class LenseCommon(object):
         REQUEST:    Generate a request object or not
         LOG:        Create the log handler if needed
         OBJECTS:    Create the object manager if needed
-        CONF:       The projects configuration
         USER:       User handler
+        CONF:       The projects configuration
         MODULE:     The module helper
         JSON:       JSON object manager
         INVALID:    Error relay
@@ -289,13 +300,28 @@ class LenseCommon(object):
         FEEDBACK:   CLI feedback handler
         """
         self.COLLECTION  = Collection
-        self.REQUEST     = None if not self.PROJECT.use_request else LenseRequestObject(self.PROJECT)
-        self.LOG         = logger.create_project(project)
-        self.OBJECTS     = None if not self.PROJECT.use_objects else ObjectsManager()
-        self.CONF        = None if not self.PROJECT.conf else config.parse(project)
-        self.USER        = LenseUser(self.PROJECT.name, self.LOG)
+        self.REQUEST     = self._requires('get_request', LenseRequestObject, [self.PROJECT])
+        self.LOG         = self._requires('get_logger', logger.create_project(), [project])
+        self.OBJECTS     = self._requires('get_objects', ObjectsManager)
+        self.USER        = self._requires('get_user', LenseUser, [self.PROJECT.name, self.LOG])
+        self.CONF        = self._requires('get_conf', config.parse, [project])
         self.MODULE      = LenseModules()
         self.JSON        = JSONObject()
-        self.INVALID     = invalid
-        self.VALID       = valid
         self.FEEDBACK    = Feedback()
+        
+    def _requires(self, key, obj, args=[], kwargs={}):
+        """
+        Load the return object if the project requires it.
+        
+        :param    key: The boolean attribute to check
+        :type     key: str
+        :param    obj: The object to return
+        :type     obj: object
+        :param   args: Arguments to pass to the object
+        :type    args: list
+        :param kwargs: Keyword arguments to pass to the object
+        :type  kwargs: dict
+        """
+        if getattr(self.PROJECT, key, False):
+            return obj(*args, **kwargs)
+        return None
