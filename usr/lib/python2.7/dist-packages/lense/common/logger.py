@@ -70,10 +70,10 @@ def create_project(project):
     """
     Wrapper method for creating a project logger instance.
     """
-    project = LenseProject(project)
+    PROJECT = LenseProject(project)
     
     # Return a logger object
-    return create(project.log.name, project.log.file)
+    return create(PROJECT.LOG.name, PROJECT.LOG.file)
     
 def create(name=False, log_file=None):
     """

@@ -1,6 +1,8 @@
-from os.path import dirname, abspath
+from sys import exc_info
 from sys import stderr, exit
+from traceback import print_exc
 from importlib import import_module
+from os.path import dirname, abspath
 
 # Module root / drop-in root
 MODULE_ROOT = dirname(abspath(__file__))
@@ -35,8 +37,10 @@ def import_class(cls, mod, init=True, ensure=True, args=[], kwargs={}):
         # Class creation failed
         except Exception as e:
             stderr.write('Failed to create <{0}>: {1}\n'.format(cls, str(e)))
+            print_exc()
             exit(1)
         
     except Exception as e:
         stderr.write('Failed to import <{0}> from <{1}>: {2}\n'.format(cls, mod, str(e)))
+        print_exc()
         exit(1)

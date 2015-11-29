@@ -1,6 +1,6 @@
-from lense.common.auth.key import AuthACLKey
+from lense.common.auth.key import AuthAPIKey
 from lense.common.auth.acl import AuthACLGateway
-from lense.common.auth.token import AuthACLToken
+from lense.common.auth.token import AuthAPIToken
 from lense.common.auth.portal import AuthPortal
 from lense.common.exceptions import AuthError
 

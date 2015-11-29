@@ -26,15 +26,19 @@ class AuthACLObjects(object):
     """
     Parent class used to construct a list of objects that a user is authorized to access.
     """
-    def __init__(self, otype, user=LENSE.REQUEST.user.name, path=LENSE.REQUEST.path, method=LENSE.REQUEST.method):
-        
-        # ACL user object / object type / object handler / cache manager
-        self.user      = user
+    def __init__(self, otype, user=None, path=None, method=None):
         self.type      = otype
-        self.handler   = ACLHandler(path, method).get()
+        
+        # ACL user / request path / method
+        self.user      = user if user else LENSE.REQUEST.USER.name
+        self.path      = path if path else LENSE.REQUEST.path
+        self.method    = method if method else LENSE.REQUEST.method
+        
+        # Get the ACL handler
+        self.handler   = ACLHandler(self.path, self.method).get()
         
         # Object accessor
-        self.obj_def   = get_obj_def(obj_type)
+        self.obj_def   = get_obj_def(self.type)
         
         # Search filters
         self.filters   = {}
@@ -142,11 +146,11 @@ class ACLHandler(object):
     Parent class used to construct the ACL attributes for a specific handler. This includes
     retrieving the handler UUID, and any ACLs that provide access to this specific handler.
     """
-    def __init__(self, path=LENSE.REQUEST.path, method=LENSE.REQUEST.method):
+    def __init__(self, path=None, method=None):
         
         # Handler name / UUID / object
-        self.path   = path
-        self.method = method
+        self.path   = path if path else LENSE.REQUEST.path
+        self.method = method if method else LENSE.REQUEST.method
         self.model  = Handlers.objects.get(path=self.path, method=self.method)
         self.uuid   = self.model.uuid
         self.name   = self.model.name
@@ -161,10 +165,10 @@ class ACLUser(object):
     defining the username, groups the user is a member of, all ACLs the user has access to based
     on their groups, as well as the account type (i.e., user/host).
     """
-    def __init__(self, user=LENSE.REQUEST.user.name):
+    def __init__(self, user=None):
        
         # Username / groups / ACLs
-        self.name   = user
+        self.name   = user if user else LENSE.REQUEST.user.name
         self.groups = self._get_groups() 
         self.acls   = self._get_acls()
    
@@ -207,8 +211,8 @@ class AuthACLGateway(object):
     ACL gateway class used to handle permissions for API requests prior to loading
     any API handlers. Used after key/token authorization.
     """
-    def __init__(self, request=LENSE.REQUEST):
-        self.request       = request
+    def __init__(self, request=None):
+        self.request       = request if request else LENSE.REQUEST
         
         # ACL handler / user
         self.handler       = ACLHandler()
@@ -400,7 +404,7 @@ class AuthACLGateway(object):
             return _object
         return None
         
-    def authorized_objects(self, otype, path=LENSE.REQUEST.path, method=LENSE.REQUEST.method, filter=None):
+    def authorized_objects(self, otype, path=None, method=None, filter=None):
         """
         Public method used to construct a list of authorized objects of a given type for the 
         API user.
@@ -417,6 +421,8 @@ class AuthACLGateway(object):
         :param filter: Optional object filters
         :type  filter: dict
         """
+        path   = path if path else LENSE.REQUEST.path
+        method = method if method else LENSE.REQUEST.method 
         
         # Create the authorized objects list
         return AuthACLObjects(

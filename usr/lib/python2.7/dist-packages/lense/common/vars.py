@@ -1,5 +1,4 @@
 from lense import MODULE_ROOT
-from lense.common.auth import BACKENDS
 from lense.common.collection import Collection
 
 """

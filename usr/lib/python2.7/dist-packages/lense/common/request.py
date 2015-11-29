@@ -222,7 +222,7 @@ class LenseRequestObject(object):
         """
     
         # Store the raw request object and headers
-        self.django       = request
+        self.DJANGO       = request
         self.headers      = request.META
         
         # Request method / path / client / host / agent / query string / script / current URI
