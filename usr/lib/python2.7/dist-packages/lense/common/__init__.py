@@ -48,7 +48,7 @@ class LenseCommon(object):
         self.REQUEST     = import_class('LenseRequestObject', 'lense.common.request', init=False, ensure=pattr('get_request'), args=[self.PROJECT])
         self.LOG         = import_class('create_project', 'lense.common.logger', ensure=pattr('get_logger'), args=[project])
         self.OBJECTS     = import_class('ObjectsManager', 'lense.common.objects.manager', init=False, ensure=pattr('get_objects'))
-        self.USER        = import_class('LenseUser', 'lense.common', init=False, ensure=pattr('get_user'))
+        self.USER        = import_class('LenseUser', 'lense.common.user', init=False, ensure=pattr('get_user'))
         self.CONF        = import_class('parse', 'lense.common.config', init=False, ensure=pattr('get_conf'), args=[project])
         self.API         = import_class('LenseAPIConstructor', 'lense.common.api', init=False)
         self.URL         = import_class('LenseURLConstructor', 'lense.common.url', init=False)
