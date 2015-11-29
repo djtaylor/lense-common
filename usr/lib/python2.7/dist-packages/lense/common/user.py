@@ -1,5 +1,5 @@
 # Lense Libraries
-from lense import import_class
+from lense import import_class, set_arg
 from lense.common.exceptions import AuthError
 
 class LenseUser(object):
@@ -43,7 +43,7 @@ class LenseUser(object):
         :type  user: str
         :rtype: str
         """
-        _user = self.get(user if user else LENSE.REQUEST.user.name)
+        _user = self.get(set_arg(user, LENSE.REQUEST.USER.name))
         
         # Get the API key
         api_key = list(self._key.objects.filter(user=_user.uuid).values())
@@ -59,7 +59,7 @@ class LenseUser(object):
         :type  user: str
         :rtype: str
         """
-        _user = self.get(user if user else LENSE.REQUEST.user.name)
+        _user = self.get(set_arg(user, LENSE.REQUEST.USER.name))
         
         # Get the API token
         api_token = list(self._token.objects.filter(user=_user.uuid).values())
@@ -142,15 +142,20 @@ class LenseUser(object):
         LENSE.LOG.error('User "{0}" not found in database'.format(user))
         return None
     
-    def login(self):
+    def login(self, request=None, user=None):
         """
         Login a portal user.
+        
+        :param request: The Django request object
+        :type  request: HttpRequest
+        :param    user: The user to login
+        :type     user: str
         """
         try:
             
             # Request object / username
-            request = LENSE.REQUEST.DJANGO
-            user    = LENSE.REQUEST.USER.name
+            request = set_arg(request, LENSE.REQUEST.DJANGO)
+            user    = set_arg(user, LENSE.REQUEST.USER.name)
             
             # Login the user
             self._login(request, user)
@@ -162,15 +167,20 @@ class LenseUser(object):
             LENSE.LOG.exception('Failed to log in user "{0}": {1}'.format(user, str(e)))
             return False
         
-    def logout(self):
+    def logout(self, request=None, user=None):
         """
         Log out the user.
+        
+        :param request: The Django request object
+        :type  request: HttpRequest
+        :param    user: The user to logout
+        :type     user: str
         """
         try:
             
             # Request object / username
-            request = LENSE.REQUEST.DJANGO
-            user    = LENSE.REQUEST.USER.name
+            request = set_arg(request, LENSE.REQUEST.DJANGO)
+            user    = set_arg(user, LENSE.REQUEST.USER.name)
             
             # Logout the user
             self._logout(request)
@@ -182,14 +192,25 @@ class LenseUser(object):
             LENSE.LOG.exception('Failed to log out user "{0}": {1}'.format(user, str(e)))
             return False
         
-    def authenticate(self):
+    def authenticate(self, user=None, passwd=None, group=None, key=None, token=None):
         """
         Attempt to authenticate the user.
+        
+        :param   user: The user to authenticate
+        :type    user: str
+        :param passwd: The user's attempted password
+        :type  passwd: str
+        :param  group: The user's group
+        :type   group: str
+        :param    key: The user's attempted API key
+        :type     key: str
+        :param  token: The user's attempted API token
+        :type   token: str
         """
         try:
             
             # Target user
-            user = LENSE.REQUEST.USER.name
+            user   = set_arg(user, LENSE.REQUEST.USER.name)
             
             # User does not exist / is inactive
             self.ensure('exists', exc=AuthError, msg='User "{0}" does not exist'.format(user), args=[user])       
@@ -197,13 +218,13 @@ class LenseUser(object):
             
             # Portal authentication
             if LENSE.PROJECT.name.upper() == 'PORTAL':
-                return LENSE.AUTH.PORTAL(user, LENSE.REQUEST.USER.passwd)
+                return LENSE.AUTH.PORTAL(user, set_arg(passwd, LENSE.REQUEST.USER.passwd))
     
             # Engine authentication
             if LENSE.PROJECT.name.upper() == 'ENGINE':
                 
                 # Get the user group
-                group = LENSE.REQUEST.USER.group
+                group = set_arg(group, LENSE.REQUEST.USER.group)
                 
                 # Make sure the user is a group member
                 self.ensure('member_of', 
@@ -213,8 +234,8 @@ class LenseUser(object):
                 )
                 
                 # Token / key authentication
-                token = LENSE.REQUEST.token
-                key   = LENSE.REQUEST.key
+                token = set_arg(token, LENSE.REQUEST.token)
+                key   = set_arg(key, LENSE.REQUEST.key)
                 
                 # Check token authentication first
                 if token:

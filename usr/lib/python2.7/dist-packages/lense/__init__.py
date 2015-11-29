@@ -8,6 +8,18 @@ from os.path import dirname, abspath
 MODULE_ROOT = dirname(abspath(__file__))
 DROPIN_ROOT = '/usr/share/lense/python'
 
+def set_arg(default, alt):
+    """
+    Set the value of an argument.
+    
+    :param default: The default attribute to check for
+    :type  default: str
+    :param     alt: An alternate attribute to set
+    :type      alt: str
+    :rtype: str|None
+    """
+    return default if default else alt
+
 def import_class(cls, mod, init=True, ensure=True, args=[], kwargs={}):
     """
     Import a module, create an instance of a class, and pass optional arguments.
