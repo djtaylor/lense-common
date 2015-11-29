@@ -33,11 +33,15 @@ TEMPLATES = Collection({
 HANDLERS = Collection({
     'ENGINE': {
         'DIR': '{0}/lense/engine/api/handlers'.format(MODULE_ROOT),
-        'MOD': 'lense.engine.api.handlers'.format(MODULE_ROOT)
+        'MOD': 'lense.engine.api.handlers'
     },
     'PORTAL': {
-        'DIR': '{0}/lense/portal/ui/handlers',
+        'DIR': '{0}/lense/portal/ui/handlers'.format(MODULE_ROOT),
         'MOD': 'lense.engine.api.handlers'
+    },
+    'CLIENT': {
+        'DIR': '{0}/lense/client/module'.format(MODULE_ROOT),
+        'MOD': 'lense.client.module'
     }
 }).get()
 
@@ -49,33 +53,27 @@ PROJECTS = Collection({
         'REQUEST': True,
         'OBJECTS': True,
         'USER': True,
-        'AUTH': []
+        'AUTH': True
     },
     'PORTAL': {
         'LOG':  '/var/log/lense/portal.log',
         'CONF': '/etc/lense/portal.conf',
         'REQUEST': True,
         'OBJECTS': False,
-        'USER': True
+        'USER': True,
+        'AUTH': True
     },
     'CLIENT': {
         'LOG':  '/var/log/lense/client.log',
-        'CONF': '/etc/lense/client.conf',
-        'REQUEST': False,
-        'OBJECTS': False
+        'CONF': '/etc/lense/client.conf'
     },
     'SOCKET': {
         'LOG':  '/var/log/lense/socket.log',
         'CONF': '/etc/lense/socket.conf',
-        'RUN': '/var/run/lense',
-        'REQUEST': False,
-        'OBJECTS': False
+        'RUN': '/var/run/lense'
     },
     'BOOTSTRAP': {
-        'LOG':  '/var/log/lense/bootstrap.log',
-        'CONF': None,
-        'REQUEST': False,
-        'OBJECTS': False
+        'LOG':  '/var/log/lense/bootstrap.log'
     }
 }).get()
 

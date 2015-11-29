@@ -42,7 +42,7 @@ class APIUserManager(BaseUserManager):
         """
         
         # Fix circular imports
-        from lense.engine.api.auth import AuthAPIKey
+        from lense.common.auth import AuthAPIKey
         from lense.common.objects.group.models import APIGroups
         from lense.common.objects.user.models import APIUserKeys
         

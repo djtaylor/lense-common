@@ -5,14 +5,14 @@ class LenseAPIConstructor(object):
     Helper class for constructing API classes.
     """
     @staticmethod
-    def BASE(self, *args, **kwargs):
+    def BASE(*args, **kwargs):
         """
         Wrapper method for returning an instance of APIBase.
         """
         return import_class('APIBase', 'lense.engine.api.base', args=args, kwargs=kwargs).construct()
     
     @staticmethod
-    def BARE(self, *args, **kwargs):
+    def BARE(*args, **kwargs):
         """
         Wrapper method for returning an instance of APIBare.
         """

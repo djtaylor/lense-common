@@ -4,48 +4,51 @@ from importlib import import_module
 # Lense Libraries
 from lense.common.vars import HANDLERS
 from lense import MODULE_ROOT, DROPIN_ROOT
-from lense.common.collection import Collection
 
 class LenseModules(object):
     """
     Module helper class.
     """
-    def __init__(self):
+    @staticmethod
+    def dropin(project):
+        """
+        Drop-in module attributes.
         
-        # Built-in/drop-in module roots
-        self.root     = MODULE_ROOT
-        self.dropin   = self._get_dropin_modules()
-        self.builtin  = self._get_builtin_modules()
+        :param project: The target project
+        :type  project: str
+        """
+        return {
+            'client': [LenseModules._dropin_path_map('client/module'), 'lense_d.client.module']
+        }.get(project, None)
     
-    def _dropin_path_map(self, rel):
+    @staticmethod
+    def builtin(project):
+        """
+        Built-in module attributes.
+        
+        :param project: The target project
+        :type  project: str
+        """
+        return {
+            'client': [LenseModules._builtin_path_map('client/module'), 'lense.client.module']
+        }.get(project, None)
+    
+    @staticmethod
+    def _dropin_path_map(rel):
         """
         Map a relative module path to the drop-in root.
         """
         return '{0}/lense_d/{1}'.format(DROPIN_ROOT, rel)
     
-    def _builtin_path_map(self, rel):
+    @staticmethod
+    def _builtin_path_map(rel):
         """
         Map a relative path to the built-in root.
         """
         return '{0}/{1}'.format(MODULE_ROOT, rel)
     
-    def _get_dropin_modules(self):
-        """
-        Drop-in module attributes.
-        """
-        return Collection({
-            'CLIENT': [self._dropin_path_map('client/module'), 'lense_d.client.module']
-        }).get()
-    
-    def _get_builtin_modules(self):
-        """
-        Built-in module attributes.
-        """
-        return Collection({
-            'CLIENT': [self._builtin_path_map('client/module'), 'lense.client.module']
-        }).get()
-    
-    def handlers(self, ext=None, load=None):
+    @staticmethod
+    def handlers(ext=None, load=None, args=[], kwargs={}):
         """
         Return handlers for a project.
         
@@ -78,6 +81,10 @@ class LenseModules(object):
                 if not hasattr(mod_obj, load):
                     handler_objs[handler] = None
             
+                # If passing args/kwargs, invoke now
+                if args or kwargs:
+                    return getattr(mod_obj, load)(*args, **kwargs)
+            
                 # Load the handler class
                 handler_objs[handler] = getattr(mod_obj, load)
             
@@ -92,13 +99,15 @@ class LenseModules(object):
         # Return the constructed handlers object
         return handler_objs
     
-    def name(self, file):
+    @staticmethod
+    def name(file):
         """
         Extract a module name from a file path.
         """
         return re.compile(r'^([^\.]*)\..*$').sub(r'\g<1>', file)
     
-    def imp(self, module):
+    @staticmethod
+    def imp(module):
         """
         Import a built-in or drop-in module.
         """
