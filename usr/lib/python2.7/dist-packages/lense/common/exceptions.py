@@ -1,3 +1,13 @@
+class AuthUserError(Exception):
+    """
+    User account does not exists or is inactive.
+    """
+    def __init__(self, user):
+        super(AuthUserInactive, self).__init__('User account "{0}" does not exists or is inactive'.format(user))
+
+class AuthError(Exception):
+    pass
+
 class JSONException(Exception):
     """
     Custom exceptions when encountering JSON object errors.

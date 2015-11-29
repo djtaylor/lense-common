@@ -4,117 +4,37 @@ __version__ = '0.1.1'
 import re
 import json
 import __builtin__
+from os import listdir, path
 from feedback import Feedback
 from sys import getsizeof, path, modules
 from importlib import import_module
 
 # Lense Libraries
-from lense.common import config
-from lense.common import logger
+from lense import import_class
 from lense.common.http import HEADER
 from lense import MODULE_ROOT, DROPIN_ROOT
-from lense.common.objects import JSONObject
-from lense.common.collection import Collection
-from lense.common.project import LenseProject
-from lense.common.vars import PROJECTS, TEMPLATES
-from lense.common.request import LenseRequestObject
-from lense.common.exceptions import InvalidProjectID
-from lense.common.objects.manager import ObjectsManager
+from lense.common.exceptions import InvalidProjectID, AuthError
+from lense.common.vars import PROJECTS, TEMPLATES, HANDLERS
 
 # Drop-in Python path
 path.append(DROPIN_ROOT)
-
-class LenseAPIConstructor(object):
-    """
-    Helper class for constructing API classes.
-    """
-    def BASE(self, *args, **kwargs):
-        from lense.engine.api.base import APIBase
     
-        # Construct and return APIBase
-        return APIBase(*args, **kwargs).construct()
-    
-    def BARE(self, *args, **kwargs):
-        from lense.engine.api.bare import APIBare
-
-        # Construct and return APIBare
-        return APIBare(*args, **kwargs)
-
 class LenseUser(object):
     """
     User abstraction class.
     """
-    def __init__(self, project, log):
-        
-        # Internal import
-        from lense.common.objects.user.models import APIUser
-        from lense.engine.api.auth import AuthAPIKey, AuthAPIToken
-        from django.contrib.auth import authenticate, login, logout
-        
-        # Lense user model
-        self._model        = APIUser
-        
-        # Authentication classes
-        self._auth_key     = AuthAPIKey
-        self._auth_token   = AuthAPIToken
+    def __init__(self):
+        self.model         = import_class('APIUser', 'lense.common.objects.user.models', init=False)
         
         # Django methods
-        self._authenticate = authenticate
-        self._login        = login
-        self._logout       = logout
+        self._login        = import_class('login', 'django.contrib.auth', init=False)
+        self._logout       = import_class('logout', 'django.contrib.auth', init=False)
         
-        # Project ID / logger
-        self._project      = project
-        self._log          = log
-    
-        # Most recent authentication error
-        self.AUTH_ERROR = 'An unknown authentication error occurred'
-    
-    def _authenticate_engine_key(self, user, key):
-        """
-        Perform API key authentication.
+        # Internal models
+        self._token        = import_class('APIUserTokens', 'lense.common.objects.user.models', init=False)
+        self._key          = import_class('APIUserKeys', 'lense.common.objects.user.modles', init=False)
         
-        :param user: The API user to authenticate
-        :type  user: str
-        :param  key: The user's API request key
-        :type   key: str
-        """
-        if not self._auth_key.validate(user, key):
-            return False
-    
-    def _authenticate_engine_token(self, user, token):
-        """
-        Perform API token authentication.
-        
-        :param  user: The API user to authenticate
-        :type   user: str
-        :param token: The user's API request token
-        :type  token: str
-        """
-        if not self._auth_token.validate(user, token):
-            return False
-        
-    def _authenticate_portal(self, user, password):
-        """
-        Perform API key authentication.
-        
-        :param     user: The API user to authenticate
-        :type      user: str
-        :param password: The user's request password
-        :type  password: str
-        """
-        auth = self._authenticate(username=user, password=password)
-        
-        # Username/password incorrect
-        if not auth:
-            self.AUTH_ERROR = self._log.error('Failed to authenticate user "{0}", invalid username/password'.format(user))
-            return False
-
-        # Authorization OK
-        self._log.info('Authenticated user: {0}'.format(user))
-        return True
-        
-    def _member_of(self, user, group):
+    def member_of(self, user, group):
         """
         Make sure a user is a member of the request group.
         
@@ -126,20 +46,103 @@ class LenseUser(object):
         
         # Make sure the group exists and the user is a member
         is_member = False
-        for _group in self._model.objects.filter(username=user).values()[0]['groups']:
+        for _group in self.model.objects.filter(username=user).values()[0]['groups']:
             if _group['uuid'] == group:
                 is_member = True
                 break
+        return is_member
         
-        # If the user is not a member of the group
-        if not is_member:
-            self.AUTH_ERROR = self._log.error('User account "{0}" is not a member of the request group: {1}'.format(user, group))
+    def key(self, user=None):
+        """
+        Get the current API key for a user account.
+        
+        :param user: Optional user search string
+        :type  user: str
+        :rtype: str
+        """
+        _user = self.get(user if user else LENSE.REQUEST.user.name)
+        
+        # Get the API key
+        api_key = list(self._key.objects.filter(user=_user.uuid).values())
+        
+        # Return the API token if it exists
+        return None if not api_key else api_key[0]['api_key']
+        
+    def token(self, user=None):
+        """
+        Get the current API token for a user account.
+        
+        :param user: Optional user search string
+        :type  user: str
+        :rtype: str
+        """
+        _user = self.get(user if user else LENSE.REQUEST.user.name)
+        
+        # Get the API token
+        api_token = list(self._token.objects.filter(user=_user.uuid).values())
+
+        # Return the API token if it exists
+        return None if not api_token else api_token[0]['api_token']
+        
+    def ensure(self, attr, exc=None, msg=None, args=[], kwargs={}):
+        """
+        Ensure a user attribute is true.
+        
+        :param attr: The attribute key to check
+        :type  attr: str
+        :param  exc: Optional exception class to raise if the check fails
+        :type   exc: object
+        :param  msg: Optional exception message to raise
+        :type   msg: str
+        :rtype: bool
+        """
+        user_attr = getattr(self, attr, None)
+        error_msg = 'Failed to ensure user attribute: {0}=False'.format(attr)
+        
+        # Is the attribute callable
+        if callable(user_attr):
+            attr_val = user_attr(*args, **kwargs)
+            
+            # Attribute return value is false
+            if not attr_val:
+                if exc:
+                    raise exc(error_msg)
+                return False
+        
+        # Attribute not found or is false
+        if not user_attr:
+            if exc:
+                raise exc(error_msg)
             return False
         
-        # Membership is valid
-        return True
+    def active(self, user):
+        """
+        Check if a user account is acive:
         
-    def GET(self, user, get_object=True):
+        :param user: The username to check
+        :type  user: str
+        :rtype: bool
+        """
+        return getattr(self.get(user), 'is_active', False)
+        
+    def exists(self, user):
+        """
+        Check if a user exists by username or UUID
+        
+        :param user: The username or UUID to check
+        :type  user: str
+        :rtype: bool
+        """
+        if self.model.objects.filter(uuid=user).count():
+            return True
+            
+        if self.model.objects.filter(username=user).count():
+            return True
+            
+        # User does not exists
+        return False
+        
+    def get(self, user, get_object=True):
         """
         User factory method.
         
@@ -147,16 +150,16 @@ class LenseUser(object):
         :type  user:       str
         :param get_object: If the user exists and set to true, return the user object
         """
-        if self._model.objects.filter(username=user).count():
+        if self.exists(user):
             if get_object:
-                return self._model.objects.get(username=user)
+                return self.model.objects.get(username=user)
             return True
             
         # User doesn't exist
-        self._log.error('User "{0}" not found in database'.format(user))
+        LENSE.LOG.error('User "{0}" not found in database'.format(user))
         return None
     
-    def LOGIN(self, request, user):
+    def login(self, request=LENSE.REQUEST.django, user=LENSE.REQUEST.user.name):
         """
         Log in the user.
         
@@ -167,14 +170,15 @@ class LenseUser(object):
         """
         try:
             self._login(request, user)
-            self._log.info('Logged in user: {0}'.format(user))
+            LENSE.LOG.info('Logged in user: {0}'.format(user))
             return True
         
         # Failed to log in user
         except Exception as e:
-            self._log.exception('Failed to log in user "{0}": {1}'.format(user, str(e)))
+            LENSE.LOG.exception('Failed to log in user "{0}": {1}'.format(user, str(e)))
+            return False
         
-    def LOGOUT(self, request):
+    def logout(self, request=LENSE.REQUEST.django):
         """
         Log out the user.
         
@@ -183,20 +187,26 @@ class LenseUser(object):
         """
         try:
             self._logout(request)
-            self._log.info('Logged out user: {0}'.format(user))
+            LENSE.LOG.info('Logged out user: {0}'.format(user))
             return True
         
         # Failed to log out user
         except Exception as e:
-            self._log.exception('Failed to log out user "{0}": {1}'.format(user, str(e)))
+            LENSE.LOG.exception('Failed to log out user "{0}": {1}'.format(user, str(e)))
             return False
         
-    def AUTHENTICATE(self, user, password=None, key=None, token=None, group=None):
+    def authenticate(self,
+            user     = LENSE.REQUEST.user.name, 
+            password = LENSE.REQUEST.user.password, 
+            key      = LENSE.REQUEST.key, 
+            token    = LENSE.REQUEST.token, 
+            group    = LENSE.REQUEST.user.group
+        ):
         """
         Attempt to authenticate the user
         
-        :param user:     The username to authenticate
-        :type  user:     str
+        :param     user: The username to authenticate
+        :type      user: str
         :param password: The user's password (portal)
         :type  password: str
         :param      key: The user's API key (engine)
@@ -204,41 +214,37 @@ class LenseUser(object):
         :param    token: The user's API token (engine)
         :type     token: str
         """
-        
-        # Make sure the user exists
-        _user = self.GET(user)
-        
-        # User doesn't exist
-        if not _user:
-            return False
-        
-        # Is the user active
-        if not _user.is_active:
-            self.AUTH_ERROR = self._log.error('User account "{0}" is disabled'.format(user))
-            return False
-        
-        # Portal authentication
-        if self._project.upper() == 'PORTAL':
-            return self._authenticate_portal(user, password)
-
-        # Engine authentication
-        if self._project.upper() == 'ENGINE':
+        try:
             
-            # Validate group membership
-            if not self._member_of(user, group):
-                return False
+            # User does not exist / is inactive
+            self.ensure('exists', exc=AuthError, msg='User "{0}" does not exist'.format(user), args=[user])       
+            self.ensure('active', exc=AuthError, msg='User "{0}" is inactive'.format(user), args=[user])
             
-            # Check token authentication first
-            if token:
-                return self._authenticate_engine_token(user, token)
+            # Portal authentication
+            if LENSE.PROJECT.name.upper() == 'PORTAL':
+                return LENSE.AUTH.PORTAL(user, password)
+    
+            # Engine authentication
+            if LENSE.PROJECT.name.upper() == 'ENGINE':
+                self.ensure('member_of', 
+                    exc  = AuthError, 
+                    msg  = 'User "{0}" is not a member of group: {1}'.format(user, group), 
+                    args = [user, group]
+                )
+                
+                # Check token authentication first
+                if token:
+                    return LENSE.AUTH.TOKEN(user, token)
+                
+                # Key authentication
+                if key:
+                    return LENSE.AUTH.KEY(user, key)
             
-            # Key authentication
-            if key:
-                return self._authenticate_engine_key(user, key)
-
-        # Authentication failed
-        self._log.error('Authentication failed for user: {0}'.format(user))
-        return False
+        # Failed to authenticate user
+        except AuthError as e:
+            return LENSE.AUTH.set_error(
+                LENSE.LOG.error('Failed to authenticate user: {0}'.format(str(e)))
+            )
 
 class LenseModules(object):
     """
@@ -247,9 +253,9 @@ class LenseModules(object):
     def __init__(self):
         
         # Built-in/drop-in module roots
-        self.ROOT    = MODULE_ROOT
-        self.DROPIN  = self._get_dropin_modules()
-        self.BUILTIN = self._get_builtin_modules()
+        self.root     = MODULE_ROOT
+        self.dropin   = self._get_dropin_modules()
+        self.builtin  = self._get_builtin_modules()
     
     def _dropin_path_map(self, rel):
         """
@@ -279,13 +285,60 @@ class LenseModules(object):
             'CLIENT': [self._builtin_path_map('client/module'), 'lense.client.module']
         }).get()
     
-    def NAME(self, file):
+    def handlers(self, ext=None, load=None):
+        """
+        Return handlers for a project.
+        
+        :param  ext: Handler extension (nested handlers)
+        :type   ext: str
+        :param load: Return instances of the handlers objects
+        :type  load: str
+        """
+        
+        # Project handler attributes / handler objects / handler extension
+        handler_attrs = getattr(HANDLERS, LENSE.PROJECT.name)
+        handler_objs  = {} if load else []
+        
+        # Scan every handler
+        for handler in listdir(handler_attrs.DIR):
+            
+            # Ignore special files
+            if re.match(r'^__.*$', handler) or re.match(r'^.*\.pyc$', handler):
+                continue
+            
+            # Handler file path / Python path
+            handler_file = '{0}/{1}{2}'.format(handler_attrs.DIR, handler, ('.py' if not ext else '/{0}.py'.format(ext)))
+            handler_mod  = '{0}.{1}{2}'.format(handler_attrs.MOD, handler, ('' if not ext else '.{0}'.format(ext)))
+            
+            # If loading the handler objects
+            if load:
+                mod_obj = import_module(handler_mod)
+                
+                # Handler class not found
+                if not hasattr(mod_obj, load):
+                    handler_objs[handler] = None
+            
+                # Load the handler class
+                handler_objs[handler] = getattr(mod_obj, load)
+            
+            # Returning handler attributes
+            else:
+                handler_objs.append({
+                    'name': handler,
+                    'file': handler_file,
+                    'mod':  handler_mod                         
+                })
+        
+        # Return the constructed handlers object
+        return handler_objs
+    
+    def name(self, file):
         """
         Extract a module name from a file path.
         """
         return re.compile(r'^([^\.]*)\..*$').sub(r'\g<1>', file)
     
-    def IMPORT(self, module):
+    def imp(self, module):
         """
         Import a built-in or drop-in module.
         """
@@ -299,7 +352,11 @@ class LenseCommon(object):
     def __init__(self, project):
         
         # Get the project attributes
-        self.PROJECT     = LenseProject(project)
+        self.PROJECT     = import_class('LensePoject', 'lense.common', [project])
+        
+        # Get project attribute
+        def pattr(a):
+            return getattr(self.PROJECT, a, False)
         
         """
         Project Objects
@@ -317,33 +374,19 @@ class LenseCommon(object):
         VALID:      Success relay 
         FEEDBACK:   CLI feedback handler
         """
-        self.COLLECTION  = Collection
-        self.REQUEST     = self._requires('get_request', LenseRequestObject, [self.PROJECT])
-        self.LOG         = self._requires('get_logger', logger.create_project, [project])
-        self.OBJECTS     = self._requires('get_objects', ObjectsManager)
-        self.USER        = self._requires('get_user', LenseUser, [self.PROJECT.name, self.LOG])
-        self.CONF        = self._requires('get_conf', config.parse, [project])
-        self.API         = LenseAPIConstructor()
-        self.MODULE      = LenseModules()
-        self.JSON        = JSONObject()
-        self.FEEDBACK    = Feedback()
-        
-    def _requires(self, key, obj, args=[], kwargs={}):
-        """
-        Load the return object if the project requires it.
-        
-        :param    key: The boolean attribute to check
-        :type     key: str
-        :param    obj: The object to return
-        :type     obj: object
-        :param   args: Arguments to pass to the object
-        :type    args: list
-        :param kwargs: Keyword arguments to pass to the object
-        :type  kwargs: dict
-        """
-        if getattr(self.PROJECT, key, False):
-            return obj(*args, **kwargs)
-        return None
+        self.COLLECTION  = import_class('Collection', 'lense.common.collection', init=False)
+        self.AUTH        = import_class('AuthInterface', 'lense.common.auth.interface')
+        self.REQUEST     = import_class('LenseRequestObject', 'lense.common.request', init=False, ensure=pattr('get_request'), [self.PROJECT])
+        self.LOG         = import_class('create_project', 'lense.common.log', ensure=pattr('get_logger'), [project])
+        self.OBJECTS     = import_class('ObjectsManager', 'lense.common.objects.manager', init=False, ensure=pattr('get_objects'))
+        self.USER        = import_class('LenseUser', 'lense.common', init=False, ensure=pattr('get_user'))
+        self.CONF        = import_class('parse', 'lense.common.config', init=False, ensure=pattr('get_conf'), [project])
+        self.API         = import_class('LenseAPIConstructor', 'lense.common.url', init=False)
+        self.URL         = import_class('LenseURLConstructor', 'lense.common', init=False)
+        self.MODULE      = import_class('LenseModules', 'lense.common', init=False)
+        self.JSON        = import_class('JSONObject', 'lense.common.objects')
+        self.FEEDBACK    = import_class('Feedback', 'feedback')
+        self.HTTP        = import_class('LenseHTTP', 'lense.common.http', init=False)
     
 def init_project(project, name='LENSE'):
     """
@@ -355,5 +398,5 @@ def init_project(project, name='LENSE'):
     if not hasattr(PROJECTS, project):
         raise InvalidProjectID(project)
     
-    # Set up the project singleton
+    # Set up the project singletons
     setattr(__builtin__, name, LenseCommon(project))

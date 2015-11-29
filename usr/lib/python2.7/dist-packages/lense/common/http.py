@@ -4,11 +4,9 @@ import json
 import traceback
 
 # Django Libraries
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 
 # Lense Libraries
-from lense.common import config
-from lense.common import logger
 from lense.common.collection import Collection
 
 # Error codes to message mappings
@@ -149,10 +147,6 @@ class JSONErrorBase(object):
     """
     def __init__(self, error=None, status=500, exception=False):
 
-        # Configuration / logger
-        self.conf = config.parse('ENGINE')
-        self.log  = logger.create(__name__, self.conf.engine.log)
-
         # Store the response status code
         self.status = status
 
@@ -165,10 +159,10 @@ class JSONErrorBase(object):
         
         # If an error message is provided
         if error and isinstance(error, (str, unicode, basestring)):
-            self.log.error(error)
+            LENSE.LOG.error(error)
         
         # If providing a stack trace for debugging and debugging is enabled
-        if exception and self.conf.engine.debug:
+        if exception and LENSE.CONF.engine.debug:
             self.error_object.update({
                 'debug': self._extract_trace()
             })
@@ -186,7 +180,7 @@ class JSONErrorBase(object):
             e_msg = '{}: {}'.format(e_type.__name__, e_info)
         
             # Log the exception
-            self.log.exception(e_msg)
+            LENSE.LOG.exception(e_msg)
         
             # Return the exception message and traceback
             return {
@@ -217,3 +211,38 @@ class JSONException(JSONErrorBase):
     """
     def __init__(self, error=None):
         super(JSONException, self).__init__(error=error, exception=True)
+        
+class LenseHTTP(object):
+    """
+    Common class for handling HTTP attributes, requests, and responses.
+    """
+    @staticmethod
+    def redirect(path):
+        """
+        Return an HTTP redirect object.
+        """
+        return HttpResponseRedirect('/{0}'.format(path))
+    
+    @staticmethod
+    def error(msg=None, status=400):
+        """
+        Return a JSON error message in an HTTP response object.
+        
+        :param    msg: The error message to return
+        :type     msg: str
+        :param status: The HTTP status code
+        :type  status: int
+        :rtype: JSONError
+        """
+        return JSONError(error=msg, status=status).response()
+    
+    @staticmethod
+    def exception(msg=None):
+        """
+        Return a JSON error message raised by an exception (i.e., 500)
+        
+        :param msg: The error message to return
+        :type  msg: str
+        :rtype: JSONException
+        """
+        return JSONException(error=msg).response()

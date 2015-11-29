@@ -42,7 +42,7 @@ class APIUserManager(BaseUserManager):
         """
         
         # Fix circular imports
-        from lense.engine.api.auth.key import APIKey
+        from lense.engine.api.auth import AuthAPIKey
         from lense.common.objects.group.models import APIGroups
         from lense.common.objects.user.models import APIUserKeys
         
@@ -82,7 +82,7 @@ class APIUserManager(BaseUserManager):
         group.members_set(user)
         
         # Generate an API key for the user
-        api_key = APIUserKeys(user=user, api_key=APIKey().create()).save()
+        api_key = APIUserKeys(user=user, api_key=AuthAPIKey.create()).save()
         
         # Return the user object
         return user

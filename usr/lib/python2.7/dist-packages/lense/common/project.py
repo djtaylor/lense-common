@@ -32,7 +32,7 @@ class LenseProject(object):
         self._attrs      = getattr(PROJECTS, project, None)
         
         # Configuration and log files
-        self.log         = _LenseProjectLog(project)
+        self.LOG         = _LenseProjectLog(project)
         self.conf        = getattr(self._attrs, 'CONF', None)
         
         # Project templates

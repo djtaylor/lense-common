@@ -16,13 +16,13 @@ class LenseRequestSession(object):
         # Session ID
         self.id       = getattr(session, 'session_id', None)  
         
-    def set(self, key, value):
+    def SET(self, key, value):
         """
         Set a new session value or update an existing one
         """
         self._session[key] = value
         
-    def get(self, key, default=None):
+    def GET(self, key, default=None):
         """
         Retrieve a session value.
         """
@@ -34,22 +34,18 @@ class LenseRequestUser(object):
     """
     def __init__(self, request):
         
-        # Internal Django request / user object
+        # Internal Django request / user object / username / user model
         self._request   = request
         self.object     = request.user
- 
-        # User attributes
         self.name       = self._getattr('username', header=HEADER.API_USER)
-        self.group      = self._getattr('group', header=HEADER.API_GROUP, session='active_group')
-        self.authorized = self._getattr('is_authenticated', default=False)
-        self.admin      = self._getattr('is_superuser', default=False, session='is_admin')
-        self.active     = self._getattr('is_active', False)
-        
-        # User model
         self.model      = self._getmodel()
  
-        # Construct the user object
-        self._construct()
+        # User attributes
+        self.group      = self._getattr('group', header=HEADER.API_GROUP, session='active_group')
+        self.authorized = self._getattr('is_authenticated', default=False)
+        self.admin      = self._getattr('is_admin', default=False, session='is_admin', model=True)
+        self.active     = self._getattr('is_active', default=False, model=True)
+        self.passwd     = self._getattr('password', default=None, post=True)
     
     def _format_header(self, header):
         """
@@ -68,19 +64,27 @@ class LenseRequestUser(object):
         # Return the user model
         return None if not self.name else APIUser.objects.filter(username=self.name).values()[0]
     
-    def _getattr(self, key, default=None, header=None, session=None):
+    def _getattr(self, key, default=None, header=None, session=None, model=False):
         """
         Helper method for retrieving a user attribute.
         """
         
-        # If retrieving from session
-        if session:
+        # Attempt session retrieval
+        if session and session in self._request.session:
             return self._request.session.get(session, default)
         
-        # If retrieving from headers
-        if header:
-            return getattr(self._request.META, self._format_header(header), None)
+        # Attempt header retrieval
+        if header and self._format_header(header) in self._request.META:
+            return self._request.META.get(self._format_header(header), default)
         
+        # Attempt model retrieval
+        if model and isinstance(self.model, dict):
+            return self.model.get(key, default)
+            
+        # Attempt POST variable retrieval
+        if post and hasattr(self._request, 'POST'):
+            return getattr(self._request.POST, key, default)
+            
         # Get attribute from user object
         attr = getattr(self.object, key, default)
         
@@ -91,21 +95,11 @@ class LenseRequestObject(object):
     """
     Extract and construct information from the Django request object.
     """
-    def __init__(self, project):
-        """
-        @param project: The target project
-        @type  project: str
-        """
-        self._project = project
-    
-        # Internal request logger
-        self._log = self._get_request_logger()
-    
     def _log_request(self):
         """
         Log incoming requests to the request log.
         """
-        self._log.info('method={0}, path={1}, client={2}, user={3}, group={4}, key={5}, token={6}, data={7}'.format(
+        LENSE.LOG.info('method={0}, path={1}, client={2}, user={3}, group={4}, key={5}, token={6}, data={7}'.format(
             self.method,
             self.path,
             self.client,
@@ -126,7 +120,7 @@ class LenseRequestObject(object):
         if self.method in [HTTP_POST, HTTP_PUT]:
             
             # Load the data string and strip special characters
-            data_str = getattr(self.RAW, 'body', '{}')
+            data_str = getattr(self.django, 'body', '{}')
             
             # Return the JSON object
             return self._json_decode(data_str)
@@ -136,13 +130,13 @@ class LenseRequestObject(object):
             data = {}
             
             # Store the query string
-            query_str = self.RAW.META['QUERY_STRING']
+            query_str = self.django.META['QUERY_STRING']
             
             # If the query string is not empty
             if query_str:
                 
                 # Process each query string key
-                for query_pair in self.RAW.META['QUERY_STRING'].split('&'):
+                for query_pair in self.django.META['QUERY_STRING'].split('&'):
                     
                     # If processing a key/value pair
                     if '=' in query_pair:
@@ -191,16 +185,6 @@ class LenseRequestObject(object):
             return self._json_decode(json_data)
         return json_data
     
-    def _get_request_logger(self):
-        """
-        Construct and return the internal request logger.
-        """
-        _name  = '{0}.request'.format(self._project.log.name)
-        _file  = self._project.log.file.replace(self._project.name, '{0}.request'.format(self._project.name))
-
-        # Construct and return the logger
-        return logger.create(_name, _file)
-    
     def _get_key(self):
         """
         Attempt to retrieve an API key from headers.
@@ -217,17 +201,29 @@ class LenseRequestObject(object):
         """
         Extract a value from the request headers.
         """
-        return self.RAW.META.get(k, default)
+        return self.django.META.get(k, default)
     
-    def SET(self, request):
+    def GET(self, key, default=None):
+        """
+        Retrieve a key value from GET variables.
+        """
+        return getattr(self._GET, key, default)
+    
+    def POST(self, key, default=None):
+        """
+        Retrieve a key value from POST variables.
+        """
+        return getattr(self._POST, key, default)
+    
+    def set(self, request):
         """
         @param request: The incoming Django request object
         @type  project: DjangoRequest
         """
     
         # Store the raw request object and headers
-        self.RAW         = request
-        self.headers     = request.META
+        self.django       = request
+        self.headers      = request.META
         
         # Request method / path / client / host / agent / query string / script / current URI
         self.method       = self._get_header_value('REQUEST_METHOD')
@@ -244,8 +240,8 @@ class LenseRequestObject(object):
         self.data         = self._load_data()
     
         # Request user / session
-        self.user         = LenseRequestUser(request)
-        self.session      = LenseRequestSession(request.session)
+        self.USER         = LenseRequestUser(request)
+        self.SESSION      = LenseRequestSession(request.session)
     
         # Anonymous / token request boolean flags
         self.is_anonymous = True if not self.user.name else False
@@ -256,12 +252,9 @@ class LenseRequestObject(object):
         self.token        = self._get_token()
         
         # Method / GET / POST / body data
-        self.GET          = Collection(request.GET).get()
-        self.POST         = Collection(request.POST).get()
+        self._GET         = Collection(request.GET).get()
+        self._POST        = Collection(request.POST).get()
         self.body         = request.body
     
         # Debug logging for each request
         self._log_request()
-        
-        # Return the request object
-        return self

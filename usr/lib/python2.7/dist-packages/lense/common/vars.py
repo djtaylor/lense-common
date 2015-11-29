@@ -1,3 +1,5 @@
+from lense import MODULE_ROOT
+from lense.common.auth import BACKENDS
 from lense.common.collection import Collection
 
 """
@@ -28,6 +30,18 @@ TEMPLATES = Collection({
     'PORTAL': '/usr/share/lense/portal/templates'                     
 }).get()
 
+# Request Handlers
+HANDLERS = Collection({
+    'ENGINE': {
+        'DIR': '{0}/lense/engine/api/handlers'.format(MODULE_ROOT),
+        'MOD': 'lense.engine.api.handlers'.format(MODULE_ROOT)
+    },
+    'PORTAL': {
+        'DIR': '{0}/lense/portal/ui/handlers',
+        'MOD': 'lense.engine.api.handlers'
+    }
+}).get()
+
 # Lense Projects
 PROJECTS = Collection({
     'ENGINE': {
@@ -35,7 +49,8 @@ PROJECTS = Collection({
         'CONF': '/etc/lense/engine.conf',
         'REQUEST': True,
         'OBJECTS': True,
-        'USER': True
+        'USER': True,
+        'AUTH': []
     },
     'PORTAL': {
         'LOG':  '/var/log/lense/portal.log',
