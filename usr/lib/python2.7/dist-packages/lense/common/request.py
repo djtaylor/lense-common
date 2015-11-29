@@ -64,7 +64,7 @@ class LenseRequestUser(object):
         # Return the user model
         return None if not self.name else APIUser.objects.filter(username=self.name).values()[0]
     
-    def _getattr(self, key, default=None, header=None, session=None, model=False):
+    def _getattr(self, key, default=None, header=None, session=None, model=False, post=False):
         """
         Helper method for retrieving a user attribute.
         """
@@ -103,8 +103,8 @@ class LenseRequestObject(object):
             self.method,
             self.path,
             self.client,
-            self.user.name,
-            self.user.group,
+            self.USER.name,
+            self.USER.group,
             self.key,
             self.token,
             truncate(str(self.data))
@@ -120,7 +120,7 @@ class LenseRequestObject(object):
         if self.method in [HTTP_POST, HTTP_PUT]:
             
             # Load the data string and strip special characters
-            data_str = getattr(self.django, 'body', '{}')
+            data_str = getattr(self.DJANGO, 'body', '{}')
             
             # Return the JSON object
             return self._json_decode(data_str)
@@ -130,13 +130,13 @@ class LenseRequestObject(object):
             data = {}
             
             # Store the query string
-            query_str = self.django.META['QUERY_STRING']
+            query_str = self.DJANGO.META['QUERY_STRING']
             
             # If the query string is not empty
             if query_str:
                 
                 # Process each query string key
-                for query_pair in self.django.META['QUERY_STRING'].split('&'):
+                for query_pair in self.DJANGO.META['QUERY_STRING'].split('&'):
                     
                     # If processing a key/value pair
                     if '=' in query_pair:
@@ -201,7 +201,7 @@ class LenseRequestObject(object):
         """
         Extract a value from the request headers.
         """
-        return self.django.META.get(k, default)
+        return self.DJANGO.META.get(k, default)
     
     def GET(self, key, default=None):
         """
@@ -244,7 +244,7 @@ class LenseRequestObject(object):
         self.SESSION      = LenseRequestSession(request.session)
     
         # Anonymous / token request boolean flags
-        self.is_anonymous = True if not self.user.name else False
+        self.is_anonymous = True if not self.USER.name else False
         self.is_token     = True if (self.path == PATH.GET_TOKEN) else False
     
         # API key / token
