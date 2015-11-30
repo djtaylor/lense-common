@@ -7,7 +7,7 @@ import json
 from lense import import_class, set_arg
 from lense.common.exceptions import JSONException
 
-class LenseAPIObject(object):
+class LenseAPIObjects(object):
     """
     API object manager.
     """

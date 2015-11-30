@@ -1,13 +1,164 @@
-import time
-import logging
-import logging.handlers
 from os import makedirs
+from time import strftime
 from os.path import isdir, dirname
+from json import dumps as json_dumps
+from logging import handlers, INFO, getLogger, Formatter
+
+# Django Libraries
+from django.http import HttpResponse
+from django.core.serializers.json import DjangoJSONEncoder
 
 # Lense Libraries
+from lense import set_arg
 from lense.common.project import LenseProject
+from lense.common.http import MIME_TYPE, JSONError, JSONException
 
-class LogFormat(logging.Formatter):
+class LenseAPILogger(object):
+    """
+    APILogger
+    
+    Common logger class used to handle logging messages and returning HTTP responses.
+    """
+    def __init__(self):
+        """
+        :param client: The client IP address
+        :type  client: str
+        """
+        self.msg    = None
+        self.client = LENSE.REQUEST.client
+
+    def _reset_client(self, retval=None):
+        """
+        Reset the API client IP address.
+        """
+        self.client = LENSE.REQUEST.client
+        return retval
+
+    def set_client(self, client):
+        """
+        Override the default client IP address.
+        """
+        self.client = client
+        return self
+
+    def _websock_response(self, status, data={}):
+        """
+        Construct and return a JSON web socket response for the Socket.IO proxy server.
+        
+        :param status: Boolean string
+        :type  status: str
+        :param data:   Any response data in addition to the body message
+        :type  data:   dict
+        """
+        return json_dumps({
+            'room':     LENSE.SOCKET.params.get('room', None),
+            'msg':      self.msg,
+            'path':     LENSE.REQUEST.path,
+            'callback': LENSE.SOCKET.params.get('callback', False),
+            'status':   status,
+            '_data':    data
+        }, cls=DjangoJSONEncoder)
+
+    def _api_response(self, ok=False, data={}):
+        """
+        Construct the API response body to send back to clients. Constructs the websocket data
+        to be interpreted by the Socket.IO proxy server if relaying back to a web client.
+        
+        :param ok:   Has the request been successfull or not
+        :type  ok:   bool
+        :param data: Any data to return in the SocketIO response
+        :type  data: dict
+        """
+        
+        # Status flag
+        status = 'true' if ok else 'false'
+        
+        # Web socket responses
+        if LENSE.SOCKET.params:
+            return self._websock_response(status, data)
+            
+        # Any paths that don't supply web socket responses    
+        else:
+            if isinstance(self.msg, (dict, list)):
+                return json_dumps(self.msg, cls=DjangoJSONEncoder)
+            return self.msg
+
+    def info(self, msg):
+        """
+        Handle the logging of information messages.
+        
+        :param msg:  The message to log/return to the client
+        :type  msg:  str
+        """
+        self.msg = msg
+        LENSE.LOG.info('client({0}): {1}'.format(self.client, msg))
+        return self._reset_client(msg)
+        
+    def debug(self, msg):
+        """
+        Handle the logging of debug messages.
+        
+        :param msg:  The message to log/return to the client
+        :type  msg:  str
+        """
+        LENSE.LOG.debug('client({0}): {1}'.format(self.client, msg))
+        return self._reset_client(msg)
+        
+    def success(self, msg='API request was successfull', data={}):
+        """
+        Handle the logging of success messages. Returns an HTTP response object that can be
+        sent by the API request handler back to the client.
+        
+        :param msg:  The message to log/return to the client
+        :type  msg:  str
+        :param data: Any additional data to return to a web client via SocketIO
+        :type  data: dict
+        """
+        self.msg = msg
+        LENSE.LOG.info('client({}): {}'.format(self.client, msg))
+        self._reset_client(HttpResponse(self._api_response(True, data), MIME_TYPE.APPLICATION.JSON, status=200))
+    
+    def exception(self, msg=None, code=None, data={}):
+        """
+        Handle the logging of exception messages. Returns an HTTP response object that can be
+        sent by the API request handler back to the client.
+        
+        :param msg:  The message to log/return to the client
+        :type  msg:  str
+        :param code: The HTTP status code
+        :type  code: int
+        :param data: Any additional data to return to a web client via SocketIO
+        :type  data: dict
+        """
+        self.msg = 'An exception occured when processing your API request' if not msg else msg
+        LENSE.LOG.exception('client({0}): {1}'.format(self.client, self.msg))
+    
+        # If returning a response to a client
+        if code and isinstance(code, int):
+            return self._reset_client(JSONException(error=self._api_response(False, data)).response())
+        return self._reset_client(self.msg)
+    
+    def error(self, msg=None, code=None, data={}):
+        """
+        Handle the logging of error messages. Returns an HTTP response object that can be
+        sent by the API request handler back to the client.
+        
+        :param msg:  The message to log/return to the client
+        :type  msg:  str
+        :param code: The HTTP status code
+        :type  code: int
+        :param data: Any additional data to return to a web client via SocketIO
+        :type  data: dict
+        """
+        self.msg = 'An unknown error occured when processing your API request' if not msg else msg
+        LENSE.LOG.error('client({0}): {1}'.format(self.client, self.msg))
+        
+        # If returning a response to a client
+        if code and isinstance(code, int):
+            return self._reset_client(JSONError(error=self._api_response(False, data), status=code).response())
+        return self._reset_client(self.msg)
+
+class LogFormat(Formatter):
     """
     Custom log format object to use with the Python logging module. Used
     to log the message and return the message string for further use.
@@ -23,7 +174,7 @@ class LogFormat(logging.Formatter):
         :rtype: str
         """
         ct = self.converter(record.created)
-        s  = time.strftime(datefmt, ct)
+        s  = strftime(datefmt, ct)
         return s
 
 class Logger:
@@ -51,20 +202,20 @@ class Logger:
             makedirs(log_dir, 0755)
         
         # Set the logger module name
-        logger = logging.getLogger(name)
+        logger = getLogger(name)
         
         # Don't create duplicate handlers
         if not len(logger.handlers):
             logger.setLevel(logging.INFO)
             
             # Set the file handler
-            lfh = logging.handlers.RotatingFileHandler(log_file, mode='a', maxBytes=10*1024*1024, backupCount=5)
+            lfh = handlers.RotatingFileHandler(log_file, mode='a', maxBytes=10*1024*1024, backupCount=5)
             logger.addHandler(lfh)
             
             # Set the format
             lfm = LogFormat(fmt='%(asctime)s %(name)s - %(levelname)s: %(message)s', datefmt='%d-%m-%Y %I:%M:%S')
             lfh.setFormatter(lfm)
-        return logging.getLogger(name)
+        return getLogger(name)
     
 def create_project(project):
     """

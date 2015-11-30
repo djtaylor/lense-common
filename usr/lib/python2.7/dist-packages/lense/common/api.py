@@ -31,7 +31,7 @@ class LenseAPIRequestMapper(object):
         return j
         
     @staticmethod
-    def run(self):
+    def run():
         """
         Main method for constructing and returning the handler map.
         
@@ -54,18 +54,15 @@ class LenseAPIRequestMapper(object):
         rmap = LenseAPIRequestMapper._merge_socket(rmap)
     
         # Construct the request map object
-        return {
+        return valid({
             'module': handler.mod,
             'class':  handler.cls,
             'path':   handler.path,
             'desc':   handler.desc,
             'method': handler.method,
             'anon':   handler.allow_anon,
-            'json':   rmap
-        }
-    
-        # Return the handler module path
-        return valid(map)
+            'rmap':   rmap
+        })
 
 class LenseAPIConstructor(object):
     """
@@ -92,3 +89,9 @@ class LenseAPIConstructor(object):
         """
         return LenseAPIRequestMapper.run()
         
+    @staticmethod
+    def create_logger():
+        """
+        Initialize the API logger.
+        """
+        setattr(LENSE.API, 'LOG', import_class('LenseAPILogger', 'lense.common.logger'))

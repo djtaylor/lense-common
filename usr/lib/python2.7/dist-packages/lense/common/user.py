@@ -15,7 +15,7 @@ class LenseUser(object):
         
         # Internal models
         self._token        = import_class('APIUserTokens', 'lense.common.objects.user.models', init=False)
-        self._key          = import_class('APIUserKeys', 'lense.common.objects.user.modles', init=False)
+        self._key          = import_class('APIUserKeys', 'lense.common.objects.user.models', init=False)
         
     def member_of(self, user, group):
         """
