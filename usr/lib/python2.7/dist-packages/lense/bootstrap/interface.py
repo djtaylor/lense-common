@@ -1,11 +1,16 @@
+from os import environ
 from collections import OrderedDict
 
+# Django Libraries
+from django import setup as django_setup
+
 # Lense Libraries
+from lense import import_class
 from lense.common import init_project
 from lense.bootstrap.args import BootstrapArgs
 from lense.bootstrap.common import BootstrapCommon
 from lense.bootstrap.answers import BootstrapAnswers
-from lense.bootstrap.projects import BootstrapClient, BootstrapPortal, BootstrapEngine, BootstrapSocket
+from lense.common.request import LenseWSGIRequest
 
 class Bootstrap(BootstrapCommon):
     """
@@ -24,16 +29,16 @@ class Bootstrap(BootstrapCommon):
         Bootstrap a specific project.
         """
         interfaces = {
-            'engine': BootstrapEngine,
-            'portal': BootstrapPortal,
-            'client': BootstrapClient,
-            'socket': BootstrapSocket
+            'engine': 'BootstrapEngine',
+            'portal': 'BootstrapPortal',
+            'client': 'BootstrapClient',
+            'socket': 'BootstrapSocket'
         }
         
         # Run the project bootstrap method
         if project in interfaces:
             BOOTSTRAP.FEEDBACK.info('Running bootstrap manager for Lense project: {0}\n'.format(project))
-            interfaces[project](self.args, self.answers).run()
+            import_class(interfaces['project'], 'lense.bootstrap.projects', args=[self.args, self.answers]).run()
             
     def _run(self):
         """
@@ -76,6 +81,12 @@ class Bootstrap(BootstrapCommon):
         """
         Public static method for invoking the bootstrap manager.
         """
+        
+        # Set the Django settings module
+        environ['DJANGO_SETTINGS_MODULE'] = 'lense.bootstrap.settings'
+        
+        # Setup Django for the bootstrap run
+        django_setup()
         
         # Register project commons
         init_project('BOOTSTRAP', 'BOOTSTRAP')

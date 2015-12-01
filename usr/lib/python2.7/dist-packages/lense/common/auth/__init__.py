@@ -1,7 +1,4 @@
-from lense.common.auth.key import AuthAPIKey
-from lense.common.auth.acl import AuthACLGateway
-from lense.common.auth.token import AuthAPIToken
-from lense.common.auth.portal import AuthPortal
+from lense import import_class
 from lense.common.exceptions import AuthError
 
 class AuthInterface(object):
@@ -9,9 +6,9 @@ class AuthInterface(object):
     Lense authentication interface.
     """
     def __init__(self):
-        self._key    = AuthAPIKey
-        self._token  = AuthAPIToken
-        self._portal = AuthPortal
+        self._key    = import_class('AuthAPIKey', 'lense.common.auth.key', init=False)
+        self._token  = import_class('AuthAPIToken', 'lense.common.auth.token', init=False)
+        self._portal = import_class('AuthPortal', 'lense.common.auth.portal', init=False)
         
         # ACL gateway
         self.ACL     = None
@@ -43,7 +40,7 @@ class AuthInterface(object):
         :param request: The Lense request object
         :type  request: LenseRequestObject
         """
-        self.ACL = AuthACLGateway(request)
+        self.ACL = import_class('AuthACLGateway', 'lense.common.auth.acl', args=[request])
     
     def KEY(self, user, key):
         """

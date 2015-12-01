@@ -1,10 +1,9 @@
 from uuid import UUID
 
 # Lense Libraries
+from lense.common.utils import rstring
 from lense import import_class, set_arg
 from lense.common.exceptions import AuthError
-from __builtin__ import True
-from sqlite3.dbapi2 import paramstyle
 
 class LenseUser(object):
     """
@@ -21,6 +20,20 @@ class LenseUser(object):
         self._token        = import_class('APIUserTokens', 'lense.common.objects.user.models', init=False)
         self._key          = import_class('APIUserKeys', 'lense.common.objects.user.models', init=False)
         
+    def _filter(self, user):
+        """
+        Map a user name or UUID to filter parameters.
+        
+        :param user: User name or UUID
+        :type  user: str
+        :rtype: dict
+        """
+        try:
+            UUID(user, version=4)
+            return {'uuid': user}
+        except ValueError:
+            return {'username': user}
+        
     def member_of(self, user, group):
         """
         Make sure a user is a member of the request group.
@@ -30,11 +43,9 @@ class LenseUser(object):
         :param group: The group name to verify membership for
         :type  group: str
         """
-        
-        # Make sure the group exists and the user is a member
         is_member = False
-        for _group in self.model.objects.filter(username=user).values()[0]['groups']:
-            if _group['uuid'] == group:
+        for _group in getattr(self.get(username), 'groups', []):
+            if _group['uuid'] == group: 
                 is_member = True
                 break
         return is_member
@@ -50,10 +61,10 @@ class LenseUser(object):
         _user = self.get(set_arg(user, LENSE.REQUEST.USER.name))
         
         # Get the API key
-        api_key = list(self._key.objects.filter(user=_user.uuid).values())
+        key = self._key.objects.get(user=_user.uuid)
         
         # Return the API token if it exists
-        return None if not api_key else api_key[0]['api_key']
+        return None if not key else key.api_key
         
     def token(self, user=None):
         """
@@ -66,10 +77,23 @@ class LenseUser(object):
         _user = self.get(set_arg(user, LENSE.REQUEST.USER.name))
         
         # Get the API token
-        api_token = list(self._token.objects.filter(user=_user.uuid).values())
+        token = self._token.objects.get(user=_user.uuid)
 
         # Return the API token if it exists
-        return None if not api_token else api_token[0]['api_token']
+        return None if not token else token.api_token
+        
+    def set_token(self, user, token, expires):
+        """
+        Create or set a user's token.
+        
+        :param    user: User search string
+        :type     user: str
+        :param   token: The token string
+        :type    token: str
+        :param expires: Token expiration timestamp
+        :type  expires: str
+        """
+        self._token(id=None, user=user, token=token, expires=expires).save()
         
     def ensure(self, attr, exc=None, msg=None, args=[], kwargs={}):
         """
@@ -120,43 +144,20 @@ class LenseUser(object):
         :type  user: str
         :rtype: bool
         """
-        exists_uuid = self.model.objects.filter(uuid=user).count()
-        exists_name = self.model.objects.filter(username=user).count()
-        
-        # User exists
-        if exists_uuid or exists_name:
+        if self.model.objects.filter(**self._filter(user)).count():
             return True
         return False
         
-    def get(self, user, get_object=True):
+    def get(self, user):
         """
         User factory method.
         
-        :param user:       The username/UUID to retrieve
-        :type  user:       str
-        :param get_object: If the user exists and set to true, return the user object
+        :param    user: The username/UUID to retrieve
+        :type     user: str
+        :rtype: APIUser|None
         """
         if self.exists(user):
-            is_uuid = False
-            id_attr = 'username'
-            params  = {}
-            
-            # Check iof retrieving by UUID
-            try:
-                UUID(user, version=4)
-                is_uuid = True
-                id_attr = 'uuid'
-            except ValueError:
-                pass
-            
-            # Retrieve the user object
-            if get_object:
-                params[id_attr] = user
-                return self.model.objects.get(**params)
-            return True
-            
-        # User doesn't exist
-        LENSE.LOG.error('User "{0}" not found in database'.format(user))
+            return self.model.objects.get(**self._filter(user))
         return None
     
     def login(self, request=None, user=None):

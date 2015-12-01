@@ -1,6 +1,5 @@
 from lense.common.exceptions import AuthError
 from lense.common.utils import valid, invalid, rstring
-from lense.common.objects.user.models import APIUserKeys, APIUser
 
 class AuthAPIKey(object):
     """
@@ -49,7 +48,7 @@ class AuthAPIKey(object):
         LENSE.USER.ensure('active', exc=AuthError, msg='User "{0}" is inactive'.format(user), args=[user])
         
         # Get the API key of the user
-        auth = AuthAPIKey.get(user=user)
+        auth = LENSE.USER.key(user)
         
         # User has no key
         if not auth:

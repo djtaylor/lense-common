@@ -6,7 +6,6 @@ from django.conf import settings
 # Lense Libraries
 from lense.common.utils import rstring
 from lense.common.exceptions import AuthError
-from lense.common.objects.user.models import APIUser, APIUserTokens, APIUserKeys
 
 class AuthAPIToken(object):
     """
@@ -25,8 +24,7 @@ class AuthAPIToken(object):
             
         # Create a new API token
         LENSE.LOG.info('Generating API token for user: {0}'.format(user))
-        token = APIUserTokens(id=None, user=LENSE.USER.get(user), token=token_str, expires=expires)
-        token.save()
+        LENSE.USER.set_token(user, token, expires)
         
         # Return the token
         return token_str
@@ -74,7 +72,7 @@ class AuthAPIToken(object):
         LENSE.USER.ensure('active', exc=AuthError, msg='User "{0}" is inactive'.format(user), args=[user])
         
         # Get the users API token
-        auth = AuthAPIToken.get(user)
+        auth = LENSE.USER.token(user)
         
         # User has no token
         if not auth:

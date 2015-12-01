@@ -16,7 +16,7 @@ class RequestError(Exception):
         super(RequestError, self).__init__(msg)
         self.code = code
 
-class JSO1NException(Exception):
+class JSONException(Exception):
     """
     Custom exceptions when encountering JSON object errors.
     """
