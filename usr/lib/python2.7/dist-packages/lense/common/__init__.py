@@ -50,6 +50,7 @@ class LenseCommon(object):
         self.LOG         = import_class('create_project', 'lense.common.logger', ensure=pattr('get_logger'), args=[project])
         self.OBJECTS     = import_class('LenseAPIObjects', 'lense.common.objects', init=False, ensure=pattr('get_objects'))
         self.USER        = import_class('LenseUser', 'lense.common.user', ensure=pattr('get_user'))
+        self.GROUP       = import_class('LenseGroup', 'lense.common.group', ensure=pattr('get_user'))
         self.CONF        = import_class('parse', 'lense.common.config', ensure=pattr('get_conf'), args=[project])
         self.API         = import_class('LenseAPIConstructor', 'lense.common.api', init=False)
         self.URL         = import_class('LenseURLConstructor', 'lense.common.url', init=False)
@@ -57,13 +58,22 @@ class LenseCommon(object):
         self.JSON        = import_class('JSONObject', 'lense.common.objects')
         self.FEEDBACK    = import_class('Feedback', 'feedback')
         self.HTTP        = import_class('LenseHTTP', 'lense.common.http', init=False)
+        self.MAIL        = import_class('LenseAPIEmail', 'lense.common.mailer', init=False)
         self.SOCKET      = None
+        
+    def get_request(self):
+        """
+        Initialize the request object.
+        """
+        self.REQUEST = import_class('LenseRequestObject', 'lense.common.request')
+        return self.REQUEST
         
     def connect_socket(self):
         """
         Initialize the SocketIO connection.
         """
         self.SOCKET = import_class('LenseSocketIO', 'lense.common.socket')
+        return self.SOCKET
         
     def die(self, msg, code=1, pre=None, post=None):
         """

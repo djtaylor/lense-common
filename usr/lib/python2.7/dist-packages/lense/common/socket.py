@@ -1,3 +1,4 @@
+from lense import set_arg
 from socketIO_client import SocketIO
 
 class LenseSocketIO(object):
@@ -22,11 +23,13 @@ class LenseSocketIO(object):
         except Exception as e:
             LENSE.LOG.info('Failed to initialize SocketIO proxy connection: {}'.format(str(e)))
         
-    def set(self, params):
+    def set(self, params=None):
         """
         Set the web socket client attributes.
         """
-        self.params = params
+        self.params = set_arg(params, LENSE.REQUEST.data.get('socket', None))
+        if self.params:
+            LENSE.LOG.info('Received connection from web socket client: {}'.format(str(self.params)))
         return params
         
     def disconnect(self):

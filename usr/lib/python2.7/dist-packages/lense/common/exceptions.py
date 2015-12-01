@@ -8,7 +8,15 @@ class AuthUserError(Exception):
 class AuthError(Exception):
     pass
 
-class JSONException(Exception):
+class RequestError(Exception):
+    """
+    Custom exception for handling request errors.
+    """
+    def __init__(self, msg, code):
+        super(RequestError, self).__init__(msg)
+        self.code = code
+
+class JSO1NException(Exception):
     """
     Custom exceptions when encountering JSON object errors.
     """

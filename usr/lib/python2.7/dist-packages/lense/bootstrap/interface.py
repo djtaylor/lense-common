@@ -81,5 +81,8 @@ class Bootstrap(BootstrapCommon):
         init_project('BOOTSTRAP', 'BOOTSTRAP')
         init_project('ENGINE', 'LENSE')
         
+        # Set up the Lense request object
+        LENSE.get_request().set(LenseWSGIRequest.get())
+        
         # Run the bootstrap manager
         return Bootstrap()._run()

@@ -69,20 +69,6 @@ class LenseAPIConstructor(object):
     Helper class for constructing API classes.
     """
     @staticmethod
-    def BASE(*args, **kwargs):
-        """
-        Wrapper method for returning an instance of APIBase.
-        """
-        return import_class('APIBase', 'lense.engine.api.base', args=args, kwargs=kwargs).construct()
-    
-    @staticmethod
-    def BARE(*args, **kwargs):
-        """
-        Wrapper method for returning an instance of APIBare.
-        """
-        return import_class('APIBare', 'lense.engine.api.bare', args=args, kwargs=kwargs)
-    
-    @staticmethod
     def map_request():
         """
         Run the API request mapper for the current request object.

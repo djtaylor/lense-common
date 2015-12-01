@@ -1,10 +1,50 @@
 from sys import getsizeof
 
+# Django Libraries
+from django.test.client import RequestFactory
+
 # Lense Libraries
 from lense.common import logger 
 from lense.common.utils import truncate
 from lense.common.collection import Collection
+from lense.common.exceptions import RequestError
 from lense.common.http import HTTP_POST, HTTP_PUT, HEADER, PATH
+
+class LenseWSGIRequest(object):
+    """
+    Helper class for constructing a dummy WSGI request object.
+    """ 
+    @staticmethod
+    def get(path='token', data=None, method=HTTP_GET):
+        """
+        Factory method for constructing a RequestFactory.
+        
+        :param path:   The API request path
+        :type  path:   str
+        :param data:   The API request data
+        :type  data:   dict
+        :param method: The API request method
+        :param type:   str
+        """
+        
+        # Generate a Django request object
+        factory = RequestFactory(**{
+            'REQUEST_METHOD': method,
+            'SERVER_NAME':    'localhost',
+            'PATH_INFO':      '/{}'.format(path),
+            'REQUEST_URI':    '/api/{}'.format(path),
+            'SCRIPT_NAME':    '/api',
+            'SERVER_PORT':    '10550', 
+            'CONTENT_TYPE':   'application/json',
+            'REMOTE_ADDR':    '127.0.0.1',
+            'REMOTE_HOST':    'localhost'
+        })
+        
+        # Mimic a GET request
+        factory.get(path, data=data)
+
+        # Return the request object
+        return factory.request()
 
 class LenseRequestSession(object):
     """
@@ -214,6 +254,24 @@ class LenseRequestObject(object):
         Retrieve a key value from POST variables.
         """
         return getattr(self._POST, key, default)
+    
+    def ensure(result, value=True, error='An unknown request error has occurred', code=400):
+        """
+        Ensure a particular result meets the expected value, or else raise a RequestError
+        
+        :param result: The result to check
+        :type  result: str|int|bool
+        :param  value: The value to ensure
+        :type   value: str|int|bool
+        :param  error: The error message to raise
+        :type   error: str
+        :param   code: The HTTP status code to return
+        :type    code: int
+        :rtype: result
+        """
+        if not result == value and not isinstance(result, value):
+            raise RequestError(error, code)
+        return result
     
     def set(self, request):
         """

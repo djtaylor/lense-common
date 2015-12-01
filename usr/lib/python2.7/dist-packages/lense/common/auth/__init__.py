@@ -11,8 +11,10 @@ class AuthInterface(object):
     def __init__(self):
         self._key    = AuthAPIKey
         self._token  = AuthAPIToken
-        self._acl    = AuthACLGateway
         self._portal = AuthPortal
+        
+        # ACL gateway
+        self.ACL     = None
         
         # Store the authentication error
         self._error  = None
@@ -33,6 +35,15 @@ class AuthInterface(object):
         """
         self._error = LENSE.LOG.error(msg)
         return False
+    
+    def set_acl(self, request):
+        """
+        Run the ACL gateway.
+        
+        :param request: The Lense request object
+        :type  request: LenseRequestObject
+        """
+        self.ACL = AuthACLGateway(request)
     
     def KEY(self, user, key):
         """

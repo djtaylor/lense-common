@@ -1,6 +1,10 @@
+from uuid import UUID
+
 # Lense Libraries
 from lense import import_class, set_arg
 from lense.common.exceptions import AuthError
+from __builtin__ import True
+from sqlite3.dbapi2 import paramstyle
 
 class LenseUser(object):
     """
@@ -116,26 +120,39 @@ class LenseUser(object):
         :type  user: str
         :rtype: bool
         """
-        if self.model.objects.filter(uuid=user).count():
+        exists_uuid = self.model.objects.filter(uuid=user).count()
+        exists_name = self.model.objects.filter(username=user).count()
+        
+        # User exists
+        if exists_uuid or exists_name:
             return True
-            
-        if self.model.objects.filter(username=user).count():
-            return True
-            
-        # User does not exists
         return False
         
     def get(self, user, get_object=True):
         """
         User factory method.
         
-        :param user:       The username to retrieve
+        :param user:       The username/UUID to retrieve
         :type  user:       str
         :param get_object: If the user exists and set to true, return the user object
         """
         if self.exists(user):
+            is_uuid = False
+            id_attr = 'username'
+            params  = {}
+            
+            # Check iof retrieving by UUID
+            try:
+                UUID(user, version=4)
+                is_uuid = True
+                id_attr = 'uuid'
+            except ValueError:
+                pass
+            
+            # Retrieve the user object
             if get_object:
-                return self.model.objects.get(username=user)
+                params[id_attr] = user
+                return self.model.objects.get(**params)
             return True
             
         # User doesn't exist

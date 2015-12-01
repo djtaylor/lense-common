@@ -206,7 +206,7 @@ class Logger:
         
         # Don't create duplicate handlers
         if not len(logger.handlers):
-            logger.setLevel(logging.INFO)
+            logger.setLevel(INFO)
             
             # Set the file handler
             lfh = handlers.RotatingFileHandler(log_file, mode='a', maxBytes=10*1024*1024, backupCount=5)
