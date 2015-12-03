@@ -38,7 +38,7 @@ class Bootstrap(BootstrapCommon):
         # Run the project bootstrap method
         if project in interfaces:
             BOOTSTRAP.FEEDBACK.info('Running bootstrap manager for Lense project: {0}\n'.format(project))
-            import_class(interfaces['project'], 'lense.bootstrap.projects', args=[self.args, self.answers]).run()
+            import_class(interfaces[project], 'lense.bootstrap.projects', args=[self.args, self.answers]).run()
             
     def _run(self):
         """

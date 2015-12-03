@@ -3,6 +3,7 @@ from subprocess import Popen
 from json import dumps as json_dumps
 from django import setup as django_setup
 from MySQLdb import connect as mysql_connect
+from lense.common.request import LenseWSGIRequest
 
 # Set the Django settings module
 environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'

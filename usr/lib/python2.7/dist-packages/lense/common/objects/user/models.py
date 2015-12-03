@@ -16,8 +16,8 @@ class APIUserKeys(Model):
     """
     
     # User API key table columns
-    user    = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
-    api_key = CharField(max_length=64, unique=True)
+    user      = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
+    api_key   = CharField(max_length=64, unique=True)
     
     # Custom model metadata
     class Meta:

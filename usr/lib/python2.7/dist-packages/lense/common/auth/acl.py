@@ -26,7 +26,7 @@ class AuthACLObjects(object):
     """
     Parent class used to construct a list of objects that a user is authorized to access.
     """
-    def __init__(self, otype, user=None, path=None, method=None):
+    def __init__(self, otype, user=None, path=None, method=None, override=None):
         self.type      = otype
         
         # ACL user / request path / method
@@ -47,6 +47,9 @@ class AuthACLObjects(object):
         self.ids       = []
         self.details   = []
         
+        # Override built in authentication methods
+        self.override  = override
+        
     def extract(self, idstr):
         """
         Extract a specific object from the details list.
@@ -63,7 +66,6 @@ class AuthACLObjects(object):
         if isinstance(new_objs, list):
             for i in new_objs:
                 if not (i[self.obj_def['obj_key']] in self.ids):
-                    LENSE.LOG.info('Merging into objects list: {}'.format(str(i)))
                     self.ids.append(i[self.obj_def['obj_key']])
                     self.details.append(i)
         
@@ -127,7 +129,6 @@ class AuthACLObjects(object):
         
         # Set any filters
         self.filters = filters
-        LENSE.LOG.info('User ACLs: {}'.format(self.user.acls))
         
         # Process each group the user is a member of
         for group, acl in self.user.acls.iteritems():
@@ -211,7 +212,13 @@ class AuthACLGateway(object):
     ACL gateway class used to handle permissions for API requests prior to loading
     any API handlers. Used after key/token authorization.
     """
-    def __init__(self, request=None):
+    def __init__(self, request=None, override=None):
+        """
+        :param  request: An optional request object, will pull from LENSE.REQUEST by default
+        :type   request: HttpRequest
+        :param override: Override authentication methods, allow all (True) or allow none (False)
+        :type  override: bool
+        """
         self.request       = request if request else LENSE.REQUEST
         
         # ACL handler / user
@@ -225,6 +232,9 @@ class AuthACLGateway(object):
         # Authorization flag / error container
         self.authorized    = False
         self.auth_error    = None
+        
+        # Authorization override
+        self.override      = override
         
         # Authorize the request
         self._authorize()
@@ -397,11 +407,7 @@ class AuthACLGateway(object):
         Public method used to extract the target object ID from the API data.
         """
         if self.request.data:
-            _object = None if not (self.obj_key in self.request.data) else self.request.data[self.obj_key]
-            
-            # Log and return the object
-            LENSE.LOG.info('Retrieved target object: {}'.format(str(_object)))
-            return _object
+            return self.request.data.get(self.obj_key, None)
         return None
         
     def authorized_objects(self, otype, path=None, method=None, filter=None):
@@ -426,8 +432,9 @@ class AuthACLGateway(object):
         
         # Create the authorized objects list
         return AuthACLObjects(
-            user   = self.user, 
-            otype  = otype, 
-            path   = getattr(self.handler, 'path', path), 
-            method = getattr(self.handler, 'method', method)
+            user     = self.user, 
+            otype    = otype, 
+            path     = getattr(self.handler, 'path', path), 
+            method   = getattr(self.handler, 'method', method),
+            override = self.override
         ).get(filter)

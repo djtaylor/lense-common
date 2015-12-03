@@ -33,14 +33,16 @@ class AuthInterface(object):
         self._error = LENSE.LOG.error(msg)
         return False
     
-    def set_acl(self, request):
+    def set_acl(self, request, override=None):
         """
         Run the ACL gateway.
         
-        :param request: The Lense request object
-        :type  request: LenseRequestObject
+        :param  request: The Lense request object
+        :type   request: LenseRequestObject
+        :param override: Override any built in authorization methods
+        :type  override: bool | True (allow all) False (allow none)
         """
-        self.ACL = import_class('AuthACLGateway', 'lense.common.auth.acl', args=[request])
+        self.ACL = import_class('AuthACLGateway', 'lense.common.auth.acl', args=[request, override])
     
     def KEY(self, user, key):
         """

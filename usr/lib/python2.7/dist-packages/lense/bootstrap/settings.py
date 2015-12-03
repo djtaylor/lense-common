@@ -16,6 +16,21 @@ USE_TZ           = True
 # URL processor
 ROOT_URLCONF     = __name__
 
+# Managed applications
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'lense.common.objects.acl',
+    'lense.common.objects.group',
+    'lense.common.objects.user',
+    'lense.common.objects.handler',
+    'lense.common.objects.stats'
+)
+
 # Django middleware classes
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

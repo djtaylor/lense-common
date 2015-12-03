@@ -4,6 +4,7 @@ from sys import getsizeof
 from django.test.client import RequestFactory
 
 # Lense Libraries
+from lense import import_class
 from lense.common import logger 
 from lense.common.utils import truncate
 from lense.common.collection import Collection
@@ -37,14 +38,18 @@ class LenseWSGIRequest(object):
             'SERVER_PORT':    '10550', 
             'CONTENT_TYPE':   'application/json',
             'REMOTE_ADDR':    '127.0.0.1',
-            'REMOTE_HOST':    'localhost'
+            'REMOTE_HOST':    'localhost',
+            'HTTP_HOST':      '127.0.0.1:80',
+            'QUERY_STRING':   '',
         })
         
         # Mimic a GET request
-        factory.get(path, data=data)
+        request = factory.get(path, data=data)
+        request.user = import_class('AnonymousUser', 'django.contrib.auth.models')
+        request.session = import_class('SessionStore', 'django.contrib.sessions.backends.db')
 
         # Return the request object
-        return factory.request()
+        return request
 
 class LenseRequestSession(object):
     """
