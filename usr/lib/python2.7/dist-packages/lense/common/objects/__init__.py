@@ -11,24 +11,7 @@ class LenseAPIObjects(object):
     """
     API object manager.
     """
-    @staticmethod
-    def get_handler(path=None, method=None):
-        """
-        Retrieve an API handler object by path and method.
-        """
-        handlers = import_class('Handlers', 'lense.common.objects.handler.models', init=False)
-        
-        # Default path / method
-        path = set_arg(path, LENSE.REQUEST.path)
-        method = set_arg(method, LENSE.REQUEST.method)
-        
-        # If the handler doesn't exist
-        try:
-            if not handlers.objects.filter(path=path).filter(method=method).count():
-                return None
-            return handlers.objects.filter(path=path).filter(method=method).get()
-        except:
-            return None
+    HANDLER = import_class('Handler_Interface', 'lense.common.objects.handler', init=False)
 
 class JSONObject(object):
     """

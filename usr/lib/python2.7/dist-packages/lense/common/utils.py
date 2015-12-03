@@ -80,16 +80,16 @@ def mod_has_class(mod, cls, no_launch=False):
         
         # Make sure the module has the class definition
         if not hasattr(mod_inst, cls):
-            return invalid('Class definition <{0}> not found in module <{1}>'.format(cls, mod))
+            return False
         
         # Create an instance of the class
         cls_inst = getattr(mod_inst, cls)
         if not no_launch:
             if not hasattr(cls_inst, 'launch') or not callable(cls_inst.launch):
-                return invalid('Class <{0}.{1}> requires a callable <launch> method definition'.format(mod, cls))
-        return valid()
+                return False
+        return False
     except Exception as e:
-        return invalid('Failed to import module <{0}>: {1}'.format(mod, str(e)))
+        return False
 
 def obj_extract(obj, id=None, filter=None, auto_quote=True):
     """

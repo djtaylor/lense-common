@@ -260,7 +260,7 @@ class LenseRequestObject(object):
         """
         return getattr(self._POST, key, default)
     
-    def ensure(result, value=True, error='An unknown request error has occurred', code=400):
+    def ensure(result, value=True, error='An unknown request error has occurred', code=400, call=False):
         """
         Ensure a particular result meets the expected value, or else raise a RequestError
         
@@ -276,6 +276,14 @@ class LenseRequestObject(object):
         """
         if not result == value and not isinstance(result, value):
             raise RequestError(error, code)
+        if call:
+            try:
+                rsp = result()
+                if not rsp == value:
+                    raise RequestError(error, code)
+            except Exception as e:
+                LENSE.LOG.exception('Error while ensuring: {0}'.format(repr(result)))
+                raise RequestError(error, code)
         return result
     
     def set(self, request):
