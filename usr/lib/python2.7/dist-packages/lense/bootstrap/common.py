@@ -9,6 +9,9 @@ from json import loads as json_loads
 from os import path, makedirs, system, listdir
 
 # Lense Libraries
+from lense import import_class
+from lense.common.exceptions import RequestError
+from lense.common.request import LenseWSGIRequest
 from lense.common.config import LenseConfigEditor
 from lense.common.vars import WSGI_CONFIG, PROJECTS, CONFIG
 
@@ -20,8 +23,9 @@ class BootstrapCommon(object):
     Common class object for bootstrap handlers.
     """
     def __init__(self, project=None):
-        self.project = project
-        self.ATTRS   = getattr(PROJECTS, project.upper())
+        self.project  = project
+        self.ATTRS    = getattr(PROJECTS, project.upper())
+        self.handlers = {}
 
     def _shell_exec(self, cmd, show_stdout=True):
         """
@@ -315,6 +319,41 @@ class BootstrapCommon(object):
                 # Store in response object
                 self.params.input.set_response(attr['key'], val)
             print('')
+    
+    def set_handlers(self, handlers):
+        """
+        Set and store handler attributes.
+        """
+        self.handlers = handlers
+    
+    def launch_handler(self, path, data, method):
+        """
+        Launch a request handler.
+        """
+        
+        # Setup the request data
+        BOOTSTRAP.REQUEST.set(LenseWSGIRequest.get(path=path, data=data, method=method))
+        
+        # Get the handler object
+        handler_mod = None
+        handler_cls = None
+        for handler in self.handlers:
+            if handler['path'] == path and handler['method'] == method:
+                handler_mod = handler['mod']
+                handler_cls = handler['cls']
+        
+        # Make sure the module/class was retrieved
+        if not handler_mod or not handler_cls:
+            self.die('Could not find handler for: path={0}, method={1}'.format(path, method))
+        
+        # Load the request handler
+        handler = import_class(handler_cls, handler_mod)
+        
+        # Launch the request handler
+        try:
+            return handler.launch()
+        except RequestError as e:
+            self.die('HTTP {0}: {1}'.format(e.code, e.msg))
     
     def load_prompts(self, project):
         """

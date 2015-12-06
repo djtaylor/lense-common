@@ -1,7 +1,7 @@
 {
     "cls": "ACL_Delete",
     "name": "ACL_Delete",
-    "path": "acl",
+    "path": "acl/keys",
     "method": "DELETE",
     "desc": "Delete an existing ACL definition",
     "mod": "lense.engine.api.handlers.acl",

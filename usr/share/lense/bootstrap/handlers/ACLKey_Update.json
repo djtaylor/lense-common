@@ -1,7 +1,7 @@
 {
     "cls": "ACL_Update",
     "name": "ACL_Update",
-    "path": "acl",
+    "path": "acl/keys",
     "method": "PUT",
     "desc": "Update an existing ACL definition",
     "mod": "lense.engine.api.handlers.acl",

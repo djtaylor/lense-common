@@ -1,7 +1,7 @@
 {
     "cls": "ACL_Create",
     "name": "ACL_Create",
-    "path": "acl",
+    "path": "acl/keys",
     "method": "POST",
     "desc": "Create a new ACL definition",
     "mod": "lense.engine.api.handlers.acl",

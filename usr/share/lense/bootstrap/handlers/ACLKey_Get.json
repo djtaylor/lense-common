@@ -1,7 +1,7 @@
 {
     "cls": "ACL_Get",
     "name": "ACL_Get",
-    "path": "acl",
+    "path": "acl/keys",
     "method": "GET",
     "desc": "Retrieve an ACL definition",
     "mod": "lense.engine.api.handlers.acl",
