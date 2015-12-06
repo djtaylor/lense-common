@@ -11,7 +11,11 @@ class LenseAPIObjects(object):
     """
     API object manager.
     """
-    HANDLER = import_class('Handler_Interface', 'lense.common.objects.handler', init=False)
+    def __init__(self):
+        self.HANDLER = import_class('ObjectInterface', 'lense.common.objects.handler')
+        self.ACL     = import_class('ObjectInterface', 'lense.common.objects.acl')
+        self.USER    = import_class('ObjectInterface', 'lense.common.objects.user')
+        self.GROUP   = import_class('ObjectInterface', 'lense.common.objects.group')
 
 class JSONObject(object):
     """

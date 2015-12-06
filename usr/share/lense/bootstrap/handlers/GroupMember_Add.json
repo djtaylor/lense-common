@@ -1,0 +1,25 @@
+{
+    "cls": "GroupMember_Add",
+    "name": "GroupMember_Add",
+    "path": "group/member",
+    "method": "POST",
+    "desc": "Add a user to an API group",
+    "mod": "lense.engine.api.handlers.group",
+    "protected": true,
+    "enabled": true,
+    "object": "group",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["group", "user"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "group": {
+                "_type": "uuid"
+            },
+            "user": { 
+                "_type": "uuid"
+            }
+        }
+    }
+}

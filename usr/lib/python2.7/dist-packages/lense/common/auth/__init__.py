@@ -1,3 +1,4 @@
+from re import compile
 from lense import import_class
 from lense.common.exceptions import AuthError
 
@@ -15,6 +16,15 @@ class AuthInterface(object):
         
         # Store the authentication error
         self._error  = None
+        
+    def check_pw_strength(self, passwd):
+        """
+        Make sure a password meets strength requirements.
+        """
+        regex = compile(r'^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[\W])\S*$')
+        if not regex.match(passwd):
+            return False
+        return True
         
     def get_error(self):
         """

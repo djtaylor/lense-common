@@ -1,0 +1,22 @@
+{
+    "cls": "ACL_Get",
+    "name": "ACL_Get",
+    "path": "acl",
+    "method": "GET",
+    "desc": "Retrieve an ACL definition",
+    "mod": "lense.engine.api.handlers.acl",
+    "protected": true,
+    "enabled": true,
+    "object": null,
+    "object_key": null,
+    "rmap": {
+        "_required": [],
+        "_optional": ["acl"],
+        "_type": "dict",
+        "_children": {
+            "acl": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "cls": "User_Disable",
+    "name": "User_Disable",
+    "path": "user/disable",
+    "method": "PUT",
+    "desc": "Disable a user account",
+    "mod": "lense.engine.api.handlers.user",
+    "protected": true,
+    "enabled": true,
+    "object": "user",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["user"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "user": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

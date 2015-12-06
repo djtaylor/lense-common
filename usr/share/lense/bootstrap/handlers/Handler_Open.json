@@ -1,0 +1,22 @@
+{
+    "cls": "Handler_Open",
+    "name": "Handler_Open",
+    "path": "handler/open",
+    "method": "PUT",
+    "desc": "Open an API handler for editing",
+    "mod": "lense.engine.api.handlers.handler",
+    "protected": true,
+    "enabled": true,
+    "object": "handler",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["handler"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "handler": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

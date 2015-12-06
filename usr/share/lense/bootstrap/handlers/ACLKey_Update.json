@@ -1,0 +1,34 @@
+{
+    "cls": "ACL_Update",
+    "name": "ACL_Update",
+    "path": "acl",
+    "method": "PUT",
+    "desc": "Update an existing ACL definition",
+    "mod": "lense.engine.api.handlers.acl",
+    "protected": true,
+    "enabled": true,
+    "object": null,
+    "object_key": null,
+    "rmap": {
+        "_required": ["acl"],
+        "_optional": ["name", "desc", "object", "global"],
+        "_type": "dict",
+        "_children": {
+            "acl": {
+                "_type": "uuid"
+            },
+            "name": {
+                "_type": "str"
+            },
+            "desc": {
+                "_type": "str"
+            },
+            "object": {
+                "_type": "bool"
+            },
+            "global": {
+                "_type": "bool"
+            }
+        }
+    }
+}

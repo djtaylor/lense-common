@@ -1,0 +1,31 @@
+{
+    "cls": "Group_Update",
+    "name": "Group_Update",
+    "path": "group",
+    "method": "PUT",
+    "desc": "Update an existing API group",
+    "mod": "lense.engine.api.handlers.group",
+    "protected": true,
+    "enabled": true,
+    "object": "group",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["group"],
+        "_optional": ["name", "desc", "protected"],
+        "_type": "dict",
+        "_children": {
+            "group": {
+                "_type": "uuid"
+            },
+            "name": {
+                "_type": "str"
+            },
+            "desc": {
+                "_type": "str"
+            },
+            "protected": {
+                "_type": "bool"
+            }
+        }
+    }
+}

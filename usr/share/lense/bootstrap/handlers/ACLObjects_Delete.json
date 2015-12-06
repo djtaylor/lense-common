@@ -1,0 +1,22 @@
+{
+    "cls": "ACLObjects_Delete",
+    "name": "ACLObjects_Delete",
+    "path": "acl/objects",
+    "method": "DELETE",
+    "desc": "Delete an existing ACL object definition",
+    "mod": "lense.engine.api.handlers.acl",
+    "protected": true,
+    "enabled": true,
+    "object": null,
+    "object_key": null,
+    "rmap": {
+        "_required": ["acl_object"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "acl_object": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

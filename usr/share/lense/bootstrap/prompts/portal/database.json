@@ -1,0 +1,40 @@
+{
+    "label": "Database Configuration",
+    "attrs": [
+    	{
+    		"key": "db_host",
+    		"type": "str",
+            "default": "localhost",
+            "prompt": "Please enter the hostname or IP address of the MySQL database server (localhost): ",
+            "value": null
+    	},
+    	{
+    		"key": "db_port",
+    		"type": "str",
+            "default": "3306",
+            "prompt": "Please enter the port to connect to the MySQL database server (3306): ",
+            "value": null
+    	},
+    	{
+    		"key": "db_name",
+    		"type": "str",
+            "default": "lense",
+            "prompt": "Please enter the name of the database to use/create for Lense (lense): ",
+            "value": null
+    	},
+    	{
+    		"key": "db_user",
+    		"type": "str",
+            "default": "lense",
+            "prompt": "Please enter the name of the primary non-root database user (lense): ",
+            "value": null
+    	},
+    	{
+    		"key": "db_user_password",
+    		"type": "pass",
+            "default": null,
+            "prompt": "Please enter the password for the primary non-root database user: ",
+            "value": null
+    	}
+    ]          
+}

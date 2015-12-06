@@ -1,0 +1,19 @@
+{
+    "label": "API Engine Configuration",
+    "attrs": [
+    	{
+    		"key": "engine_host",
+    		"type": "str",
+            "default": "localhost",
+            "prompt": "Please enter the hostname for the API server (localhost): ",
+            "value": null
+    	},
+    	{
+    		"key": "engine_port",
+    		"type": "str",
+            "default": "10550",
+            "prompt": "Please enter the port for the API server (10550): ",
+            "value": null
+    	}
+    ]          
+}

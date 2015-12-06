@@ -1,0 +1,26 @@
+{
+    "label": "API Socket.IO Proxy Configuration",
+    "attrs": [
+    	{
+    		"key": "socket_host",
+    		"type": "str",
+            "default": "localhost",
+            "prompt": "Please enter the hostname for the socket server (localhost): ",
+            "value": null
+    	},
+    	{
+    		"key": "socket_port",
+    		"type": "str",
+            "default": "10551",
+            "prompt": "Please enter the port for the socket server (10551): ",
+            "value": null
+    	},
+    	{
+    		"key": "socket_bind_ipaddr",
+    		"type": "str",
+            "default": "127.0.0.1",
+            "prompt": "Please enter the bind IP address for the socket server (127.0.0.1): ",
+            "value": null
+    	}
+    ]          
+}

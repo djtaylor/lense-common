@@ -1,0 +1,35 @@
+[
+    {
+        "type": "handler",
+        "name": "API Handler",
+        "acl_mod": "lense.common.objects.acl.models",
+        "acl_cls": "ACLGroupPermissions_Object_Handler",
+        "acl_key": "handler",
+        "obj_mod": "lense.common.objects.handler.models",
+        "obj_cls": "Handlers",
+        "obj_key": "uuid",
+        "def_acl": "handler.view"
+    },
+    {
+        "type": "group",
+        "name": "API Group",
+        "acl_mod": "lense.common.objects.acl.models",
+        "acl_cls": "ACLGroupPermissions_Object_Group",
+        "acl_key": "group",
+        "obj_mod": "lense.common.objects.group.models",
+        "obj_cls": "APIGroups",
+        "obj_key": "uuid",
+        "def_acl": "group.view"
+    },
+    {
+        "type": "user",
+        "name": "API User",
+        "acl_mod": "lense.common.objects.acl.models",
+        "acl_cls": "ACLGroupPermissions_Object_User",
+        "acl_key": "user",
+        "obj_mod": "lense.common.objects.user.models",
+        "obj_cls": "APIUser",
+        "obj_key": "uuid",
+        "def_acl": "user.view"
+    }
+]

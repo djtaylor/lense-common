@@ -1,0 +1,49 @@
+{
+    "cls": "ACLObjects_Update",
+    "name": "ACLObjects_Update",
+    "path": "acl/objects",
+    "method": "PUT",
+    "desc": "Update an ACL object definition",
+    "mod": "lense.engine.api.handlers.acl",
+    "protected": true,
+    "enabled": true,
+    "object": null,
+    "object_key": null,
+    "rmap": {
+        "_required": ["acl_object"],
+        "_optional": ["type", "name", "acl_obj", "acl_cls", "acl_key", "obj_mod", "obj_cls", "obj_key", "def_acl"],
+        "_type": "dict",
+        "_children": {
+            "acl_object": {
+                "_type": "uuid"
+            },
+            "type": {
+                "_type": "str"
+            },
+            "name": {
+                "_type": "str"
+            },
+            "acl_obj": {
+                "_type": "str"
+            },
+            "acl_cls": {
+                "_type": "str"
+            },
+            "acl_key": {
+                "_type": "str"
+            },
+            "obj_mod": {
+                "_type": "str"
+            },
+            "obj_cls": {
+                "_type": "str"
+            },
+            "obj_key": {
+                "_type": "str"
+            },
+            "def_acl": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

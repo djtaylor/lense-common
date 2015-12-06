@@ -1,0 +1,22 @@
+{
+    "cls": "User_Enable",
+    "name": "User_Enable",
+    "path": "user/enable",
+    "method": "PUT",
+    "desc": "Enable a user account",
+    "mod": "lense.engine.api.handlers.user",
+    "protected": true,
+    "enabled": true,
+    "object": "user",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["user"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "user": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

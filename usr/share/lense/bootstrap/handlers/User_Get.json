@@ -1,0 +1,22 @@
+{
+    "cls": "User_Get",
+    "name": "User_Get",
+    "path": "user",
+    "method": "GET",
+    "desc": "Get API user details",
+    "mod": "lense.engine.api.handlers.user",
+    "protected": true,
+    "enabled": true,
+    "object": "user",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": [],
+        "_optional": ["user"],
+        "_type": "dict",
+        "_children": {
+            "user": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

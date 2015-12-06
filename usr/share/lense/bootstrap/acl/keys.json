@@ -1,0 +1,132 @@
+[
+    {
+        "name": "token.get",
+        "desc": "ACL for allowing API token requests.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+            "Token_Get"
+        ]
+    },
+    {
+        "name": "user.admin",
+        "desc": "ACL for allowing global administration of users.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+            "User_Get",
+            "User_Create",
+            "User_Delete",
+            "User_Enable",
+            "User_Disable",
+            "User_ResetPassword"
+        ]
+    },
+    {
+        "name": "user.view",
+        "desc": "ACL for allowing read-only access to user objects.",
+        "type_object": true,
+        "type_global": false,
+        "handler_classes": [
+            "User_Get"
+        ]
+    },
+    {
+        "name": "group.admin",
+        "desc": "ACL for allowing global administration of groups.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+            "Group_Get",
+            "Group_Create",
+            "Group_Update",
+            "Group_Delete",
+            "GroupMember_Add",
+            "GroupMember_Remove"
+        ]
+    },
+    {
+        "name": "group.view",
+        "desc": "ACL for allowing read-only access to group objects.",
+        "type_object": true,
+        "type_global": false,
+        "handler_classes": [
+            "Group_Get"
+        ]
+    },
+    {
+        "name": "handler.admin",
+        "desc": "ACL for allowing administration of API handlers.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+            "Handler_Get",
+            "Handler_Create",
+            "Handler_Save",
+            "Handler_Validate",
+            "Handler_Delete",
+            "Handler_Close",
+            "Handler_Open"
+        ]
+    },
+    {
+        "name": "handler.view",
+        "desc": "ACL for allowing read-only access to handler objects.",
+        "type_object": true,
+        "type_global": false,
+        "handler_classes": [
+            "Handler_Get"
+        ]
+    },
+    {
+        "name": "acl.view",
+        "desc": "ACL for allowing read-only access to ACL definitions.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+             "ACL_Get"            
+        ]
+    },
+    {
+        "name": "acl.admin",
+        "desc": "ACL for allowing administration of ACL definitions.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+             "ACL_Get",
+             "ACL_Create",
+             "ACL_Delete",
+             "ACL_Update"       
+        ]
+    },
+    {
+        "name": "acl_object.view",
+        "desc": "ACL for allowing read-only access to ACL object definitions.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+            "ACLObjects_Get"
+        ]
+    },
+    {
+        "name": "acl_object.admin",
+        "desc": "ACL for allowing administration of ACL object definitions.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+            "ACLObjects_Get",
+            "ACLObjects_Create",
+            "ACLObjects_Delete",
+            "ACLObjects_Update"
+        ]
+    },
+    {
+        "name": "stats.admin",
+        "desc": "ACL for allowing administration of API statistics.",
+        "type_object": false,
+        "type_global": true,
+        "handler_classes": [
+            "StatsRequest_Get"
+        ]
+    }
+]

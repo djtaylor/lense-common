@@ -1,0 +1,22 @@
+{
+    "cls": "Handler_Close",
+    "name": "Handler_Close",
+    "path": "handler/close",
+    "method": "PUT",
+    "desc": "Close the editing lock on an API handler",
+    "mod": "lense.engine.api.handlers.handler",
+    "protected": true,
+    "enabled": true,
+    "object": "handler",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["handler"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "handler": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

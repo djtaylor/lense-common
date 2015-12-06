@@ -1,0 +1,47 @@
+{
+    "label": "API Engine Configuration",
+    "attrs": [
+    	{
+    		"key": "api_admin_password",
+    		"type": "pass",
+            "default": null,
+            "prompt": "Please enter a password for the default administrator account: ",
+            "value": null
+    	},
+    	{
+    		"key": "api_admin_email",
+    		"type": "str",
+            "default": null,
+            "prompt": "Please enter the email address for the default administrator account: ",
+            "value": null
+    	},
+    	{
+    		"key": "api_host",
+    		"type": "str",
+            "default": "localhost",
+            "prompt": "Please enter the hostname for the API server (localhost): ",
+            "value": null
+    	},
+    	{
+    		"key": "api_port",
+    		"type": "str",
+            "default": "10550",
+            "prompt": "Please enter the port for the API server (10550): ",
+            "value": null
+    	},
+    	{
+    		"key": "api_service_email",
+    		"type": "str",
+            "default": null,
+            "prompt": "Please enter the email address for the default service account: ",
+            "value": null
+    	},
+    	{
+    		"key": "api_service_password",
+    		"type": "pass",
+            "default": null,
+            "prompt": "Please enter a password for the default service account: ",
+            "value": null
+    	}
+    ]         
+}

@@ -56,6 +56,31 @@ class LenseGroup(object):
         # Return any members
         return group.members_list()
     
+    def remove_member(self, group, user):
+        """
+        Remove a user from a group.
+        
+        :param group: The group to remove the user from
+        :type  group: str
+        :param  user: The user object to remove from the group
+        :type   user: user
+        :rtype: bool
+        """
+        if not self.exists(group) or not LENSE.USER.exists(user):
+            return False
+    
+        # Get the group and user
+        group = self.get(group)
+        user  = LENSE.USER.get(user)
+    
+        # Remove the user from the group
+        try:
+            group.members_unset(user)
+            return True
+        except Exception as e:
+            LENSE.LOG.exception('Failed to remove user "{0}" from group "{1}": {2}'.format(user.username, group.name))
+            return False
+    
     def add_member(self, group, user):
         """
         Add a user to a group.

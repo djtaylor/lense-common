@@ -248,6 +248,12 @@ class LenseRequestObject(object):
         """
         return self.DJANGO.META.get(k, default)
     
+    def map_data(self, keys):
+        """
+        Map request data to a dictionary by keys.
+        """
+        return {k:LENSE.REQUEST.data.get(k) for k in keys}
+    
     def GET(self, key, default=None):
         """
         Retrieve a key value from GET variables.
@@ -260,7 +266,7 @@ class LenseRequestObject(object):
         """
         return getattr(self._POST, key, default)
     
-    def ensure(result, value=True, error='An unknown request error has occurred', code=400, call=False):
+    def ensure(result, value=True, isnot=False, error='An unknown request error has occurred', code=400, call=False, log=None, debug=None):
         """
         Ensure a particular result meets the expected value, or else raise a RequestError
         
@@ -268,12 +274,22 @@ class LenseRequestObject(object):
         :type  result: str|int|bool
         :param  value: The value to ensure
         :type   value: str|int|bool
+        :param  isnot: Perform a negative check on the value (not equal)
+        :type   isnot: bool
         :param  error: The error message to raise
         :type   error: str
         :param   code: The HTTP status code to return
         :type    code: int
+        :param   call: Attempt the call the result object
+        :type    call: bool
+        :param    log: Message to log on success
+        :type     log: str
+        :param  debug: Debug log message
+        :type   debug: str
         :rtype: result
         """
+        if isnot and result == value:
+            raise RequestError(error, code)
         if not result == value and not isinstance(result, value):
             raise RequestError(error, code)
         if call:
@@ -284,6 +300,10 @@ class LenseRequestObject(object):
             except Exception as e:
                 LENSE.LOG.exception('Error while ensuring: {0}'.format(repr(result)))
                 raise RequestError(error, code)
+        if log:
+            LENSE.LOG.info(log)   
+        if debug:
+            LENSE.LOG.debug(debug)
         return result
     
     def set(self, request):

@@ -1,0 +1,18 @@
+{
+    "label": "API Portal Configuration",
+    "attrs": [
+    	{
+    		"key": "portal_host",
+    		"default": "localhost",
+            "prompt": "Please enter the hostname for the portal server (localhost): ",
+            "value": null
+    	},
+    	{
+    		"key": "portal_port",
+    		"type": "str",
+            "default": "80",
+            "prompt": "Please enter the port for the portal server (80): ",
+            "value": null
+    	}
+    ]           
+}

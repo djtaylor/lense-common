@@ -1,0 +1,22 @@
+{
+    "cls": "Handler_Get",
+    "name": "Handler_Get",
+    "path": "handler",
+    "method": "GET",
+    "desc": "Get a listing of API handlers",
+    "mod": "lense.engine.api.handlers.handler",
+    "protected": true,
+    "enabled": true,
+    "object": "handler",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": [],
+        "_optional": ["handler"],
+        "_type": "dict",
+        "_children": {
+            "handler": {
+                "_type": "uuid"
+            }
+        }
+    }
+}

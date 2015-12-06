@@ -1,0 +1,34 @@
+{
+    "cls": "User_Create",
+    "name": "User_Create",
+    "path": "user",
+    "method": "POST",
+    "desc": "Create a new API user",
+    "mod": "lense.engine.api.handlers.user",
+    "protected": true,
+    "enabled": true,
+    "object": "user",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["username", "group", "email", "password", "password_confirm"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "username": {
+                "_type": "str"
+            },
+            "group": {
+                "_type": "uuid"
+            },
+            "email": {
+                "_type": "str"
+            },
+            "password": {
+                "_type": "str"
+            },
+            "password_confirm": {
+                "_type": "str"    
+            }
+        }
+    }
+}

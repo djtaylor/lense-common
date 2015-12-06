@@ -1,0 +1,62 @@
+{
+    "cls": "Handler_Update",
+    "name": "Handler_Update",
+    "path": "handler",
+    "method": "PUT",
+    "desc": "Save changes to an API handler",
+    "mod": "lense.engine.api.handlers.handler",
+    "protected": true,
+    "enabled": true,
+    "object": "handler",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["handler"],
+        "_optional": ["path", "name", "desc", "method", "mod", "cls", "handlers", "rmap", "object", "object_key", "protected", "enabled", "allow_anon"],
+        "_type": "dict",
+        "_children": {
+            "handler": {
+                "_type": "uuid"
+            },
+            "name": {
+                "_type": "str"
+            },
+            "path": {
+                "_type": "str"
+            },
+            "desc": {
+                "_type": "str"
+            },
+            "method": {
+                "_type": "str",
+                "_values": ["PUT", "POST", "GET", "DELETE"]
+            },
+            "mod": {
+                "_type": "str"
+            },
+            "cls": {
+                "_type": "str"
+            },
+            "handlers": {
+                "_type": "list"
+            },
+            "rmap": {
+                "_type": "dict"
+            },
+            "object": {
+                "_type": "str"
+            },
+            "object_key": {
+                "_type": "str"
+            },
+            "protected": {
+                "_type": "bool"
+            },
+            "enabled": {
+                "_type": "bool"
+            },
+            "allow_anon": {
+                "_type": "bool"
+            }
+        }
+    }
+}

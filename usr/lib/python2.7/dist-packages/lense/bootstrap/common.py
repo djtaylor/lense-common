@@ -1,13 +1,19 @@
 from __future__ import print_function
 from sys import exit
+from re import compile
 from pwd import getpwnam
 from getpass import getpass
-from os import path, makedirs, system
 from subprocess import Popen, PIPE
+from collections import OrderedDict
+from json import loads as json_loads
+from os import path, makedirs, system, listdir
 
 # Lense Libraries
 from lense.common.config import LenseConfigEditor
 from lense.common.vars import WSGI_CONFIG, PROJECTS, CONFIG
+
+# Seed data
+BOOTSTRAP_DATA = '/usr/share/lense/bootstrap'
 
 class BootstrapCommon(object):
     """
@@ -284,31 +290,47 @@ class BootstrapCommon(object):
         """
         
         # Process each configuration section
-        for section, obj in self.params.input.prompt.iteritems():
+        for obj in self.params.input.prompt:
             print(obj['label'])
             print('-' * 20)
         
             # Process each section input
-            for key, attrs in obj['attrs'].iteritems():
+            for attr in obj['attrs'].iteritems():
                 
                 # If an answer already defined
-                if key in answers:
+                if attr['key'] in answers:
                     BOOTSTRAP.FEEDBACK.info('Value for {0} found in answer file'.format(key))
-                    val = answers[key]
+                    val = answers[attr['key']]
                     
                 else:
                 
                     # Regular string input
-                    if attrs['type'] == 'str':
-                        val = self._get_input(attrs['prompt'], attrs['default'])
+                    if attr['type'] == 'str':
+                        val = self._get_input(attr['prompt'], attr['default'])
                         
                     # Password input
-                    if attrs['type'] == 'pass':
-                        val = self._get_password(attrs['prompt'])
+                    if attr['type'] == 'pass':
+                        val = self._get_password(attr['prompt'])
             
                 # Store in response object
-                self.params.input.set_response(key, val)
+                self.params.input.set_response(attr['key'], val)
             print('')
+    
+    def load_prompts(self, project):
+        """
+        Load attributes for input prompts.
+        """
+        prompt_manifests = '{0}/prompts/{1}'.format(BOOTSTRAP_DATA, project)
+        prompts = OrderedDict()
+        
+        # Start to load the prompt data
+        for p in listdir(prompt_manifests):
+            prompt = '{0}/{1}'.format(prompt_manifests, p)
+            key    = compile(r'^(.*)\.json$').sub(r'\g<1>', prompt)
+            prompts[key] = json_loads(open(handler, 'r').read())
+        
+        # Return the prompt object
+        return _prompt
     
     def update_config(self):
         """

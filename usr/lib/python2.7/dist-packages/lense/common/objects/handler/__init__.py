@@ -2,30 +2,13 @@ from importlib import import_module
 
 # Lense Libraries
 from lense import import_class, set_arg
+from lense.common.objects.base import LenseBaseObject
 
-class Handler_Interface(object):
+class Handler_Objects(LenseBaseObject):
+    def __init__(self):
+        super(Handler_Objects, self).__init__('lense.common.objects.handler.models', 'Handler')
     
-    @staticmethod
-    def update(uuid, params):
-        """
-        Update a handler object.
-        """
-        handler = Handler_Interface.get(uuid)
-        if not handler:
-            return False
-        handler.update(**params)
-    
-    @staticmethod
-    def create(**params):
-        """
-        Create a new handler object.
-        """
-        handler = import_class('Handlers', 'lense.common.objects.handler.models', init=False)
-        handler(**params).save()
-        return True
-    
-    @staticmethod
-    def check_object(mod, cls):
+    def check_object(self, mod, cls):
         """
         Make sure a handler exists and has the launch method.
         """
@@ -45,33 +28,3 @@ class Handler_Interface(object):
             return False
         except Exception as e:
             return False
-    
-    @staticmethod
-    def get(path=None, method=None, uuid=None):
-        """
-        Retrieve an API handler object by path and method.
-        """
-        handlers = import_class('Handlers', 'lense.common.objects.handler.models', init=False)
-        
-        # Default path / method
-        path = set_arg(path, LENSE.REQUEST.path)
-        method = set_arg(method, LENSE.REQUEST.method)
-        
-        # If the UUID is set
-        if uuid:
-            params = {'uuid': uuid}
-        else:
-            if not path and method:
-                return None
-            params = {
-                'path': path,
-                'method': method          
-            }
-        
-        # If the handler doesn't exist
-        try:
-            if not handlers.objects.filter(**params).count():
-                return None
-            return handlers.objects.filter(**params).get()
-        except:
-            return None

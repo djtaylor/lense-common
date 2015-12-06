@@ -1,0 +1,18 @@
+{
+    "cls": "Token_Get",
+    "name": "Token_Get",
+    "path": "token",
+    "method": "GET",
+    "desc": "Make an API token request",
+    "mod": "lense.engine.api.handlers.token",
+    "protected": true,
+    "enabled": true,
+    "object": null,
+    "object_key": null,
+    "allow_anon": true,
+    "rmap": {
+        "_required": [],
+        "_optional": [],
+        "_type": "dict"
+    }
+}

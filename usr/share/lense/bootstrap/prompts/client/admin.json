@@ -1,0 +1,26 @@
+{
+    "label": "API Administrator Configuration",
+    "attrs": [
+		{
+			"key": "admin_user",
+			"type": "str",
+            "default": "lense",
+            "prompt": "Please enter the API administrator username (lense): ",
+            "value": null
+		},
+		{
+			"key": "admin_group",
+			"type": "str",
+            "default": "00000000-0000-0000-0000-000000000000",
+            "prompt": "Please enter the group UUID for the API administrator (00000000-0000-0000-0000-000000000000): ",
+            "value": null
+		},
+		{
+			"key": "admin_key",
+			"type": "str",
+            "default": null,
+            "prompt": "Please enter the administrator API key generated during bootstrap: ",
+            "value": null
+		}
+    ]
+}

@@ -1,0 +1,25 @@
+{
+    "cls": "GroupMember_Remove",
+    "name": "GroupMember_Remove",
+    "path": "group/member",
+    "method": "DELETE",
+    "desc": "Remove a user from an API group",
+    "mod": "lense.engine.api.handlers.group",
+    "protected": true,
+    "enabled": true,
+    "object": "group",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["group", "user"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "group": {
+                "_type": "uuid"
+            },
+            "user": { 
+                "_type": "uuid"
+            }
+        }
+    }
+}

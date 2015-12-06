@@ -1,0 +1,22 @@
+{
+    "cls": "Handler_Delete",
+    "name": "Handler_Delete",
+    "path": "handler",
+    "method": "DELETE",
+    "desc": "Delete an existing API handler",
+    "mod": "lense.engine.api.handlers.handler",
+    "protected": true,
+    "enabled": true,
+    "object": "handler",
+    "object_key": "uuid",
+    "rmap": {
+        "_required": ["handler"],
+        "_optional": [],
+        "_type": "dict",
+        "_children": {
+            "handler": {
+                "_type": "uuid"
+            }
+        }
+    }
+}
