@@ -4,9 +4,9 @@ from importlib import import_module
 from lense import import_class, set_arg
 from lense.common.objects.base import LenseBaseObject
 
-class Handler_Objects(LenseBaseObject):
+class ObjectInterface(LenseBaseObject):
     def __init__(self):
-        super(Handler_Objects, self).__init__('lense.common.objects.handler.models', 'Handler')
+        super(ObjectInterface, self).__init__('lense.common.objects.handler.models', 'Handlers')
     
     def check_object(self, mod, cls):
         """

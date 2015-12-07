@@ -2,8 +2,9 @@ from collections import OrderedDict
 
 # Lense Libraries
 from lense.common.utils import rstring
+from lense.bootstrap.common import BootstrapInput
 
-class _PortalInput(object):
+class _PortalInput(BootstrapInput):
     """
     Handle user input prompts and responses
     """

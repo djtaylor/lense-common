@@ -1,6 +1,9 @@
 from collections import OrderedDict
 
-class _SocketInput(object):
+# Lense Libraries
+from lense.bootstrap.common import BootstrapInput
+
+class _SocketInput(BootstrapInput):
     """
     Handle user input prompts and responses
     """

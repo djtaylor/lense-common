@@ -3,8 +3,8 @@ from json import loads as json_loads
 
 # Lense Libraries
 from lense.common.utils import rstring
-from lense.bootstrap.common import BOOTSTRAP_DATA
 from lense.common.vars import GROUPS, USERS, DB_ENCRYPT_DIR
+from lense.bootstrap.common import BOOTSTRAP_DATA, BootstrapInput
 
 class _EngineACL(object):
     """
@@ -53,7 +53,7 @@ class _EngineACL(object):
         # Return a copy of the access object
         return self.access
 
-class _EngineInput(object):
+class _EngineInput(BootstrapInput):
     """
     Handle user input prompts and responses
     """

@@ -4,8 +4,8 @@ from importlib import import_module
 from django.db.models.query import QuerySet
 
 # Lense Libraries
-from lense.common.objects.acl import ACLObjects
 from lense.common.objects.user.models import APIUser
+from lense.common.objects.acl.models import ACLObjects
 from lense.common.objects.acl.models import ACLKeys, ACLGroupPermissions_Global
 
 class APIGroupsQuerySet(QuerySet):

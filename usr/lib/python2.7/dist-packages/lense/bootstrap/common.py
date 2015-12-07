@@ -18,6 +18,26 @@ from lense.common.vars import WSGI_CONFIG, PROJECTS, CONFIG
 # Seed data
 BOOTSTRAP_DATA = '/usr/share/lense/bootstrap'
 
+class BootstrapInput(object):
+    """
+    Common class object for parameter input classes.
+    """
+    def load_prompts(self, project):
+        """
+        Load attributes for input prompts.
+        """
+        prompt_manifests = '{0}/prompts/{1}'.format(BOOTSTRAP_DATA, project)
+        prompts = OrderedDict()
+        
+        # Start to load the prompt data
+        for p in listdir(prompt_manifests):
+            prompt = '{0}/{1}'.format(prompt_manifests, p)
+            key    = compile(r'^(.*)\.json$').sub(r'\g<1>', prompt)
+            prompts[key] = json_loads(open(handler, 'r').read())
+        
+        # Return the prompt object
+        return _prompt
+
 class BootstrapCommon(object):
     """
     Common class object for bootstrap handlers.
@@ -354,22 +374,6 @@ class BootstrapCommon(object):
             return handler.launch()
         except RequestError as e:
             self.die('HTTP {0}: {1}'.format(e.code, e.msg))
-    
-    def load_prompts(self, project):
-        """
-        Load attributes for input prompts.
-        """
-        prompt_manifests = '{0}/prompts/{1}'.format(BOOTSTRAP_DATA, project)
-        prompts = OrderedDict()
-        
-        # Start to load the prompt data
-        for p in listdir(prompt_manifests):
-            prompt = '{0}/{1}'.format(prompt_manifests, p)
-            key    = compile(r'^(.*)\.json$').sub(r'\g<1>', prompt)
-            prompts[key] = json_loads(open(handler, 'r').read())
-        
-        # Return the prompt object
-        return _prompt
     
     def update_config(self):
         """

@@ -1,27 +1,13 @@
 from lense import import_class
 from lense.common.objects.base import LenseBaseObject
 
-class ACL_Keys(LenseBaseObject):
-    """
-    Wrapper class used to retrieve ACL key definitions.
-    """
-    def __init__(self):
-        super(ACL_Keys, self).__init__('lense.common.objects.acl.models', 'ACLKeys')
-
-class ACL_Objects(LenseBaseObject):
-    """
-    Wrapper class used to retrieve ACL object definitions.
-    """
-    def __init__(self):
-        super(ACL_Objects, self).__init__('lense.common.objects.acl.models', 'ACLObjects')
-        
-class ACL_Objects_Interface(object):
+class ObjectInterface(object):
     """
     Interface classed used to load the various ACL object handlers.
     """
     def __init__(self):
-        self.KEYS    = ACL_Keys()
-        self.OBJECTS = ACL_Objects()
+        self.KEYS    = LenseBaseObject('lense.common.objects.acl.models', 'ACLKeys')
+        self.OBJECTS = LenseBaseObject('lense.common.objects.acl.models', 'ACLObjects')
         
     def PERMISSIONS(self, access_type, object_type=None):
         """
