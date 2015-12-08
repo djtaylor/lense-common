@@ -3,20 +3,6 @@ from collections import OrderedDict
 # Lense Libraries
 from lense.bootstrap.common import BootstrapInput
 
-class _ClientInput(BootstrapInput):
-    """
-    Handle user input prompts and responses
-    """
-    def __init__(self):
-        self.prompt   = self.load_prompts('client')
-        self.response = {}
-
-    def set_response(self, key, value=None):
-        """
-        Set a response definition.
-        """
-        self.response[key] = value
-
 class ClientParams(object):
     """
     Bootstrap parameters class object used to store and set the attributes
@@ -25,7 +11,7 @@ class ClientParams(object):
     def __init__(self):
         
         # User input
-        self.input  = _ClientInput()
+        self.input  = BootstrapInput('client')
     
     def get_config(self):
         """

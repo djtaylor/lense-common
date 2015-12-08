@@ -3,29 +3,13 @@ from collections import OrderedDict
 # Lense Libraries
 from lense.bootstrap.common import BootstrapInput
 
-class _SocketInput(BootstrapInput):
-    """
-    Handle user input prompts and responses
-    """
-    def __init__(self):
-        self.prompt   = self.load_prompts('socket')
-        self.response = {}
-
-    def set_response(self, key, value=None):
-        """
-        Set a response definition.
-        """
-        self.response[key] = value
-
 class SocketParams(object):
     """
     Bootstrap parameters class object used to store and set the attributes
     required when using the bootstrap manager for the Lense API socket proxy.
     """
     def __init__(self):
-        
-        # User input
-        self.input  = _SocketInput()
+        self.input = BootstrapInput('socket')
     
     def get_config(self):
         """

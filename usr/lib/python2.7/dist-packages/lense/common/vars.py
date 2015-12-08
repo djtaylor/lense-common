@@ -73,7 +73,9 @@ PROJECTS = Collection({
         'RUN': '/var/run/lense'
     },
     'BOOTSTRAP': {
-        'LOG':  '/var/log/lense/bootstrap.log'
+        'LOG':  '/var/log/lense/bootstrap.log',
+        'REQUEST': True,
+        'OBJECTS': True
     }
 }).get()
 

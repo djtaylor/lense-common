@@ -1,8 +1,13 @@
-from os import environ
+from re import compile
+from os import environ, path
+from feedback import Feedback
 from collections import OrderedDict
+from json import loads as json_loads
 
 # Django Libraries
+from django.conf import Settings
 from django import setup as django_setup
+from django.conf import settings as django_settings
 
 # Lense Libraries
 from lense import import_class
@@ -24,6 +29,23 @@ class Bootstrap(BootstrapCommon):
         self.args    = None
         self.answers = None
             
+    def _bootstrap_engine(self):
+        """
+        Helper method to see if we are bootstrapping the Lense Engine, which
+        requires database connection settings.
+        """
+        
+        # Explicity bootstrapping Engine
+        if self.args.get('engine'):
+            return True
+            
+        # Bootstrapping all
+        bootstrap_all = True
+        for k in ['engine', 'client', 'portal', 'socket']:
+            if self.args.get(k, False):
+                bootstrap_all = False
+        return bootstrap_all
+            
     def _bootstrap_project(self, project):
         """
         Bootstrap a specific project.
@@ -37,19 +59,79 @@ class Bootstrap(BootstrapCommon):
         
         # Run the project bootstrap method
         if project in interfaces:
-            BOOTSTRAP.FEEDBACK.info('Running bootstrap manager for Lense project: {0}\n'.format(project))
-            import_class(interfaces[project], 'lense.bootstrap.projects', args=[self.args, self.answers]).run()
+            project_attrs = interfaces[project]
+            project_cls   = project_attrs if isinstance(project_attrs, str) else project_attrs[0]
+            
+            # Run the project bootstrap manager
+            BOOTSTRAP.FEEDBACK.info('Running bootstrap manager for Lense project: {0}'.format(project))
+            import_class(project_cls, 'lense.bootstrap.projects', args=[self.args, self.answers]).run()
+          
+    def _dbinit(self):
+        """
+        Initialize bootstrap Django settings.
+        """
+        fb = Feedback()
+        
+        # Attribute mappings
+        env_attrs = json_loads(open('/usr/share/lense/bootstrap/dbinit.json', 'r').read())
+        
+        # Bootstrapping the engine requires a database connection
+        if self._bootstrap_engine():
+            dbinit_file = self.args.get('dbinit')
+            
+            # If loading from a file
+            if dbinit_file and path.isfile(dbinit_file):
+                fb.info('Initializing database parameters from file: {0}'.format(dbinit_file))
+                with open(dbinit_file, 'r') as f:
+                    for l in f.readlines():
+                        env_var = compile(r'(^[^=]*)=.*$').sub(r'\g<1>', l.rstrip())
+                        env_val = compile(r'^[^=]*=\"([^\"]*)\"$').sub(r'\g<1>', l.rstrip())
+                        
+                        # Set the environment variable
+                        if env_var in env_attrs:
+                            fb.success('Setting environment variable: {0}'.format(env_var))
+                            environ[env_var] = env_val
+                        else:
+                            fb.warn('Unsupported environment variable: {0}'.format(env_var))
+            
+            # Full interactive database initialization
+            else:
+                fb.block([
+                    'Bootstrapping the Lense Engine requires Django database settings.',
+                    'Please fill out the following prompts to configure the database:'
+                ], 'DBINIT')
+            
+            # Get connection attributes prior to bootstrapping
+            for var_key, var_attrs in env_attrs.iteritems():
+                if not environ.get(var_key, None):
+                    fb.input(var_attrs['prompt'], var_attrs['key'], **var_attrs.get('kwargs', {}))
+                    environ[var_key] == fb.get_response(var_attrs['key'])
+            
+        # Set the Django settings module
+        environ['DJANGO_SETTINGS_MODULE'] = 'lense.bootstrap.settings'
+        
+        # Setup Django for the bootstrap run
+        django_setup()
+            
+        # Register project commons
+        init_project('BOOTSTRAP', 'BOOTSTRAP')
+        init_project('ENGINE', 'LENSE')
             
     def _run(self):
         """
         Private method for starting up the bootstrap process.
         """
         
+        # Get command line arguments
+        self.args    = BootstrapArgs()
+        
+        # Initialize Django database settings
+        self._dbinit()
+        
         # Show bootstrap information
         self.bootstrap_info()
         
-        # Get command line arguments and answer file
-        self.args    = BootstrapArgs()
+        # Get answer file
         self.answers = BootstrapAnswers(self.args.get('answers', None)).read()
         
         # Run the preflight bootstrap methods
@@ -81,19 +163,4 @@ class Bootstrap(BootstrapCommon):
         """
         Public static method for invoking the bootstrap manager.
         """
-        
-        # Set the Django settings module
-        environ['DJANGO_SETTINGS_MODULE'] = 'lense.bootstrap.settings'
-        
-        # Setup Django for the bootstrap run
-        django_setup()
-        
-        # Register project commons
-        init_project('BOOTSTRAP', 'BOOTSTRAP')
-        init_project('ENGINE', 'LENSE')
-        
-        # Set up the Lense request object
-        LENSE.get_request().set(LenseWSGIRequest.get())
-        
-        # Run the bootstrap manager
         return Bootstrap()._run()

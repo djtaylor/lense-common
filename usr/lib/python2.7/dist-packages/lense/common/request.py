@@ -1,3 +1,4 @@
+import json
 from sys import getsizeof
 
 # Django Libraries
@@ -40,11 +41,22 @@ class LenseWSGIRequest(object):
             'REMOTE_ADDR':    '127.0.0.1',
             'REMOTE_HOST':    'localhost',
             'HTTP_HOST':      '127.0.0.1:80',
-            'QUERY_STRING':   '',
+            'QUERY_STRING':   ''
         })
         
-        # Mimic a GET request
-        request = factory.get(path, data=data)
+        # Get the request handler
+        r_handler = getattr(factory, method.lower())
+        
+        # Request requires a query string
+        if method == HTTP_GET:
+            query_str = '?{0}'.format('&'.join(['{0}={1}'.format(x, data[x]) for x in data.keys()])) if data else ''
+            request   = r_handler('{0}{1}'.format(path, query_str))
+            
+        # Request requires body data
+        else:
+            request = r_handler(path, json.dumps(data), content_type='application/json')
+        
+        # Default user / session object
         request.user = import_class('AnonymousUser', 'django.contrib.auth.models')
         request.session = import_class('SessionStore', 'django.contrib.sessions.backends.db')
 
@@ -266,7 +278,7 @@ class LenseRequestObject(object):
         """
         return getattr(self._POST, key, default)
     
-    def ensure(result, value=True, isnot=False, error='An unknown request error has occurred', code=400, call=False, log=None, debug=None):
+    def ensure(self, result, value=True, isnot=False, error='An unknown request error has occurred', code=400, call=False, log=None, debug=None):
         """
         Ensure a particular result meets the expected value, or else raise a RequestError
         
@@ -290,7 +302,7 @@ class LenseRequestObject(object):
         """
         if isnot and result == value:
             raise RequestError(error, code)
-        if not result == value and not isinstance(result, value):
+        if not result == value and not isinstance(result, type(value)):
             raise RequestError(error, code)
         if call:
             try:
@@ -318,7 +330,7 @@ class LenseRequestObject(object):
         
         # Request method / path / client / host / agent / query string / script / current URI
         self.method       = self._get_header_value('REQUEST_METHOD')
-        self.path         = self._get_header_value('PATH_INFO')[1:]
+        self.path         = self._get_header_value('PATH_INFO')
         self.client       = self._get_header_value('REMOTE_ADDR')
         self.host         = self._get_header_value('HTTP_HOST').split(':')[0]
         self.agent        = self._get_header_value('HTTP_USER_AGENT')

@@ -1,3 +1,4 @@
+from os import environ
 from lense.common.utils import rstring
 
 # Debug mode
@@ -15,6 +16,18 @@ USE_TZ           = True
 
 # URL processor
 ROOT_URLCONF     = __name__
+
+# Database connections
+DATABASES = {
+    'default': {
+        'ENGINE':   'django.db.backends.mysql',
+        'NAME':     environ.get('BOOTSTRAP_DB_NAME', 'lense'),
+        'USER':     environ.get('BOOTSTRAP_DB_USER', 'root'),
+        'PASSWORD': environ.get('BOOTSTRAP_DB_PASS', None),
+        'HOST':     environ.get('BOOTSTRAP_DB_HOST', 'localhost'),
+        'PORT':     environ.get('BOOTSTRAP_DB_PORT', '3306')
+    }
+}
 
 # Managed applications
 INSTALLED_APPS = (

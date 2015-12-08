@@ -1,11 +1,8 @@
 from os import environ, path
 from subprocess import Popen
 from json import dumps as json_dumps
-from django import setup as django_setup
 from MySQLdb import connect as mysql_connect
-
-# Set the Django settings module
-environ['DJANGO_SETTINGS_MODULE'] = 'lense.engine.api.core.settings'
+from django.conf import settings as django_settings
 
 # Lense Libraries
 from lense.common.utils import rstring
@@ -113,7 +110,7 @@ class BootstrapEngine(BootstrapCommon):
     
             # Launch the request handler
             self.launch_handler(path='group', data=data, method=HTTP_POST)
-            BOOTSTRAP.FEEDBACK.success('Created Lense group: {0}'.format(group['data']['name']))
+            BOOTSTRAP.FEEDBACK.success('Created Lense group: {0}'.format(data['name']))
     
     def _create_users(self):
         """
@@ -257,9 +254,6 @@ class BootstrapEngine(BootstrapCommon):
         Seed the database with the base information needed to run Lense.
         """
         
-        # Setup Django models
-        django_setup()
-        
         # Create the administrator group and user
         group = self._create_groups()
         users = self._create_users()
@@ -360,7 +354,7 @@ class BootstrapEngine(BootstrapCommon):
             
             # Make sure the command ran successfully
             if not code == 0:
-                self.die('Failed to sync Django application database: {0}'.format(str(err)))
+                self.die('Failed to sync Django application database: \n{0}'.format('\n'.join(err[1].split('\n'))))
                 
             # Sync success
             BOOTSTRAP.FEEDBACK.success('Synced Django application database')

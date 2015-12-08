@@ -22,7 +22,20 @@ class BootstrapInput(object):
     """
     Common class object for parameter input classes.
     """
-    def load_prompts(self, project):
+    def __init__(self, project):
+        
+        # Project / prompts / responses
+        self.project  = project
+        self.prompt   = self._load_prompts(project)
+        self.response = {}
+    
+    def set_response(self, key, value=None):
+        """
+        Set a response key value.
+        """
+        self.response[key] = value
+    
+    def _load_prompts(self, project):
         """
         Load attributes for input prompts.
         """
@@ -32,11 +45,11 @@ class BootstrapInput(object):
         # Start to load the prompt data
         for p in listdir(prompt_manifests):
             prompt = '{0}/{1}'.format(prompt_manifests, p)
-            key    = compile(r'^(.*)\.json$').sub(r'\g<1>', prompt)
-            prompts[key] = json_loads(open(handler, 'r').read())
+            key    = compile(r'^(.*)\.json$').sub(r'\g<1>', p)
+            prompts[key] = json_loads(open(prompt, 'r').read())
         
         # Return the prompt object
-        return _prompt
+        return prompts
 
 class BootstrapCommon(object):
     """
@@ -312,18 +325,19 @@ class BootstrapCommon(object):
         :param answers: The optional answers object to look for pre-defined values
         :type  answers: dict
         """
+        project_prompts = self.params.input.prompt
         
         # Process each configuration section
-        for obj in self.params.input.prompt:
-            print(obj['label'])
-            print('-' * 20)
-        
-            # Process each section input
-            for attr in obj['attrs'].iteritems():
+        for section, obj in project_prompts.iteritems():
+            attrs = obj['attrs']
+            
+            # Show the configuration section
+            BOOTSTRAP.FEEDBACK.block([obj['label']], section.upper())
                 
-                # If an answer already defined
+            # Process each attribute
+            for attr in attrs:
                 if attr['key'] in answers:
-                    BOOTSTRAP.FEEDBACK.info('Value for {0} found in answer file'.format(key))
+                    BOOTSTRAP.FEEDBACK.info('Value for {0} found in answer file'.format(attr['key']))
                     val = answers[attr['key']]
                     
                 else:
@@ -338,7 +352,7 @@ class BootstrapCommon(object):
             
                 # Store in response object
                 self.params.input.set_response(attr['key'], val)
-            print('')
+        print('')
     
     def set_handlers(self, handlers):
         """
@@ -352,7 +366,7 @@ class BootstrapCommon(object):
         """
         
         # Setup the request data
-        BOOTSTRAP.REQUEST.set(LenseWSGIRequest.get(path=path, data=data, method=method))
+        LENSE.REQUEST.set(LenseWSGIRequest.get(path=path, data=data, method=method))
         
         # Get the handler object
         handler_mod = None
@@ -373,7 +387,8 @@ class BootstrapCommon(object):
         try:
             return handler.launch()
         except RequestError as e:
-            self.die('HTTP {0}: {1}'.format(e.code, e.msg))
+            BOOTSTRAP.LOG.exception(str(e))
+            self.die('HTTP {0}: {1}'.format(e.code, e.message))
     
     def update_config(self):
         """

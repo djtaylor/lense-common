@@ -53,20 +53,6 @@ class _EngineACL(object):
         # Return a copy of the access object
         return self.access
 
-class _EngineInput(BootstrapInput):
-    """
-    Handle user input prompts and responses
-    """
-    def __init__(self):
-        self.prompt   = self.load_prompts('engine')
-        self.response = {}
-
-    def set_response(self, key, value=None):
-        """
-        Set a response definition.
-        """
-        self.response[key] = value
-
 class EngineParams(object):
     """
     Bootstrap parameters class object used to store and set the attributes
@@ -75,7 +61,7 @@ class EngineParams(object):
     def __init__(self):
         
         # User input / ACL objects
-        self.input    = _EngineInput()
+        self.input    = BootstrapInput('engine')
         self.acl      = _EngineACL()
         
         # Groups/users/database/file parameters
