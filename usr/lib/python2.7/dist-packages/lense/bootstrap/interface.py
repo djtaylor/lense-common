@@ -1,8 +1,8 @@
 from re import compile
 from os import environ, path
-from feedback import Feedback
 from collections import OrderedDict
 from json import loads as json_loads
+from collections import Mapping
 
 # Django Libraries
 from django.conf import Settings
@@ -12,7 +12,6 @@ from django.conf import settings as django_settings
 # Lense Libraries
 from lense import import_class
 from lense.common import init_project
-from lense.common.collection import merge_dict
 from lense.bootstrap.args import BootstrapArgs
 from lense.bootstrap.common import BootstrapCommon
 from lense.bootstrap.answers import BootstrapAnswers
@@ -32,7 +31,6 @@ class Bootstrap(BootstrapCommon):
         # Arguments / answers / feedback
         self.args    = None
         self.answers = None
-        self.fb      = Feedback()
             
     def _bootstrap_engine(self):
         """
@@ -76,12 +74,12 @@ class Bootstrap(BootstrapCommon):
         Initialize bootstrap Django settings.
         """
         default_answers = json_loads(open('{0}/defaults/answers.json'.format(LENSE_SHARE), 'r').read())
-        default_keys = default_answers.get('db')
+        default_keys = default_answers['init']['db']
         
         # Bootstrapping the engine requires a database connection
         if self._bootstrap_engine():
             self.fb.info('[init][db] Initializing database')
-            prompts = json_loads(open('{0}/bootstrap/prompts/database.json'.format(LENSE_SHARE), 'r').read())
+            prompts = json_loads(open('{0}/prompts/init/database.json'.format(LENSE_SHARE), 'r').read())
             
             # Answers supplied
             if answers:
@@ -89,11 +87,11 @@ class Bootstrap(BootstrapCommon):
                     
                     # Unsupported key
                     if not k in default_keys:
-                        self.fb.warn('[init][db]: Unsupported environment variable: {0}'.format(k))
+                        self.fb.warn('[init][db] Unsupported environment variable: {0}'.format(k))
                     
                     # Set the environment variable
                     environ[k] = v
-                    self.fb.success('[init][db]: Set environment variable: {0}'.format(env_var))
+                    self.fb.success('[init][db] Set environment variable: {0}'.format(k))
             
             # Get connection attributes prior to bootstrapping
             for k,a in prompts.iteritems():
@@ -117,17 +115,29 @@ class Bootstrap(BootstrapCommon):
         
         :rtype: dict
         """
-        answers  = BootstrapAnswers(self.args.get('answers', None)).read()
-        defaults = json_loads(open('{0}/defaults/answers.json'.format(LENSE_SHARE), 'r').read())
+        user_answers = BootstrapAnswers(self.args.get('answers', None)).read()
+        answers = json_loads(open('{0}/defaults/answers.json'.format(LENSE_SHARE), 'r').read())
+         
+        # Merge answer files
+        def merge_dict(d1, d2):
+            for k,v2 in d2.items():
+                v1 = d1.get(k)
+                if (isinstance(v1, Mapping) and 
+                    isinstance(v2, Mapping)):
+                    merge_dict(v1, v2)
+                else:
+                    d1[k] = v2
             
         # If user defined file
-        if answers:
-            _answers = merge_dict(defaults, answers)
+        if user_answers:
+            merge_dict(answers, user_answers)
             
             # Initialize
-            if 'init' in _answers:
+            if 'init' in answers:
                 for k,m in self._init_map().iteritems():
-                    m(_answers['init'][k])
+                    m(answers['init'][k])
+            del answers['init']
+            return answers
         return None
             
     def _run(self):

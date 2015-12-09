@@ -3,6 +3,7 @@ from sys import exit
 from re import compile
 from pwd import getpwnam
 from getpass import getpass
+from feedback import Feedback
 from subprocess import Popen, PIPE
 from collections import OrderedDict
 from json import loads as json_loads
@@ -59,6 +60,9 @@ class BootstrapCommon(object):
         self.project  = project
         self.ATTRS    = getattr(PROJECTS, project.upper())
         self.handlers = {}
+
+        # Internal feedback
+        self.fb       = Feedback()
 
     def _shell_exec(self, cmd, show_stdout=True):
         """
@@ -201,10 +205,11 @@ class BootstrapCommon(object):
         
         # Log the message unless explicitly specified otherwise
         if log:
-            BOOTSTRAP.LOG.error(msg)
+            #BOOTSTRAP.LOG.error(msg)
+            pass
             
         # Show the error and quit
-        BOOTSTRAP.FEEDBACK.error(msg)
+        self.fb.error(msg)
         exit(1)
 
     def group_add_user(self, user):
@@ -337,7 +342,7 @@ class BootstrapCommon(object):
             # Process each attribute
             for attr in attrs:
                 if attr['key'] in answers:
-                    BOOTSTRAP.FEEDBACK.info('Value for {0} found in answer file'.format(attr['key']))
+                    BOOTSTRAP.FEEDBACK.info('Answer key found: {0}'.format(attr['key']))
                     val = answers[attr['key']]
                     
                 else:

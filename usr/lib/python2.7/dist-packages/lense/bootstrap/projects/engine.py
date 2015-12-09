@@ -126,18 +126,24 @@ class BootstrapEngine(BootstrapCommon):
             # User data
             data = {
                 'username': user['username'],
-                'group': user['group'],
                 'email': self.params.input.response.get(_keys['email'], user['email']),
                 'password': password,
                 'password_confirm': password    
             }
             
             # Create a new user object
-            user = self.launch_handler(path='user', data=data, method=HTTP_POST)
+            user_rsp = self.launch_handler(path='user', data=data, method=HTTP_POST)
             BOOTSTRAP.FEEDBACK.success('Created Lense account: {0}'.format(data['username']))
     
+            # Add the user to the group
+            self.launch_handler(path='group/member', data={
+                'group': user['group'],
+                'user': user['username']
+            }, method=HTTP_POST)
+            BOOTSTRAP.FEEDBACK.success('Account {0} setup as member of {1}'.format(data['username'], user['group']))
+    
             # Append to the users object
-            _users.append(user['content'])
+            _users.append(user_rsp['content'])
             
         # Return the users object
         return _users

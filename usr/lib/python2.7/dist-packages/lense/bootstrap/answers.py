@@ -1,3 +1,4 @@
+from json import loads
 from feedback import Feedback
 
 class BootstrapAnswers(object):
@@ -13,9 +14,9 @@ class BootstrapAnswers(object):
         Return the structure of any supplied answer file.
         """
         answers = {}
-        if self.file :
+        if self.file:
             try:
-                answers = BOOTSTRAP.JSON.from_file(self.file)
+                answers = loads(open(self.file, 'r').read())
                 self.fb.success('Loaded answers file: {0}'.format(self.file))
             except Exception as e:
                 self.fb.warn('Could not read answer file: {0}'.format(str(e)))
