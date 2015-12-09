@@ -100,16 +100,6 @@ class Bootstrap(BootstrapCommon):
                 if not environ.get(k, None):
                     self.fb.input(a['prompt'], a['key'], **a.get('kwargs', {}))
                     environ[var_key] == self.fb.get_response(a['key'])
-            
-        # Set the Django settings module
-        environ['DJANGO_SETTINGS_MODULE'] = 'lense.bootstrap.settings'
-        
-        # Setup Django for the bootstrap run
-        django_setup()
-            
-        # Register project commons
-        init_project('BOOTSTRAP', 'BOOTSTRAP')
-        init_project('ENGINE', 'LENSE')
           
     def _init_map(self):
         """
@@ -148,6 +138,16 @@ class Bootstrap(BootstrapCommon):
         # Get command line arguments / answers
         self.args    = BootstrapArgs()
         self.answers = self.get_answers()
+        
+        # Set the Django settings module
+        environ['DJANGO_SETTINGS_MODULE'] = 'lense.bootstrap.settings'
+        
+        # Setup Django for the bootstrap run
+        django_setup()
+            
+        # Register project commons
+        init_project('BOOTSTRAP', 'BOOTSTRAP')
+        init_project('ENGINE', 'LENSE')
         
         # Show bootstrap information
         self.bootstrap_info()
