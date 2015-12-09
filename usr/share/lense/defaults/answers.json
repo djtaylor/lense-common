@@ -1,13 +1,13 @@
 {
-		"init": {
-			"db": {
-				"BOOTSTRAP_DB_HOST": "localhost",
-				"BOOTSTRAP_DB_PORT": "3306",
-				"BOOTSTRAP_DB_NAME": "lense",
-				"BOOTSTRAP_DB_USER": "root",
-				"BOOTSTRAP_DB_PASS": ""
-			}
-		},
+        "init": {
+            "db": {
+                "BOOTSTRAP_DB_HOST": "localhost",
+                "BOOTSTRAP_DB_PORT": "3306",
+                "BOOTSTRAP_DB_NAME": "lense",
+                "BOOTSTRAP_DB_USER": "root",
+                "BOOTSTRAP_DB_PASS": ""
+            }
+        },
         "engine": {
             "db_host": "localhost",
             "db_port": "3306",
