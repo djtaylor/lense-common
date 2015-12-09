@@ -12,10 +12,14 @@ from django.conf import settings as django_settings
 # Lense Libraries
 from lense import import_class
 from lense.common import init_project
+from lense.common.collection import merge_dict
 from lense.bootstrap.args import BootstrapArgs
 from lense.bootstrap.common import BootstrapCommon
 from lense.bootstrap.answers import BootstrapAnswers
 from lense.common.request import LenseWSGIRequest
+
+# Share directory
+LENSE_SHARE = '/usr/share/lense/bootstrap'
 
 class Bootstrap(BootstrapCommon):
     """
@@ -25,9 +29,10 @@ class Bootstrap(BootstrapCommon):
     def __init__(self):
         super(Bootstrap, self).__init__('bootstrap')
         
-        # Arguments / answers
+        # Arguments / answers / feedback
         self.args    = None
         self.answers = None
+        self.fb      = Feedback()
             
     def _bootstrap_engine(self):
         """
@@ -66,46 +71,35 @@ class Bootstrap(BootstrapCommon):
             BOOTSTRAP.FEEDBACK.info('Running bootstrap manager for Lense project: {0}'.format(project))
             import_class(project_cls, 'lense.bootstrap.projects', args=[self.args, self.answers]).run()
           
-    def _dbinit(self):
+    def _init_db(self, answers):
         """
         Initialize bootstrap Django settings.
         """
-        fb = Feedback()
-        
-        # Attribute mappings
-        env_attrs = json_loads(open('/usr/share/lense/bootstrap/dbinit.json', 'r').read())
+        default_answers = json_loads(open('{0}/defaults/answers.json'.format(LENSE_SHARE), 'r').read())
+        default_keys = default_answers.get('db')
         
         # Bootstrapping the engine requires a database connection
         if self._bootstrap_engine():
-            dbinit_file = self.args.get('dbinit')
+            self.fb.info('[init][db] Initializing database')
+            prompts = json_loads(open('{0}/bootstrap/prompts/database.json'.format(LENSE_SHARE), 'r').read())
             
-            # If loading from a file
-            if dbinit_file and path.isfile(dbinit_file):
-                fb.info('Initializing database parameters from file: {0}'.format(dbinit_file))
-                with open(dbinit_file, 'r') as f:
-                    for l in f.readlines():
-                        env_var = compile(r'(^[^=]*)=.*$').sub(r'\g<1>', l.rstrip())
-                        env_val = compile(r'^[^=]*=\"([^\"]*)\"$').sub(r'\g<1>', l.rstrip())
-                        
-                        # Set the environment variable
-                        if env_var in env_attrs:
-                            fb.success('Setting environment variable: {0}'.format(env_var))
-                            environ[env_var] = env_val
-                        else:
-                            fb.warn('Unsupported environment variable: {0}'.format(env_var))
-            
-            # Full interactive database initialization
-            else:
-                fb.block([
-                    'Bootstrapping the Lense Engine requires Django database settings.',
-                    'Please fill out the following prompts to configure the database:'
-                ], 'DBINIT')
+            # Answers supplied
+            if answers:
+                for k,v in answers.iteritems():
+                    
+                    # Unsupported key
+                    if not k in default_keys:
+                        self.fb.warn('[init][db]: Unsupported environment variable: {0}'.format(k))
+                    
+                    # Set the environment variable
+                    environ[k] = v
+                    self.fb.success('[init][db]: Set environment variable: {0}'.format(env_var))
             
             # Get connection attributes prior to bootstrapping
-            for var_key, var_attrs in env_attrs.iteritems():
-                if not environ.get(var_key, None):
-                    fb.input(var_attrs['prompt'], var_attrs['key'], **var_attrs.get('kwargs', {}))
-                    environ[var_key] == fb.get_response(var_attrs['key'])
+            for k,a in prompts.iteritems():
+                if not environ.get(k, None):
+                    self.fb.input(a['prompt'], a['key'], **a.get('kwargs', {}))
+                    environ[var_key] == self.fb.get_response(a['key'])
             
         # Set the Django settings module
         environ['DJANGO_SETTINGS_MODULE'] = 'lense.bootstrap.settings'
@@ -116,23 +110,47 @@ class Bootstrap(BootstrapCommon):
         # Register project commons
         init_project('BOOTSTRAP', 'BOOTSTRAP')
         init_project('ENGINE', 'LENSE')
+          
+    def _init_map(self):
+        """
+        Map initialization keys to methods.
+        
+        :rtype: dict
+        """
+        return {
+            'db': self._init_db
+        }
+          
+    def get_answers(self):
+        """
+        Parse and return user-defined answers file.
+        
+        :rtype: dict
+        """
+        answers  = BootstrapAnswers(self.args.get('answers', None)).read()
+        defaults = json_loads(open('{0}/defaults/answers.json'.format(LENSE_SHARE), 'r').read())
+            
+        # If user defined file
+        if answers:
+            _answers = merge_dict(defaults, answers)
+            
+            # Initialize
+            if 'init' in _answers:
+                for k,m in self._init_map().iteritems():
+                    m(_answers['init'][k])
+        return None
             
     def _run(self):
         """
         Private method for starting up the bootstrap process.
         """
         
-        # Get command line arguments
+        # Get command line arguments / answers
         self.args    = BootstrapArgs()
-        
-        # Initialize Django database settings
-        self._dbinit()
+        self.answers = self.get_answers()
         
         # Show bootstrap information
         self.bootstrap_info()
-        
-        # Get answer file
-        self.answers = BootstrapAnswers(self.args.get('answers', None)).read()
         
         # Run the preflight bootstrap methods
         self.bootstrap_preflight()

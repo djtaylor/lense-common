@@ -3,6 +3,30 @@ import json
 from collections import namedtuple
 from types import InstanceType, ClassType
 
+def merge_dict(a, b, path=None):
+        """
+        Merge two dictionaries together. Do not overwrite duplicate keys.
+        
+        :param a: The first dictionary
+        :type a: dict
+        :param b: The second dictionary
+        :type b: dict
+        :param path: Not really sure what this does, using re-purposed code here
+        :type path: list
+        """
+        if path is None: path = []
+        for key in b:
+            if key in a:
+                if isinstance(a[key], dict) and isinstance(b[key], dict):
+                    merge_dict(a[key], b[key], path + [str(key)])
+                elif a[key] == b[key]:
+                    pass
+                else:
+                    raise Exception('Conflict at {0}'.format('.'.join(path + [str(key)])))
+            else:
+                a[key] = b[key]
+        return a
+
 class Collection(object):
     """
     Class used to generate a named tuple collection from any number
@@ -54,57 +78,6 @@ class Collection(object):
             converted[key] = value[0]
         return converted
 
-    def merge_dict(self, a, b, path=None):
-        """
-        Merge two dictionaries together. Do not overwrite duplicate keys.
-        
-        Merging dictionaries::
-        
-            # Import the collection class
-            from lense.common.collection import Collection
-        
-            # Create a collection object
-            collection = Collection()
-        
-            # Base dictionaries
-            d1 = {'one': 'value1', 'two': 'value2', 'three': {'arg1': 'somevalue'}}
-            d2 = {'three': {'arg2': 'value2', 'arg3': 'value3'}}
-            
-            # Merged dictionary
-            dm = collection.merge_dict(d1, d2)
-            
-        The new dictionary::
-        
-            {
-                'one': 'value1',
-                'two': 'value2',
-                'three': {
-                    'arg1': 'somevalue',
-                    'arg2': 'value2',
-                    'arg3': 'value3'
-                }
-            }
-        
-        :param a: The first dictionary
-        :type a: dict
-        :param b: The second dictionary
-        :type b: dict
-        :param path: Not really sure what this does, using re-purposed code here
-        :type path: list
-        """
-        if path is None: path = []
-        for key in b:
-            if key in a:
-                if isinstance(a[key], dict) and isinstance(b[key], dict):
-                    self.merge_dict(a[key], b[key], path + [str(key)])
-                elif a[key] == b[key]:
-                    pass
-                else:
-                    raise Exception('Conflict at {0}'.format('.'.join(path + [str(key)])))
-            else:
-                a[key] = b[key]
-        return a
-
     def map(self, map_dict={}):
         """
         Map a dictionary to an existing collection object.
@@ -138,9 +111,9 @@ class Collection(object):
            
             # Check if mapping a Django QueryDict
             if re.match(r'^<QueryDict.*$', str(map_dict)):
-                self.collection = self.merge_dict(self._convert_query_dict(map_dict), self.collection)
+                self.collection = merge_dict(self._convert_query_dict(map_dict), self.collection)
             else:
-                self.collection = self.merge_dict(map_dict, self.collection)
+                self.collection = merge_dict(map_dict, self.collection)
        
     def isclass(self, obj, cls):
         """
