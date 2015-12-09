@@ -1,0 +1,38 @@
+{
+    "BOOTSTRAP_DB_HOST": {
+        "key": "db_host",
+        "prompt": "Please enter the database host (localhost): ",
+        "kwargs": {
+            "default": "localhost"
+        }
+    },
+    "BOOTSTRAP_DB_PORT": {
+        "key": "db_port",
+        "prompt": "Please enter the database port (3306): ",
+        "kwargs": {
+            "default": "3306"
+        }
+    },
+    "BOOTSTRAP_DB_NAME": {
+        "key": "db_name",
+        "prompt": "Please enter the database name (lense): ",
+        "kwargs": {
+            "default": "lense"
+        }
+    },
+    "BOOTSTRAP_DB_USER": {
+        "key": "db_user",
+        "prompt": "Please enter the database user (root): ",
+        "kwargs": {
+            "default": "root"
+        }
+    },
+    "BOOTSTRAP_DB_PASS": {
+        "key": "db_pass",
+        "prompt": "Please enter the database password: ",
+        "kwargs": {
+            "secure": true,
+            "confirm": true
+        }
+    }
+}
