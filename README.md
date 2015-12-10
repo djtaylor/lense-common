@@ -2,6 +2,17 @@
 
 Common libraries shared by the Lense engine, client, and portal applications.
 
+### Local CI
+
+You can use the scripts provided by <https://github.com/djtaylor/lense-devbuild> to build iterative revisions on your local machine:
+
+```sh
+$ git clone https://github.com/djtaylor/lense-devbuild.git
+$ cd lense-devbuild
+$ sudo ./requirements.sh
+$ python build.py
+```
+
 ### Repository (Unavailable)
 
 To make the Lense packages available, you will need to add the following PPA and import the signing key:
