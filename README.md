@@ -13,6 +13,8 @@ $ sudo ./requirements.sh
 $ python build.py
 ```
 
+I am still working out a way to turn this into a full blown development tool for the Lense platform.
+
 ### Repository (Unavailable)
 
 To make the Lense packages available, you will need to add the following PPA and import the signing key:
