@@ -15,4 +15,4 @@ Depends: python-crypto (>= 2.6.1),
 		 python-ldap (>= 2.4.10),
 		 python-mysqldb (>= 1.2.3),
 		 python-pip
-Description: Common Python libraries, modules, and attributes shared by the Lense client, engine, and portal applications.
+Description: Common and bootstrap Lense objects.
