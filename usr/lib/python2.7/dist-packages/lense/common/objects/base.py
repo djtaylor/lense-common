@@ -33,6 +33,7 @@ class LenseBaseObject(object):
         """
         obj = self.model(**params)
         obj.save()
+        print 'OBJ: {0}'.format(repr(obj))
         return obj
     
     def delete(self, **kwargs):
