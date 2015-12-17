@@ -278,44 +278,82 @@ class LenseRequestObject(object):
         """
         return getattr(self._POST, key, default)
     
-    def ensure(self, result, value=True, isnot=False, error='An unknown request error has occurred', code=400, call=False, log=None, debug=None):
+    def ensure(self, result, **kwargs):
         """
-        Ensure a particular result meets the expected value, or else raise a RequestError
+        Ensure a result is equal to 'value' or is not equal to 'isnot'. Raise a RequestError otherwise.
         
         :param result: The result to check
-        :type  result: str|int|bool
-        :param  value: The value to ensure
-        :type   value: str|int|bool
-        :param  isnot: Perform a negative check on the value (not equal)
-        :type   isnot: bool
+        :type  result: mixed
+        :param  value: The value to ensure (equal to)
+        :type   value: mixed
+        :param  isnot: The value to ensure (not equal to)
+        :type   isnot: mixed
         :param  error: The error message to raise
         :type   error: str
-        :param   code: The HTTP status code to return
+        :param   code: The HTTP status code to return if error
         :type    code: int
-        :param   call: Attempt the call the result object
-        :type    call: bool
-        :param    log: Message to log on success
+        :param   call: Call the result object as a method
+        :type    call: mixed
+        :param   args: Arguments to pass to the object method
+        :type    args: list
+        :param kwargs: Keyword arguments to pass to the object method
+        :type  kwargs: dict
+        :param    log: Log a success message
         :type     log: str
-        :param  debug: Debug log message
+        :param  debug: Log a debug message
         :type   debug: str
         :rtype: result
         """
-        if isnot and result == value:
-            raise RequestError(error, code)
-        if not result == value and not isinstance(result, type(value)):
-            raise RequestError(error, code)
+        
+        # Code / error / call / log / debug
+        code  = kwargs.get('code', 400)
+        error = kwargs.get('error', 'An unknown request error has occurred')
+        call  = kwargs.get('call', False)
+        log   = kwargs.get('log', None)
+        debug = kwargs.get('debug', None)
+        
+        # Cannot specify both value/isnot at the same time
+        if ('value'in kwargs) and ('isnot' in kwargs):
+            raise Exception('Cannot supply both "value" and "isnot" arguments at the same time')
+        
+        # Equal to / not equal to
+        value = kwargs.get('value', None)
+        isnot = kwargs.get('isnot', None)
+        
+        # If calling the result object as a method
         if call:
+            
+            # Args / kwargs
+            call_args = kwargs.get('args', [])
+            call_kwargs = kwargs.get('kwargs', {})
+            
+            # Method must be callable
+            if not callable(result):
+                raise RequestError('Cannot ensure <{0}>, object not callable'.format(repr(result)))
+            
+            # Attempt to run the method
             try:
-                rsp = result()
-                if not rsp == value:
-                    raise RequestError(error, code)
+                result = result(*call_args, **call_kwargs)
             except Exception as e:
-                LENSE.LOG.exception('Error while ensuring: {0}'.format(repr(result)))
+                raise RequestError('Failed to call <{0}>: {1}'.format(repr(result, str(e))), 500)
+        
+        # Negative check (not equal to)
+        if 'isnot' in kwargs:
+            if result == isnot:
                 raise RequestError(error, code)
+        
+        # Positive check (equal to)
+        if 'value' in kwargs:
+            if result != value:
+                raise RequestError(error, code)
+        
+        # Log info/debug
         if log:
             LENSE.LOG.info(log)   
         if debug:
             LENSE.LOG.debug(debug)
+        
+        # Return the result
         return result
     
     def set(self, request):

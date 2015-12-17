@@ -16,6 +16,7 @@ class LenseAPIObjects(object):
         self.ACL     = import_class('ObjectInterface', 'lense.common.objects.acl')
         self.USER    = import_class('ObjectInterface', 'lense.common.objects.user')
         self.GROUP   = import_class('ObjectInterface', 'lense.common.objects.group')
+        self.STATS   = import_class('ObjectInterface', 'lense.common.objects.stats')
 
 class JSONObject(object):
     """

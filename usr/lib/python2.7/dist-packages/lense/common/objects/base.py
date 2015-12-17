@@ -29,6 +29,12 @@ class LenseBaseObject(object):
         except ValueError:
             return {'name': group}
 
+    def filter(self, **kwargs):
+        """
+        Apply filters to the current object query.
+        """
+        return self.model.objects.filter(**kwargs)
+
     def exists(self, **kwargs):
         """
         Check if an object exists.
@@ -46,37 +52,57 @@ class LenseBaseObject(object):
         
         # Object doesn't exist, cannot updated
         if not obj:
+            LENSE.LOG.debug('Cannot update <{0}:{1}>, object does not exist'.format(self.cls, uuid))
             return False
         
         # Update the object
-        obj.update(**kwargs)
-        return True
+        try:
+            obj.update(**kwargs)
+            return True
+        
+        # Failed to update object
+        except Exception as e:
+            LENSE.LOG.exception('Failed to update <{0}:{1}>: {1}'.format(self.cls, str(e)))
     
     def create(self, **params):
         """
         Create a new object
         """
         try:
+            
+            # Create/save the object
             obj = self.model(**params)
             obj.save()
-            return True
+            
+            # Return the new object
+            return obj
+        
+        # Failed to create the object
         except Exception as e:
-            LENSE.LOG.exception('Failed to save {0}: {1}'.format(self.cls, str(e)))
+            LENSE.LOG.exception('Failed to create {0}: {1}'.format(self.cls, str(e)))
             return False
     
     def delete(self, **kwargs):
         """
         Delete an object definition.
         """
-        obj = self.get(**kwargs)
+        obj  = self.get(**kwargs)
+        uuid = kwargs.get('uuid', None)
         
         # Object doesn't exist, cannot delete
         if not obj:
+            LENSE.LOG.debug('Cannot delete <{0}:{1}>, object does not exist'.format(self.cls, uuid))
             return False
         
         # Delete the object
-        obj.delete()
-        return True
+        try:
+            obj.delete()
+            return True
+
+        # Failed to delete the object
+        except Exception as e:
+            LENSE.LOG.exception('Failed to delete <{0}:{1}>: {2}'.format(self.cls, uuid, str(e)))
+            return False
     
     def get(self, **kwargs):
         """

@@ -1,7 +1,6 @@
 from importlib import import_module
 
 # Lense Libraries
-from lense import import_class, set_arg
 from lense.common.objects.base import LenseBaseObject
 
 class ObjectInterface(LenseBaseObject):
