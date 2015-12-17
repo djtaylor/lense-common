@@ -1,5 +1,6 @@
 from uuid import UUID
 from lense import import_class
+from lense.common.exceptions import RequestError
 
 class LenseBaseObject(object):
     """
@@ -55,9 +56,13 @@ class LenseBaseObject(object):
         """
         Create a new object
         """
-        obj = self.model(**params)
-        obj.save()
-        return obj
+        try:
+            obj = self.model(**params)
+            obj.save()
+            return True
+        except Exception as e:
+            LENSE.LOG.exception('Failed to save {0}: {1}'.format(self.cls, str(e)))
+            return False
     
     def delete(self, **kwargs):
         """
