@@ -3,6 +3,9 @@ from uuid import uuid4
 # Django Libraries
 from django.db.models import Model, CharField, TextField, NullBooleanField, BooleanField
 
+# Lense Libraries
+from lense.common.objects.models import JSONField
+
 class Handlers(Model):
     """
     Main database model for storing API request handler details.
@@ -14,7 +17,7 @@ class Handlers(Model):
     method     = CharField(max_length=6)
     mod        = CharField(max_length=128)
     cls        = CharField(max_length=64, unique=True)
-    rmap       = TextField()
+    rmap       = JSONField()
     object     = CharField(max_length=64, null=True, blank=True)
     object_key = CharField(max_length=32, null=True, blank=True)
     protected  = NullBooleanField()

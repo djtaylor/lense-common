@@ -1,8 +1,5 @@
-from os import environ, path
-from subprocess import Popen
-from json import dumps as json_dumps
+from os import path
 from MySQLdb import connect as mysql_connect
-from django.conf import settings as django_settings
 
 # Lense Libraries
 from lense.common.utils import rstring
@@ -166,7 +163,7 @@ class BootstrapEngine(BootstrapCommon):
                 'object': _handler['object'],
                 'object_key': _handler['object_key'],
                 'allow_anon': _handler.get('allow_anon', False),
-                'rmap': json_dumps(_handler['rmap'])
+                'rmap': _handler['rmap']
             }
             
             # Create the request handler
