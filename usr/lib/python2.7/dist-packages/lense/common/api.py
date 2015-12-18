@@ -42,12 +42,12 @@ class LenseAPIRequestMapper(object):
         path    = LENSE.REQUEST.path
         method  = LENSE.REQUEST.method
         
+        # Handler does not exist
+        if not LENSE.OBJECTS.HANDLER.exists(path=path, method=method):
+            return invalid(LENSE.HTTP.error(error='Could not find handler for: path={0}, method={1}'.format(path, method)))
+        
         # Get the handler
         handler = LENSE.OBJECTS.HANDLER.get(path=path, method=method)
-        
-        # Handler does not exist
-        if not handler:
-            return invalid(LENSE.HTTP.error(error='Could not find handler for: path={0}, method={1}'.format(path, method)))
         
         # Load the request map
         rmap = {'root': json_loads(handler.rmap)}
