@@ -189,11 +189,11 @@ class BootstrapEngine(BootstrapCommon):
             }
             
             # Create the ACL key
-            self.launch_handler(path='acl/keys', data=data, method=HTTP_POST)
+            acl_key = self.launch_handler(path='acl/keys', data=data, method=HTTP_POST)
             BOOTSTRAP.FEEDBACK.success('Created database entry for ACL key "{0}"'.format(_acl_key['name']))
             
             # Store the new ACL key UUID
-            _acl_key['uuid'] = acl_key['data']['uuid']
+            _acl_key['uuid'] = acl_key['uuid']
             
         # Setup ACL objects
         self.params.acl.set_objects()
