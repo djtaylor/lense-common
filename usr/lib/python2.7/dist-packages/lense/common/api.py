@@ -37,11 +37,13 @@ class LenseAPIRequestMapper(object):
         
         @return valid|invalid
         """
-        handler = LENSE.OBJECTS.get_handler()
         
         # Request path and method
         path    = LENSE.REQUEST.path
         method  = LENSE.REQUEST.method
+        
+        # Get the handler
+        handler = LENSE.OBJECTS.HANDLER.get(path=path, method=method)
         
         # Handler does not exist
         if not handler:
