@@ -44,7 +44,7 @@ class LenseUser(object):
         :type  group: str
         """
         is_member = False
-        for _group in getattr(self.get(username), 'groups', []):
+        for _group in getattr(self.get(**self._filter(user)), 'groups', []):
             if _group['uuid'] == group: 
                 is_member = True
                 break
@@ -58,7 +58,7 @@ class LenseUser(object):
         :type  user: str
         :rtype: str
         """
-        _user = self.get(set_arg(user, LENSE.REQUEST.USER.name))
+        _user = self.get(**self._filter(set_arg(user, LENSE.REQUEST.USER.name)))
         
         # Get the API key
         key = self._key.objects.get(user=_user.uuid)
@@ -74,7 +74,7 @@ class LenseUser(object):
         :type  user: str
         :rtype: str
         """
-        _user = self.get(set_arg(user, LENSE.REQUEST.USER.name))
+        _user = self.get(**self._filter(set_arg(user, LENSE.REQUEST.USER.name)))
         
         # Get the API token
         token = self._token.objects.get(user=_user.uuid)
@@ -134,7 +134,7 @@ class LenseUser(object):
         :type  user: str
         :rtype: bool
         """
-        return getattr(self.get(user), 'is_active', False)
+        return getattr(self.get(**self._filter(user)), 'is_active', False)
         
     def exists(self, user):
         """
