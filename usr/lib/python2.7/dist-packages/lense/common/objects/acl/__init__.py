@@ -20,7 +20,7 @@ class ObjectInterface(object):
         :rtype: object
         """
         access_map = {
-            'global': LenseBaseObject('lense.common.objects.acl.models', 'ACLGroupPermissions_Global'),
+            'global': ['lense.common.objects.acl.models', 'ACLGroupPermissions_Global'],
             'object': {
                 'group':   ['lense.common.objects.acl.models', 'ACLGroupPermissions_Object_Group'],
                 'user':    ['lense.common.objects.acl.models', 'ACLGroupPermissions_Object_User'],

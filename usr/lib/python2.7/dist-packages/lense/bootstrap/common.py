@@ -160,19 +160,12 @@ class BootstrapCommon(object):
         :param min_length: The minimum length of the password
         :type  min_length: int
         """
-        _pass = getpass(prompt)
+        BOOTSTRAP.FEEDBACK.input(prompt, 'password', secure=True, confirm=True)
+        _pass = BOOTSTRAP.FEEDBACK.get_response('password')
         
         # Make sure the password is long enough
         if not len(_pass) >= min_length:
             BOOTSTRAP.FEEDBACK.error('Password cannot be empty and must be at least {0} characters long'.format(str(min_length)))
-            return self._get_password(prompt, min_length)
-            
-        # Confirm the password
-        _pass_confirm = getpass('Please confirm the password: ')
-            
-        # Make sure the passwords match
-        if not _pass == _pass_confirm:
-            BOOTSTRAP.FEEDBACK.error('Passwords do not match, try again')
             return self._get_password(prompt, min_length)
         return _pass
 
@@ -185,7 +178,8 @@ class BootstrapCommon(object):
         :param default: The default value if none provided by the user
         :type  default: str|int|dict|list
         """
-        _input = raw_input(prompt) or default
+        BOOTSTRAP.FEEDBACK.input(prompt, 'local', default=default)
+        _input = BOOTSTRAP.FEEDBACK.get_response('local')
         
         # If no input found
         if not _input:

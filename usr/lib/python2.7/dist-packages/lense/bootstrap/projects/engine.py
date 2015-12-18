@@ -251,7 +251,7 @@ class BootstrapEngine(BootstrapCommon):
         for a in self.params.acl.set_access(self.params.acl.keys):
             try:
                 BOOTSTRAP.OBJECTS.ACL.PERMISSIONS('global').create(
-                    acl = BOOTSTRAP.OBJECTS.ACL.KEYS.get(uuid=k['uuid']),
+                    acl = BOOTSTRAP.OBJECTS.ACL.KEYS.get(uuid=a['acl']),
                     owner = BOOTSTRAP.OBJECTS.GROUP.get(uuid=a['owner']),
                     allowed = a['allowed']                                               
                 )

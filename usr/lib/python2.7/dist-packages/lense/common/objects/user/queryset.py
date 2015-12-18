@@ -60,7 +60,7 @@ class APIUserQuerySet(QuerySet):
             
             # Parse any time fields
             for timefield in self.timefields:
-                if timefield in user:
+                if timefield in user and user[timefield]:
                     user[timefield] = user[timefield].strftime(self.timestamp)
             
             # Remove the password
