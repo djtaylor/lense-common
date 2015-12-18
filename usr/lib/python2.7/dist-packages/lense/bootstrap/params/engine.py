@@ -177,6 +177,7 @@ class EngineParams(object):
             {
                 "username": USERS.ADMIN.NAME,
                 "group": GROUPS.ADMIN.UUID,
+                "uuid": USERS.ADMIN.UUID,
                 "email": None,
                 "password": None,
                 "key": None,
@@ -188,6 +189,7 @@ class EngineParams(object):
             {
                 "username": USERS.SERVICE.NAME,
                 "group": GROUPS.SERVICE.UUID,
+                "uuid": USERS.SERVICE.UUID,
                 "email": None,
                 "password": None,
                 "key": None,

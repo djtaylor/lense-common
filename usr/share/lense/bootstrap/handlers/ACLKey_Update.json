@@ -1,6 +1,6 @@
 {
-    "cls": "ACL_Update",
-    "name": "ACL_Update",
+    "cls": "ACLKey_Update",
+    "name": "ACLKey_Update",
     "path": "acl/keys",
     "method": "PUT",
     "desc": "Update an existing ACL definition",

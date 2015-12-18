@@ -15,12 +15,12 @@ class ObjectInterface(LenseBaseObject):
         """
         
         # Make sure the user/group exists
-        if not self.exists(group) or not LENSE.OBJECTS.USER.exists(member):
+        if not self.exists(uuid=group) or not LENSE.OBJECTS.USER.exists(uuid=member):
             return False
         
         # Get the group and user objects
-        group = self.get(group)
-        user  = LENSE.OBJECTS.USER.get(member)
+        group = self.get(uuid=group)
+        user  = LENSE.OBJECTS.USER.get(uuid=member)
         
         # Add the user to the group
         try:
@@ -41,12 +41,12 @@ class ObjectInterface(LenseBaseObject):
         """
         
         # Make sure the user/group exists
-        if not self.exists(group) or not LENSE.OBJECTS.USER.exists(member):
+        if not self.exists(uuid=group) or not LENSE.OBJECTS.USER.exists(uuid=member):
             return False
     
         # Get the group and user
-        group = self.get(group)
-        user  = LENSE.OBJECTS.USER.get(member)
+        group = self.get(uuid=group)
+        user  = LENSE.OBJECTS.USER.get(uuid=member)
     
         # Remove the user from the group
         try:
@@ -81,7 +81,7 @@ class ObjectInterface(LenseBaseObject):
         :param group: The group UUID
         :type  group: str
         """
-        if not self.exists(group):
+        if not self.exists(uuid=group):
             return None
         
         # Get the group

@@ -1,6 +1,6 @@
 {
-    "cls": "ACL_Get",
-    "name": "ACL_Get",
+    "cls": "ACLKey_Get",
+    "name": "ACLKey_Get",
     "path": "acl/keys",
     "method": "GET",
     "desc": "Retrieve an ACL definition",

@@ -125,6 +125,7 @@ class BootstrapEngine(BootstrapCommon):
             
             # User data
             data = {
+                'uuid': user['uuid'],
                 'username': user['username'],
                 'email': self.params.input.response.get(_keys['email'], user['email']),
                 'password': password,
@@ -143,7 +144,7 @@ class BootstrapEngine(BootstrapCommon):
             BOOTSTRAP.FEEDBACK.success('Account {0} setup as member of {1}'.format(data['username'], user['group']))
     
             # Append to the users object
-            _users.append(user_rsp['content'])
+            _users.append(user_rsp)
             
         # Return the users object
         return _users
@@ -169,11 +170,11 @@ class BootstrapEngine(BootstrapCommon):
             }
             
             # Create the request handler
-            self.launch_handler(path='handler', data=data, method=HTTP_POST)
+            handler = self.launch_handler(path='handler', data=data, method=HTTP_POST)
             BOOTSTRAP.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(_handler['name'], _handler['path'], _handler['method']))
     
             # Store the handler UUID
-            _handler['uuid'] = handler['data']['uuid']
+            _handler['uuid'] = handler['uuid']
     
     def _create_acl_keys(self):
         """
@@ -266,21 +267,21 @@ class BootstrapEngine(BootstrapCommon):
     
         # Store the new username and API key
         for user in users:
-            if not user['data']['username'] == USERS.ADMIN.NAME:
+            if not user['username'] == USERS.ADMIN.NAME:
                 continue
             
             # Get the user parameters
             user_params = self.params.get_user(USERS.ADMIN.NAME)
             
             # Default administrator
-            self.params.set_user(USERS.ADMIN.NAME, 'key', user['data']['api_key'])
-            self.params.set_user(USERS.ADMIN.NAME, 'username', user['data']['username'])
+            self.params.set_user(USERS.ADMIN.NAME, 'key', user['api_key'])
+            self.params.set_user(USERS.ADMIN.NAME, 'username', user['username'])
     
             # Update administrator info in the server configuration
             lce = LenseConfigEditor('ENGINE')
-            lce.set('admin/user', user['data']['username'])
+            lce.set('admin/user', user['username'])
             lce.set('admin/group', user_params['group'])
-            lce.set('admin/key', user['data']['api_key'])
+            lce.set('admin/key', user['api_key'])
             lce.save()
             BOOTSTRAP.FEEDBACK.success('[{0}] Set API administrator values'.format(self.ATTRS.CONF))
     
