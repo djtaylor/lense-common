@@ -138,7 +138,7 @@ class BootstrapEngine(BootstrapCommon):
             # Add the user to the group
             self.launch_handler(path='group/member', data={
                 'group': user['group'],
-                'user': user['username']
+                'user': user_rsp['uuid']
             }, method=HTTP_POST)
             BOOTSTRAP.FEEDBACK.success('Account {0} setup as member of {1}'.format(data['username'], user['group']))
     

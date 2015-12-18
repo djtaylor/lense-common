@@ -6,8 +6,8 @@ class ObjectInterface(LenseBaseObject):
         super(ObjectInterface, self).__init__('lense.common.objects.user.models', 'APIUser')
         
         # User key and token handlers
-        self.KEY = LenseBaseObject('APIUserKeys', 'lense.common.objects.user.models')
-        self.TOKEN = LenseBaseObject('APIUserTokens', 'lense.common.objects.user.models')
+        self.KEY = LenseBaseObject('lense.common.objects.user.models', 'APIUserKeys')
+        self.TOKEN = LenseBaseObject('lense.common.objects.user.models', 'APIUserTokens')
         
     def grant_key(self, uuid, api_key=rstring(64), overwrite=False):
         """

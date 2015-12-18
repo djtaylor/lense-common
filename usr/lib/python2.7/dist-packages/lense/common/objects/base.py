@@ -102,4 +102,4 @@ class LenseBaseObject(object):
             return self.model.objects.all()
     
         # Retrieving by parameters
-        return self.model.ojects.get(**kwargs)
+        return self.model.objects.get(**kwargs)
