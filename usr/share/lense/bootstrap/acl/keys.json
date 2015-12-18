@@ -62,7 +62,7 @@
         "handler_classes": [
             "Handler_Get",
             "Handler_Create",
-            "Handler_Save",
+            "Handler_Update",
             "Handler_Validate",
             "Handler_Delete",
             "Handler_Close",
