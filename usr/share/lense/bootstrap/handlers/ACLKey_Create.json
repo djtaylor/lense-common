@@ -1,6 +1,6 @@
 {
-    "cls": "ACLKey_Create",
-    "name": "ACLKey_Create",
+    "cls": "ACLKeys_Create",
+    "name": "ACLKeys_Create",
     "path": "acl/keys",
     "method": "POST",
     "desc": "Create a new ACL definition",
