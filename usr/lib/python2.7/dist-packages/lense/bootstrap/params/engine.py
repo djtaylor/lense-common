@@ -33,8 +33,8 @@ class _EngineACL(object):
         for obj in acl_objects:
             obj['def_acl'] = self._get_acl_key(obj['def_acl'])
         
-        # Return mapped ACL objects
-        return acl_objects
+        # Set mapped ACL objects
+        self.objects = acl_objects
     
     def set_access(self, acls):
         """
