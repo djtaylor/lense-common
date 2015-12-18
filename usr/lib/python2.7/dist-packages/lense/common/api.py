@@ -44,7 +44,7 @@ class LenseAPIRequestMapper(object):
         
         # Handler does not exist
         if not LENSE.OBJECTS.HANDLER.exists(path=path, method=method):
-            return invalid(LENSE.HTTP.error(error='Could not find handler for: path={0}, method={1}'.format(path, method)))
+            return invalid(LENSE.HTTP.error(msg='Could not find handler for: path={0}, method={1}'.format(path, method)))
         
         # Get the handler
         handler = LENSE.OBJECTS.HANDLER.get(path=path, method=method)
