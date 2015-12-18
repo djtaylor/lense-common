@@ -235,11 +235,14 @@ class BootstrapEngine(BootstrapCommon):
         for k in self.params.acl.keys:
             if not k['type_global']: continue
             for u in k['handler_classes']:
-                BOOTSTRAP.OBJECTS.ACL.ACCESS('global').create(
-                    acl = BOOTSTRAP.OBJECTS.ACL.KEYS.get(uuid=k['uuid']),
-                    handler = BOOTSTRAP.OBJECTS.HANDLER.get(cls=u)
-                )
-                BOOTSTRAP.FEEDBACK.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
+                try:
+                    BOOTSTRAP.OBJECTS.ACL.ACCESS('global').create(
+                        acl = BOOTSTRAP.OBJECTS.ACL.KEYS.get(uuid=k['uuid']),
+                        handler = BOOTSTRAP.OBJECTS.HANDLER.get(cls=u)
+                    )
+                    BOOTSTRAP.FEEDBACK.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
+                except Exception as e:
+                    self.die('Failed to grant global access to handler "{0}" with ACL "{1}": {2}'.format(u, k['name'], str(e)))
     
     def _create_acl_access(self):
         """
