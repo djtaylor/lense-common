@@ -19,16 +19,6 @@ class LenseBaseObject(object):
         # Get the object model
         self.model  = import_class(cls, mod, init=False)
 
-    def map_id(self, idstr, key):
-        """
-        Map an identity string to a keyword (UUID or other)
-        """
-        try:
-            UUID(group, version=4)
-            return {'uuid': group}
-        except ValueError:
-            return {'name': group}
-
     def filter(self, **kwargs):
         """
         Apply filters to the current object query.
@@ -41,14 +31,12 @@ class LenseBaseObject(object):
         """
         return self.model.objects.filter(**kwargs).count()
     
-    def update(self, uuid, **kwargs):
+    def update(self, **kwargs):
         """
         Update an existing object.
-        
-        :param   uuid: Retrieve an object to update via UUID
-        :type    uuid: str
         """
-        obj = self.get(uuid=uuid)
+        obj  = self.get(**kwargs)
+        uuid = kwargs.get('uuid', None)
         
         # Object doesn't exist, cannot updated
         if not obj:
