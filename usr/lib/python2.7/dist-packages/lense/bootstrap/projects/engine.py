@@ -43,7 +43,7 @@ class BootstrapEngine(BootstrapCommon):
             )
             BOOTSTRAP.FEEDBACK.success('Connected to MySQL using root user')
         except Exception as e:
-            self.die('Unable to connect to MySQL with root user: {0}'.format(str(e)))
+            self.die(BOOTSTRAP.LOG.exception('Unable to connect to MySQL with root user: {0}'.format(str(e))))
     
     def _keyczart_create(self, enc_attrs):
         """
@@ -242,7 +242,7 @@ class BootstrapEngine(BootstrapCommon):
                     )
                     BOOTSTRAP.FEEDBACK.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
                 except Exception as e:
-                    self.die('Failed to grant global access to handler "{0}" with ACL "{1}": {2}'.format(u, k['name'], str(e)))
+                    self.die(BOOTSTRAP.LOG.exception('Failed to grant global access to handler "{0}" with ACL "{1}": {2}'.format(u, k['name'], str(e))))
     
     def _create_acl_access(self):
         """
@@ -257,7 +257,7 @@ class BootstrapEngine(BootstrapCommon):
                 )
                 BOOTSTRAP.FEEDBACK.success('Granted global administrator access for ACL "{0}"'.format(a['acl_name']))
             except Exception as e:
-                self.die('Failed to grant global access for ACL "{0}": {1}'.format(a['acl_name'], str(e)))
+                self.die(BOOTSTRAP.LOG.exception('Failed to grant global access for ACL "{0}": {1}'.format(a['acl_name'], str(e))))
     
     def _database_seed(self):
         """
@@ -350,7 +350,7 @@ class BootstrapEngine(BootstrapCommon):
             BOOTSTRAP.FEEDBACK.success('Granted database permissions to user "{0}"'.format(self.params.db['attrs']['user']))
             
         except Exception as e:
-            self.die('Failed to bootstrap Lense database: {0}'.format(str(e)))
+            self.die(BOOTSTRAP.LOG.exception('Failed to bootstrap Lense database: {0}'.format(str(e))))
             
         # Close the connection
         c.close()
@@ -369,7 +369,7 @@ class BootstrapEngine(BootstrapCommon):
             # Sync success
             BOOTSTRAP.FEEDBACK.success('Synced Django application database')
         except Exception as e:
-            self.die('Failed to sync Django application database: {0}'.format(str(e)))
+            self.die(BOOTSTRAP.LOG.exception('Failed to sync Django application database: {0}'.format(str(e))))
             
         # Set up the database seed data
         self._database_seed()

@@ -210,6 +210,7 @@ class BootstrapCommon(object):
             
         # Show the error and quit
         self.fb.error(msg)
+        self.fb.info('Check the log file for more details: {0}'.format(PROJECTS.BOOTSTRAP.LOG))
         exit(1)
 
     def group_add_user(self, user):
