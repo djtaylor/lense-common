@@ -79,24 +79,24 @@
         ]
     },
     {
-        "name": "acl.view",
-        "desc": "ACL for allowing read-only access to ACL definitions.",
+        "name": "acl_key.view",
+        "desc": "ACL for allowing read-only access to ACL key definitions.",
         "type_object": false,
         "type_global": true,
         "handler_classes": [
-             "ACL_Get"            
+             "ACLKeys_Get"            
         ]
     },
     {
-        "name": "acl.admin",
-        "desc": "ACL for allowing administration of ACL definitions.",
+        "name": "acl_key.admin",
+        "desc": "ACL for allowing administration of ACL key definitions.",
         "type_object": false,
         "type_global": true,
         "handler_classes": [
-             "ACL_Get",
-             "ACL_Create",
-             "ACL_Delete",
-             "ACL_Update"       
+             "ACLKeys_Get",
+             "ACLKeys_Create",
+             "ACLKeys_Delete",
+             "ACLKeys_Update"       
         ]
     },
     {
