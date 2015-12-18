@@ -31,12 +31,12 @@ class APIGroupsQuerySet(QuerySet):
         
         # Construct the object permissions
         ret = {}
-        for obj_details in ACLObjects.get_values():
+        for obj_details in ACLObjects.objects.all().values():
             obj_type  = obj_details['type']
             obj_key   = '{0}_id'.format(obj_type)
             
             # Get an instance of the ACL class
-            acl_def   = ACLObjects.get_values(obj_type)[0]
+            acl_def   = ACLObjects.objects.filter(**{'type':obj_type}).values()[0]
             acl_mod   = import_module(acl_def['acl_mod'])
             acl_class = getattr(acl_mod, acl_def['acl_cls'])
             

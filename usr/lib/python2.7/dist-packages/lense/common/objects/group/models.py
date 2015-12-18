@@ -7,6 +7,7 @@ from uuid import uuid4
 from django.db.models import Model, ForeignKey, CharField, NullBooleanField
 
 # Lense Libraries
+from lense import import_class
 from lense.common.objects.acl.models import ACLObjects
 from lense.common.objects.group.manager import APIGroupsManager
 from lense.common.objects.acl.models import ACLGroupPermissions_Global, ACLKeys
@@ -42,7 +43,7 @@ class APIGroups(Model):
         # Get a list of object types and details
         obj_types   = []
         obj_details = []
-        for obj in ACLObjects.get_values():
+        for obj in ACLObjects.objects.all().values():
             obj_types.append(obj['type'])
             obj_details.append(obj)
         
@@ -51,7 +52,7 @@ class APIGroups(Model):
             if obj_type in permissions:
                 
                 # Get the details for this ACL object type
-                obj_def   = ACLObjects.get_values(obj_type)[0]
+                obj_def   = ACLObjects.objects.get(**{'type': obj_type}).values()[0]
                 
                 # Get an instance of the ACL class
                 acl_mod   = importlib.import_module(obj_def['acl_mod'])
@@ -149,12 +150,10 @@ class APIGroups(Model):
         """
         Retrieve a list of group member objects.
         """
-        
-        # Resolve circular dependencies
-        from lense.common.objects.user.models import APIUser
+        api_user = import_class('APIUser', 'lense.common.objects.user.models', init=False)
         
         # Return a list of user member objects
-        return [APIUser.objects.get(uuid=m.member) for m in APIGroupMembers.objects.filter(group=self.uuid)]
+        return [api_user.objects.get(uuid=m.member) for m in APIGroupMembers.objects.filter(group=self.uuid)]
         
     def members_set(self, m):
         """

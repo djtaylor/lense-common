@@ -4,6 +4,7 @@ from importlib import import_module
 from django.db.models.query import QuerySet
 
 # Lense Libraries
+from lense import import_class
 from lense.common.objects.handler.models import Handlers
 
 class ACLKeysQuerySet(QuerySet):
@@ -13,13 +14,10 @@ class ACLKeysQuerySet(QuerySet):
     def __init__(self, *args, **kwargs):
         super(ACLKeysQuerySet, self).__init__(*args, **kwargs)
         
-        # Need to do internal imports
-        from lense.common.objects.acl.models import ACLObjects, ACLObjectAccess, ACLGlobalAccess
-        
-        # Store the imports
-        self.ACLObjects      = ACLObjects
-        self.ACLObjectAccess = ACLObjectAccess
-        self.ACLGlobalAccess = ACLGlobalAccess
+        # Objects / access objects
+        self.ACLObjects      = import_class('ACLObjects', 'lense.common.objects.acl.models', init=False)
+        self.ACLObjectAccess = import_class('ACLObjectAccess', 'lense.common.objects.acl.models', init=False)
+        self.ACLGlobalAccess = import_class('ACLGlobalAccess', 'lense.common.objects.acl.models', init=False)
         
         # ACL object types / handlers
         self.obj_types = self._get_objects()
