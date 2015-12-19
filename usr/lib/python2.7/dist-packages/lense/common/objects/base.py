@@ -19,6 +19,20 @@ class LenseBaseObject(object):
         # Get the object model
         self.model  = import_class(cls, mod, init=False)
 
+    def map_user(self, uid):
+        """
+        Map a username or UUID to kwargs dictionary.
+        
+        :param user: User name or UUID
+        :type  user: str
+        :rtype: dict
+        """
+        try:
+            UUID(user, version=4)
+            return {'uuid': user}
+        except ValueError:
+            return {'username': user}
+
     def filter(self, **kwargs):
         """
         Apply filters to the current object query.
