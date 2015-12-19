@@ -19,15 +19,10 @@ class AuthAPIToken(object):
         :param user: The user account to generate the token for
         :type  user: str
         """
-        token_str = rstring(255)
-        expires   = datetime.now() + timedelta(hours=settings.API_TOKEN_LIFE)
             
         # Create a new API token
         LENSE.LOG.info('Generating API token for user: {0}'.format(user))
-        LENSE.USER.set_token(user, token, expires)
-        
-        # Return the token
-        return token_str
+        return LENSE.OBJECTS.USER.grant_token(user)
     
     @staticmethod
     def get(user):
@@ -39,13 +34,13 @@ class AuthAPIToken(object):
         """
         
         # Check if the user exists
-        if not LENSE.USER.exists(user):
+        if not LENSE.OBJECTS.USER.TOKEN.exists(user=user):
             LENSE.LOG.error('API user "{0}" does not exist in database'.format(user))
             return None
 
         # Get the user object / and API token
-        api_user  = LENSE.USER.get(user)
-        api_token = LENSE.USER.token(user)
+        api_user  = LENSE.OBJECTS.USER.get(uuid=user)
+        api_token = LENSE.OBJECTS.USER.TOKEN.get(uuid=user)
 
         # User has no API key
         if not api_token:
