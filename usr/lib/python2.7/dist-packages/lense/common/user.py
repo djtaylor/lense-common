@@ -136,7 +136,7 @@ class LenseUser(object):
         """
         return getattr(self.get(**self._filter(user)), 'is_active', False)
         
-    def exists(self, user):
+    def exists(self, **kwargs):
         """
         Check if a user exists by username or UUID
         
@@ -144,11 +144,11 @@ class LenseUser(object):
         :type  user: str
         :rtype: bool
         """
-        if self.model.objects.filter(**self._filter(user)).count():
+        if self.model.objects.filter(**kwargs).count():
             return True
         return False
         
-    def get(self, user):
+    def get(self, **kwargs):
         """
         User factory method.
         
@@ -156,8 +156,8 @@ class LenseUser(object):
         :type     user: str
         :rtype: APIUser|None
         """
-        if self.exists(user):
-            return self.model.objects.get(**self._filter(user))
+        if self.exists(**kwargs):
+            return self.model.objects.get(**kwargs)
         return None
     
     def login(self, request=None, user=None):
