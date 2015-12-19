@@ -7,14 +7,17 @@ class AuthUserError(Exception):
 
 class AuthError(Exception):
     pass
-
-class RequestError(Exception):
+        
+class EnsureError(Exception):
     """
-    Custom exception for handling request errors.
+    Custom exception for handling ensure errors.
     """
     def __init__(self, msg, code):
         super(RequestError, self).__init__(msg)
         self.code = code
+
+class RequestError(EnsureError):
+    pass
 
 class JSONException(Exception):
     """
