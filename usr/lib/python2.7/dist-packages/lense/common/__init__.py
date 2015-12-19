@@ -8,7 +8,7 @@ from sys import path, exit, stderr
 from lense import import_class
 from lense.common.vars import PROJECTS
 from lense import MODULE_ROOT, DROPIN_ROOT
-from lense.common.exceptions import InvalidProjectID
+from lense.common.exceptions import InvalidProjectID, EnsureError
 
 # Drop-in Python path
 path.append(DROPIN_ROOT)
@@ -73,6 +73,87 @@ class LenseCommon(object):
         """
         self.SOCKET = import_class('LenseSocketIO', 'lense.common.socket')
         return self.SOCKET
+        
+    def ensure(self, result, **kwargs):
+        """
+        Ensure a result is equal to 'value' or is not equal to 'isnot'. Raise a RequestError otherwise.
+        
+        :param result: The result to check
+        :type  result: mixed
+        :param  value: The value to ensure (equal to)
+        :type   value: mixed
+        :param  isnot: The value to ensure (not equal to)
+        :type   isnot: mixed
+        :param  error: The error message to raise
+        :type   error: str
+        :param   code: The HTTP status code to return if error
+        :type    code: int
+        :param   call: Call the result object as a method
+        :type    call: mixed
+        :param   args: Arguments to pass to the object method
+        :type    args: list
+        :param kwargs: Keyword arguments to pass to the object method
+        :type  kwargs: dict
+        :param    log: Log a success message
+        :type     log: str
+        :param  debug: Log a debug message
+        :type   debug: str
+        :param    exc: The type of exception to raise
+        :type     exc: object
+        :rtype: result
+        """
+        
+        # Code / error / call / log / debug
+        code  = kwargs.get('code', 400)
+        error = kwargs.get('error', 'An unknown request error has occurred')
+        call  = kwargs.get('call', False)
+        log   = kwargs.get('log', None)
+        debug = kwargs.get('debug', None)
+        exc   = kwargs.get('exc', EnsureError)
+        
+        # Cannot specify both value/isnot at the same time
+        if ('value'in kwargs) and ('isnot' in kwargs):
+            raise Exception('Cannot supply both "value" and "isnot" arguments at the same time')
+        
+        # Equal to / not equal to
+        value = kwargs.get('value', None)
+        isnot = kwargs.get('isnot', None)
+        
+        # If calling the result object as a method
+        if call:
+            
+            # Args / kwargs
+            call_args = kwargs.get('args', [])
+            call_kwargs = kwargs.get('kwargs', {})
+            
+            # Method must be callable
+            if not callable(result):
+                raise exc('Cannot ensure <{0}>, object not callable'.format(repr(result)))
+            
+            # Attempt to run the method
+            try:
+                result = result(*call_args, **call_kwargs)
+            except Exception as e:
+                raise exc('Failed to call <{0}>: {1}'.format(repr(result, str(e))), 500)
+        
+        # Negative check (not equal to)
+        if 'isnot' in kwargs:
+            if result == isnot:
+                raise exc(error, code)
+        
+        # Positive check (equal to)
+        if 'value' in kwargs:
+            if result != value:
+                raise exc(error, code)
+        
+        # Log info/debug
+        if log:
+            LENSE.LOG.info(log)   
+        if debug:
+            LENSE.LOG.debug(debug)
+        
+        # Return the result
+        return result
         
     def die(self, msg, code=1, pre=None, post=None):
         """
