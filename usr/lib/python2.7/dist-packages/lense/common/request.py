@@ -278,83 +278,12 @@ class LenseRequestObject(object):
         """
         return getattr(self._POST, key, default)
     
-    def ensure(self, result, **kwargs):
+    def ensure(self, *args, **kwargs):
         """
-        Ensure a result is equal to 'value' or is not equal to 'isnot'. Raise a RequestError otherwise.
-        
-        :param result: The result to check
-        :type  result: mixed
-        :param  value: The value to ensure (equal to)
-        :type   value: mixed
-        :param  isnot: The value to ensure (not equal to)
-        :type   isnot: mixed
-        :param  error: The error message to raise
-        :type   error: str
-        :param   code: The HTTP status code to return if error
-        :type    code: int
-        :param   call: Call the result object as a method
-        :type    call: mixed
-        :param   args: Arguments to pass to the object method
-        :type    args: list
-        :param kwargs: Keyword arguments to pass to the object method
-        :type  kwargs: dict
-        :param    log: Log a success message
-        :type     log: str
-        :param  debug: Log a debug message
-        :type   debug: str
-        :rtype: result
+        Raise a RequestError if ensure fails.
         """
-        
-        # Code / error / call / log / debug
-        code  = kwargs.get('code', 400)
-        error = kwargs.get('error', 'An unknown request error has occurred')
-        call  = kwargs.get('call', False)
-        log   = kwargs.get('log', None)
-        debug = kwargs.get('debug', None)
-        
-        # Cannot specify both value/isnot at the same time
-        if ('value'in kwargs) and ('isnot' in kwargs):
-            raise Exception('Cannot supply both "value" and "isnot" arguments at the same time')
-        
-        # Equal to / not equal to
-        value = kwargs.get('value', None)
-        isnot = kwargs.get('isnot', None)
-        
-        # If calling the result object as a method
-        if call:
-            
-            # Args / kwargs
-            call_args = kwargs.get('args', [])
-            call_kwargs = kwargs.get('kwargs', {})
-            
-            # Method must be callable
-            if not callable(result):
-                raise RequestError('Cannot ensure <{0}>, object not callable'.format(repr(result)))
-            
-            # Attempt to run the method
-            try:
-                result = result(*call_args, **call_kwargs)
-            except Exception as e:
-                raise RequestError('Failed to call <{0}>: {1}'.format(repr(result, str(e))), 500)
-        
-        # Negative check (not equal to)
-        if 'isnot' in kwargs:
-            if result == isnot:
-                raise RequestError(error, code)
-        
-        # Positive check (equal to)
-        if 'value' in kwargs:
-            if result != value:
-                raise RequestError(error, code)
-        
-        # Log info/debug
-        if log:
-            LENSE.LOG.info(log)   
-        if debug:
-            LENSE.LOG.debug(debug)
-        
-        # Return the result
-        return result
+        kwargs['exc'] = RequestError
+        return LENSE.ensure(*args, **kwargs)
     
     def set(self, request):
         """
