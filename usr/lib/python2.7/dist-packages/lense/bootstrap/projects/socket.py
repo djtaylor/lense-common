@@ -15,13 +15,38 @@ class BootstrapSocket(BootstrapCommon):
         # Bootstrap parameters
         self.params   = SocketParams()
 
+        # NPM module
+        self.npm_mod  = 'git://github.com/djtaylor/lense-socket-npm.git'
+
+    def npm_installed(self):
+        """
+        Check if the node module is installed.
+        """
+        command = ['npm', 'list', '--prefix', self.ATTRS.PREFIX, 'lense-socket-npm']
+        code, err = self._shell_exec(command, show_stdout=False)
+
+        # Installed
+        if code == 0:
+            return True
+        return False
+
     def check_npm(self):
         """
         Make sure NPM packages are installed.
         """
-        command  = ['npm', 'install', '--prefix', self.ATTRS.PREFIX]
-        packages = ['socket.io', 'winston']
-        self._shell_exec(command + packages)
+        if not self.npm_installed():
+            BOOTSTRAP.FEEDBACK.info('Installing NPM module: lense-socket-npm <{0}>'.format(self.npm_mod))
+            command  = ['npm', 'install', '--prefix', self.ATTRS.PREFIX, self.npm_mod]
+            code, err = self._shell_exec(command)
+            
+            # Package installation failed
+            if not code == 0:
+                self.die('Failed to install NPM module')
+            BOOTSTRAP.FEEDBACK.success('Installed NPM module')
+            
+        # Package already installed
+        else:
+            BOOTSTRAP.FEEDBACK.info('Discovered NPM module: {0}/node_modules/lense-socket-npm'.format(self.ATTRS.PREFIX))
 
     def _bootstrap_complete(self):
         """
