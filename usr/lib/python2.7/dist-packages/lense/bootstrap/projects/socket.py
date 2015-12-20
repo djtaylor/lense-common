@@ -1,3 +1,4 @@
+from os import chdir, getcwd
 from lense.bootstrap.params import SocketParams
 from lense.bootstrap.common import BootstrapCommon
 
@@ -43,6 +44,20 @@ class BootstrapSocket(BootstrapCommon):
             if not code == 0:
                 self.die('Failed to install NPM module')
             BOOTSTRAP.FEEDBACK.success('Installed NPM module')
+            
+            # Change to module directory
+            current = getcwd()
+            chdir('{0}/node_modules/lense-socket-npm'.format(self.ATTRS.PREFIX))
+            
+            # Install the module dependencies
+            BOOTSTRAP.FEEDBACK.info('Installing NPM module <lense-socket-npm> dependencies')
+            code, err = self._shell_exec(['npm', 'install'])
+            
+            # Failed to install dependencies
+            if not code == 0:
+                self.die('Failed to install NPM module dependencies')
+            BOOTSTRAP.FEEDBACK.success('Installed NPM module dependencies')
+            chdir(current)
             
         # Package already installed
         else:
