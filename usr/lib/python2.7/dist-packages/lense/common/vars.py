@@ -68,7 +68,8 @@ PROJECTS = Collection({
     'SOCKET': {
         'LOG':  '/var/log/lense/socket.log',
         'CONF': '/etc/lense/socket.conf',
-        'RUN': '/var/run/lense'
+        'RUN': '/var/run/lense',
+        'PREFIX': '/usr/share/lense/socket'
     },
     'BOOTSTRAP': {
         'LOG':  '/var/log/lense/bootstrap.log',
