@@ -15,6 +15,14 @@ class BootstrapSocket(BootstrapCommon):
         # Bootstrap parameters
         self.params   = SocketParams()
 
+    def check_npm(self):
+        """
+        Make sure NPM packages are installed.
+        """
+        command  = ['npm', 'install', '--prefix', self.ATTRS.PREFIX]
+        packages = ['socket.io', 'winston']
+        self._shell_exec(command + packages)
+
     def _bootstrap_complete(self):
         """
         Brief summary of the completed bootstrap process.
@@ -42,6 +50,9 @@ class BootstrapSocket(BootstrapCommon):
         
         # Update the configuration
         self.update_config()
+        
+        # Ensure node modules
+        self.check_npm()
         
         # Show the bootstrap complete summary
         self._bootstrap_complete()
