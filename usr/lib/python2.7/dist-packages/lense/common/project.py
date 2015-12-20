@@ -42,6 +42,5 @@ class LenseProject(object):
         self.get_request = getattr(self._attrs, 'REQUEST', False)
         self.get_logger  = getattr(self._attrs, 'LOG', False)
         self.get_objects = getattr(self._attrs, 'OBJECTS', False)
-        self.get_user    = getattr(self._attrs, 'USER', False)
         self.get_conf    = getattr(self._attrs, 'CONF', False)
         self.get_auth    = getattr(self._attrs, 'AUTH', False)
