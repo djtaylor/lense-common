@@ -38,7 +38,7 @@ class BootstrapSocket(BootstrapCommon):
         if not self.npm_installed():
             BOOTSTRAP.FEEDBACK.info('Installing NPM module: lense-socket-npm <{0}>'.format(self.npm_mod))
             command  = ['npm', 'install', '--prefix', self.ATTRS.PREFIX, self.npm_mod]
-            code, err = self._shell_exec(command)
+            code, err = self._shell_exec(command, show_stdout=False)
             
             # Package installation failed
             if not code == 0:
@@ -51,7 +51,7 @@ class BootstrapSocket(BootstrapCommon):
             
             # Install the module dependencies
             BOOTSTRAP.FEEDBACK.info('Installing NPM module <lense-socket-npm> dependencies')
-            code, err = self._shell_exec(['npm', 'install'])
+            code, err = self._shell_exec(['npm', 'install'], show_stdout=False)
             
             # Failed to install dependencies
             if not code == 0:
