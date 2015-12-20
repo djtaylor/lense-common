@@ -1,4 +1,10 @@
 from uuid import UUID
+
+# Django Libraries
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+
+# Lense Libraries
 from lense import import_class
 from lense.common.exceptions import RequestError
 
@@ -19,6 +25,34 @@ class LenseBaseObject(object):
         # Get the object model
         self.model  = import_class(cls, mod, init=False)
 
+    def is_email(self, emailstr):
+        """
+        Check if a user string is an email.
+        
+        :param emailstr: The email string to check
+        :type  emailstr: str
+        :rtype: str|False
+        """
+        try:
+            validate_email(emailstr)
+            return emailstr
+        except ValidationError as e:
+            return False
+
+    def is_uuid(self, idstr):
+        """
+        Check if a user string is a UUID.
+        
+        :param idstr: The user string to check
+        :type  idstr: str
+        :rtype: str|False
+        """
+        try:
+            UUID(idstr, version=4)
+            return idstr
+        except:
+            return False
+
     def map_user(self, uid):
         """
         Map a username or UUID to kwargs dictionary.
@@ -27,11 +61,9 @@ class LenseBaseObject(object):
         :type  user: str
         :rtype: dict
         """
-        try:
-            UUID(user, version=4)
-            return {'uuid': user}
-        except ValueError:
-            return {'username': user}
+        if self.is_uuid(uid):
+            return {'uuid': uid}
+        return {'username': uid}
 
     def filter(self, **kwargs):
         """
