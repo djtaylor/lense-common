@@ -52,15 +52,13 @@ PROJECTS = Collection({
         'CONF': '/etc/lense/engine.conf',
         'REQUEST': True,
         'OBJECTS': True,
-        'USER': True,
         'AUTH': True
     },
     'PORTAL': {
         'LOG':  '/var/log/lense/portal.log',
         'CONF': '/etc/lense/portal.conf',
         'REQUEST': True,
-        'OBJECTS': False,
-        'USER': True,
+        'OBJECTS': True,
         'AUTH': True
     },
     'CLIENT': {
