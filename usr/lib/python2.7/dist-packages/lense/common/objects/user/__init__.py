@@ -21,17 +21,76 @@ class ObjectInterface(LenseBaseObject):
         self.KEY     = LenseBaseObject('lense.common.objects.user.models', 'APIUserKeys')
         self.TOKEN   = LenseBaseObject('lense.common.objects.user.models', 'APIUserTokens')
         
-    def grant_key(self, uuid, api_key=rstring(64), overwrite=False):
+    def get_uuid(self, user):
+        """
+        Retrieve a user's UUID from various attributes.
+        
+        :param user: The user string to map to UUID
+        :type  user: str
+        :rtype: str
+        """
+        if self.is_uuid(user):
+            return user
+        
+        # Email address
+        if self.is_email(user):
+            user_obj = LENSE.ensure(LENSE.OBJECTS.USER.get(email=user),
+                isnot = None,
+                error = 'User not found for email {0}'.format(user),
+                debug = 'Mapped user email {0} to UUID'.format(user),
+                code  = 404)
+            return user_obj.uuid
+        
+        # Else try username
+        user_obj = LENSE.ensure(LENSE.OBJECTS.USER.get(username=user),
+            isnot = None,
+            error = 'User not found for username {0}'.format(user),
+            debug = 'Mapped username {0} to UUID'.format(user),
+            code  = 404)
+        return user_obj.uuid
+        
+    def get_key(self, user):
+        """
+        Retrieve an API key for a user account.
+        
+        :param user: The username or UUID to look for
+        :type  user: str
+        :rtype: str
+        """
+        uuid = self.get_uuid(user)
+        key = LENSE.ensure(self.KEY.get(user=uuid),
+            error = 'Could not find key for user {0}'.format(uuid),
+            debug = 'Retrieved key for user {0}'.format(uuid),
+            code  = 404)
+        return key.api_key
+        
+    def get_token(self, user):
+        """
+        Retrieve an API token for a user account.
+        
+        :param user: The username or UUID to look for
+        :type  user: str
+        :rtype: str
+        """
+        uuid = self.get_uuid(user)
+        token = LENSE.ensure(self.TOKEN.get(user=uuid),
+            error = 'Could not find token for user {0}'.format(uuid),
+            debug = 'Retrieved token for user {0}'.format(uuid),
+            code  = 404)
+        return token.token
+        
+    def grant_key(self, user, overwrite=False):
         """
         Grant an API key to a user account.
         
         :param      uuid: The UUID of the user to grant the key
         :type       uuid: str
-        :
         :param overwrite: Overwrite the existing key if one exists.
         :type  overwrite: bool
         :rtype: bool
         """
+        uuid    = self.get_uuid(user)
+        api_key = rstring(64)
         
         # Get the user object
         user = LENSE.ensure(self.get(uuid=uuid),
@@ -61,7 +120,7 @@ class ObjectInterface(LenseBaseObject):
                 code  = 500)
         return api_key
     
-    def grant_token(self, uuid, token=rstring(255), overwrite=False):
+    def grant_token(self, user, overwrite=False):
         """
         Create or set a user's token.
         
@@ -70,6 +129,8 @@ class ObjectInterface(LenseBaseObject):
         :param   token: The token string
         :type    token: str
         """
+        uuid    = self.get_uuid(user)
+        token   = rstring(255)
         expires = datetime.now() + timedelta(hours=settings.API_TOKEN_LIFE)
         
         # Get the user object
@@ -115,37 +176,6 @@ class ObjectInterface(LenseBaseObject):
                 is_member = True
                 break
         return is_member
-    
-    def ensure(self, attr, exc=None, msg=None, args=[], kwargs={}):
-        """
-        Ensure a user attribute is true.
-        
-        :param attr: The attribute key to check
-        :type  attr: str
-        :param  exc: Optional exception class to raise if the check fails
-        :type   exc: object
-        :param  msg: Optional exception message to raise
-        :type   msg: str
-        :rtype: bool
-        """
-        user_attr = getattr(self, attr, None)
-        error_msg = 'Failed to ensure user attribute: {0}=False'.format(attr)
-        
-        # Is the attribute callable
-        if callable(user_attr):
-            attr_val = user_attr(*args, **kwargs)
-            
-            # Attribute return value is false
-            if not attr_val:
-                if exc:
-                    raise exc(error_msg)
-                return False
-        
-        # Attribute not found or is false
-        if not user_attr:
-            if exc:
-                raise exc(error_msg)
-            return False
         
     def active(self, **kwargs):
         """
@@ -228,8 +258,14 @@ class ObjectInterface(LenseBaseObject):
             user   = set_arg(user, LENSE.REQUEST.USER.name)
             
             # User does not exist / is inactive
-            self.ensure('exists', exc=AuthError, msg='User "{0}" does not exist'.format(user), kwargs=self.map_user(user))       
-            self.ensure('active', exc=AuthError, msg='User "{0}" is inactive'.format(user), kwargs=self.map_user(user))
+            LENSE.ensure(self.exists(uuid=self.get_uuid(user)),
+                error = 'User {0} does not exist'.format(user),
+                debug = 'Found user for {0}, checking state'.format(user),
+                code  = 404)
+            LENSE.ensure(self.active(uuid=self.get_uuid(user)),
+                error = 'User {0} does not exist'.format(user),
+                debug = 'User {0} is active, authenticating'.format(user),
+                code  = 404)
             
             # Portal authentication
             if LENSE.PROJECT.name.upper() == 'PORTAL':
@@ -242,11 +278,10 @@ class ObjectInterface(LenseBaseObject):
                 group = set_arg(group, LENSE.REQUEST.USER.group)
                 
                 # Make sure the user is a group member
-                self.ensure('member_of', 
-                    exc  = AuthError, 
-                    msg  = 'User "{0}" is not a member of group: {1}'.format(user, group), 
-                    args = [user, group]
-                )
+                LENSE.ensure(self.member_of(user, group),
+                    error = 'User {0} is not a member of group {1}'.format(user, group),
+                    debug = 'User {0} is a member of group {1}'.format(user, group),
+                    code  = 400)
                 
                 # Token / key authentication
                 token = set_arg(token, LENSE.REQUEST.token)
