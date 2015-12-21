@@ -4,6 +4,9 @@ class ObjectInterface(LenseBaseObject):
     def __init__(self):
         super(ObjectInterface, self).__init__('lense.common.objects.group.models', 'APIGroups')
         
+        # Group members
+        self.MEMBERS = LenseBaseObject('lense.common.objects.group.models', 'APIGroupMembers')
+        
     def add_member(self, group, member):
         """
         Add a member to a group.

@@ -7,17 +7,14 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Model, CharField,DateTimeField, ForeignKey, EmailField, BooleanField
 
-# Lense Libraries
-from lense.common.objects.user.manager import APIUserManager
-
 class APIUserKeys(Model):
     """
     Main database model for storing user API keys.
     """
     
     # User API key table columns
-    user      = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
-    api_key   = CharField(max_length=64, unique=True)
+    user = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
+    key  = CharField(max_length=64, unique=True)
     
     # Custom model metadata
     class Meta:
@@ -67,9 +64,6 @@ class APIUser(AbstractBaseUser):
         default   = True,
         help_text = _('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.')
     )
-
-    # User objects manager
-    objects = APIUserManager()
 
     # Username field and required fields
     USERNAME_FIELD  = 'username'

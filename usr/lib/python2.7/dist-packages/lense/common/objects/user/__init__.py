@@ -21,20 +21,38 @@ class ObjectInterface(LenseBaseObject):
         self.KEY     = LenseBaseObject('lense.common.objects.user.models', 'APIUserKeys')
         self.TOKEN   = LenseBaseObject('lense.common.objects.user.models', 'APIUserTokens')
         
+    def extend(self, user):
+        """
+        Construct extended user attributes.
+        
+        :param user: The user object to extend
+        :type  user: APIUser
+        :rtype: APIUser
+        """
+        for k,v in {
+            'api_key': self.get_key(),
+            'api_token': self.get_token(),
+            'groups': self.get_groups()
+        }.iteritems():
+            setattr(user, k, v)
+        
     def get(self, *args, **kwargs):
         """
         Retrieve an object definition.
         """
         if args:
             uuid = self.get_uuid(args[0])
-            self.model.objects.get(uuid=uuid)
+            return self.extend(self.model.objects.get(uuid=uuid))
         
         # Retrieving all
         if not kwargs:
-            return self.model.objects.all()
+            all_users = list(self.model.objects.all())
+            for user in all_users:
+                self.extend(user)
+            return all_users
     
         # Retrieving by parameters
-        return self.model.objects.get(**kwargs)
+        return self.extend(self.model.objects.get(**kwargs))
         
     def get_uuid(self, user):
         """
@@ -73,11 +91,11 @@ class ObjectInterface(LenseBaseObject):
         :rtype: str
         """
         uuid = self.get_uuid(user)
-        user = LENSE.ensure(self.get(uuid),
-            error = 'Could not find user {0}'.format(uuid),
-            debug = 'Retrieved user {0} object'.format(uuid),
+        user = LENSE.ensure(self.KEY.get(user=uuid),
+            error = 'Could not find user {0} API key'.format(uuid),
+            debug = 'Retrieved user {0} API key object'.format(uuid),
             code  = 404)
-        return user.values()['api_key']
+        return user.key
         
     def get_token(self, user):
         """
@@ -88,11 +106,11 @@ class ObjectInterface(LenseBaseObject):
         :rtype: str
         """
         uuid = self.get_uuid(user)
-        user = LENSE.ensure(self.get(uuid),
-            error = 'Could not find user {0}'.format(uuid),
-            debug = 'Retrieved user {0} object'.format(uuid),
+        user = LENSE.ensure(self.TOKEN.get(user=uuid),
+            error = 'Could not find user {0} API token'.format(uuid),
+            debug = 'Retrieved user {0} API token object'.format(uuid),
             code  = 404)
-        return user.values()['api_token']
+        return user.token
         
     def grant_key(self, user, overwrite=False):
         """
@@ -176,6 +194,22 @@ class ObjectInterface(LenseBaseObject):
                 code  = 500)
         return token
     
+    def get_groups(self, user):
+        """
+        Retrieve a list of user groups.
+        
+        :param  user: The user to retrieve groups for
+        :type   user: str
+        :rtype: list
+        """
+        uuid   = self.get_uuid(user)
+        groups = []
+        
+        # Get each group
+        for group in list(LENSE.OBJECTS.GROUP.MEMBERS.get(member=uuid)):
+            groups.append(group.group)
+        return groups
+    
     def member_of(self, user, group):
         """
         Make sure a user is a member of the request group.
@@ -185,6 +219,8 @@ class ObjectInterface(LenseBaseObject):
         :param group: The group name to verify membership for
         :type  group: str
         """
+        groups = self.get_groups(user)
+        
         is_member = False
         for _group in getattr(self.get(**self.map_user(user)), 'groups', []):
             if _group['uuid'] == group: 
