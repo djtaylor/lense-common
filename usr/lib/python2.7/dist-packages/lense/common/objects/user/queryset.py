@@ -24,6 +24,22 @@ class APIUserQuerySet(QuerySet):
         self.groups = import_class('APIGroups', 'lense.common.objects.group.models', init=False)
         self.group_members = import_class('APIGroupMembers', 'lense.common.objects.group.models', init=False)
 
+        # API key / token
+        self.api_key = import_class('APIUserKeys', 'lense.common.objects.user.models', init=False)
+        self.api_token = import_class('APIUserTokens', 'lense.common.objects.user.models', init=False)
+
+    def get_key(self, user):
+        """
+        Get the API key for a user.
+        """
+        return self.api_key.objects.get(user=user).api_key
+    
+    def get_token(self, user):
+        """
+        Get the API key for a user.
+        """
+        return self.api_token.objects.get(user=user).token
+
     def is_admin(self, user):
         """
         Check if the user is a member of the administrator group.
@@ -72,8 +88,8 @@ class APIUserQuerySet(QuerySet):
             user.update({
                 'groups': self.get_groups(user['uuid']),
                 'is_admin': self.is_admin(user['uuid']),
-                'api_key': LENSE.OBJECTS.USER.get_key(user['uuid']),
-                'api_token': LENSE.OBJECTS.USER.get_token(user['uuid'])
+                'api_key': self.get_key(user['uuid']),
+                'api_token': self.get_token(user['uuid'])
             })
         
         # Return the constructed user results

@@ -59,6 +59,10 @@ class LenseCommon(object):
         self.MAIL        = import_class('LenseAPIEmail', 'lense.common.mailer', init=False)
         self.SOCKET      = None
         
+        # Initialize logs
+        self.LOG.info('Starting {0}'.format(self.PROJECT.name))
+        self.LOG.info('CONF: {0} {1}'.format(self.PROJECT.conf, repr(self.CONF)))
+        
     def get_request(self):
         """
         Initialize the request object.
