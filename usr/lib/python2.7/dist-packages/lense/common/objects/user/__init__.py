@@ -30,9 +30,9 @@ class ObjectInterface(LenseBaseObject):
         :rtype: APIUser
         """
         for k,v in {
-            'api_key': self.get_key(),
-            'api_token': self.get_token(),
-            'groups': self.get_groups()
+            'api_key': self.get_key(user.uuid),
+            'api_token': self.get_token(user.uuid),
+            'groups': self.get_groups(user.uuid)
         }.iteritems():
             setattr(user, k, v)
         
