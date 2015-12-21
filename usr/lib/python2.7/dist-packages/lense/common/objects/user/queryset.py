@@ -32,15 +32,17 @@ class APIUserQuerySet(QuerySet):
         """
         Get the API key for a user.
         """
-        user_key = self.api_key.objects.get(user=user)
-        return getattr(user_key, 'api_key', None)
+        if self.api_key.objects.filter(user=user).count():
+            return self.api_key.objects.get(user=user).api_key
+        return None
     
     def get_token(self, user):
         """
         Get the API key for a user.
         """
-        user_token = self.api_token.objects.get(user=user).token
-        return getattr(user_token, 'token', None)
+        if self.api_token.objects.filter(user=user).count():
+            return self.api_token.objects.get(user=user).token
+        return None
 
     def is_admin(self, user):
         """
