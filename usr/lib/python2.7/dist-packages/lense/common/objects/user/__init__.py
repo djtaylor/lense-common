@@ -73,7 +73,7 @@ class ObjectInterface(LenseBaseObject):
         :rtype: str
         """
         uuid = self.get_uuid(user)
-        user = LENSE.ensure(self.get(user=uuid),
+        user = LENSE.ensure(self.get(uuid),
             error = 'Could not find user {0}'.format(uuid),
             debug = 'Retrieved user {0} object'.format(uuid),
             code  = 404)
@@ -88,7 +88,7 @@ class ObjectInterface(LenseBaseObject):
         :rtype: str
         """
         uuid = self.get_uuid(user)
-        user = LENSE.ensure(self.get(user=uuid),
+        user = LENSE.ensure(self.get(uuid),
             error = 'Could not find user {0}'.format(uuid),
             debug = 'Retrieved user {0} object'.format(uuid),
             code  = 404)

@@ -28,7 +28,7 @@ class APIUserQuerySet(QuerySet):
         """
         Check if the user is a member of the administrator group.
         """
-        groups = self._get_groups(user)
+        groups = self.get_groups(user)
         for group in groups:
             if group['uuid'] == GROUPS.ADMIN.UUID:
                 return True
@@ -78,4 +78,3 @@ class APIUserQuerySet(QuerySet):
         
         # Return the constructed user results
         return users
-
