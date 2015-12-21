@@ -27,7 +27,7 @@ class ObjectInterface(LenseBaseObject):
         """
         if args:
             uuid = self.get_uuid(args[0])
-            self.model.objects.get(uuid)
+            self.model.objects.get(uuid=uuid)
         
         # Retrieving all
         if not kwargs:
