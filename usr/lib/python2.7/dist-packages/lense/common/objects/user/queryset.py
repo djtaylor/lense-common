@@ -86,7 +86,8 @@ class APIUserQuerySet(QuerySet):
             
             # Clean the user object
             for k in self.clean:
-                del user[k]
+                if k in user:
+                    del user[k]
             
             # Merge enhanced attributes
             user.update({
