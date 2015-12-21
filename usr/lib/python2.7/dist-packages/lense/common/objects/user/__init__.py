@@ -21,6 +21,21 @@ class ObjectInterface(LenseBaseObject):
         self.KEY     = LenseBaseObject('lense.common.objects.user.models', 'APIUserKeys')
         self.TOKEN   = LenseBaseObject('lense.common.objects.user.models', 'APIUserTokens')
         
+    def get(self, *args, **kwargs):
+        """
+        Retrieve an object definition.
+        """
+        if args:
+            uuid = self.get_uuid(args[0])
+            self.model.objects.get(uuid)
+        
+        # Retrieving all
+        if not kwargs:
+            return self.model.objects.all()
+    
+        # Retrieving by parameters
+        return self.model.objects.get(**kwargs)
+        
     def get_uuid(self, user):
         """
         Retrieve a user's UUID from various attributes.
@@ -58,11 +73,11 @@ class ObjectInterface(LenseBaseObject):
         :rtype: str
         """
         uuid = self.get_uuid(user)
-        key = LENSE.ensure(self.KEY.get(user=uuid),
-            error = 'Could not find key for user {0}'.format(uuid),
-            debug = 'Retrieved key for user {0}'.format(uuid),
+        user = LENSE.ensure(self.get(user=uuid),
+            error = 'Could not find user {0}'.format(uuid),
+            debug = 'Retrieved user {0} object'.format(uuid),
             code  = 404)
-        return key.api_key
+        return user.api_key
         
     def get_token(self, user):
         """
@@ -73,11 +88,11 @@ class ObjectInterface(LenseBaseObject):
         :rtype: str
         """
         uuid = self.get_uuid(user)
-        token = LENSE.ensure(self.TOKEN.get(user=uuid),
-            error = 'Could not find token for user {0}'.format(uuid),
-            debug = 'Retrieved token for user {0}'.format(uuid),
+        user = LENSE.ensure(self.get(user=uuid),
+            error = 'Could not find user {0}'.format(uuid),
+            debug = 'Retrieved user {0} object'.format(uuid),
             code  = 404)
-        return token.token
+        return user.api_token
         
     def grant_key(self, user, overwrite=False):
         """

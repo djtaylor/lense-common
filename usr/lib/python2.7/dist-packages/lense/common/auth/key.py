@@ -6,6 +6,32 @@ class AuthAPIKey(object):
     API class used to handle validating, retrieving, and generating API keys.
     """
     @staticmethod
+    def create(user):
+        """
+        Generate a new API authentication key.
+        
+        :param user: The user account to generate the key for
+        :type  user: str
+        """
+            
+        # Create a new API key
+        LENSE.LOG.info('Generating API key for user: {0}'.format(user))
+        return LENSE.OBJECTS.USER.grant_key(user)
+    
+    @staticmethod
+    def update(user):
+        """
+        Update a users API key.
+        
+        :param user: The user account to update the key for
+        :type  user: str
+        """
+        
+        # Update the user's token
+        LENSE.LOG.info('Updating API key for user: {0}'.format(user))
+        return LENSE.OBJECTS.USER.grant_key(user, overwrite=True)
+    
+    @staticmethod
     def get(user):
         """
         Get the API key of a user or host account.
@@ -14,17 +40,15 @@ class AuthAPIKey(object):
         :type  user: str
         """
         
-        # User does not exist
-        if not LENSE.USER.exists(user):
-            LENSE.LOG.error('API user "{0}" does not exist in database'.format(user))
-            return None
-        
-        # Get the user model and API key
-        api_user = LENSE.USER.get(user)
-        api_key  = LENSE.USER.key(user)
+        # Get the user API key
+        api_key = LENSE.ensure(LENSE.OBJECTS.USER.get_key(user),
+            isnot = None,
+            error = 'Could not retrieve API key user {0}'.format(user),
+            debug = 'Retrieved user {0} API key'.format(user),
+            code  = 404)
 
         # User has no API key
-        if not api_key:
+        if not user.api_key:
             LENSE.LOG.error('API user "{0}" has no key in the database'.format(user))
             return None
         
@@ -32,36 +56,30 @@ class AuthAPIKey(object):
         return api_key
     
     @staticmethod
-    def validate(user, key):
+    def validate(user, usr_key):
         """
         Validate the API key for a user or host account.
         
-        :param user: The user account to validate
-        :type  user: str
-        :param  key: The incoming API key to validate
-        :type   key: str
+        :param     user: The user account to validate
+        :type      user: str
+        :param  usr_key: The user submitted API key to validate
+        :type   usr_key: str
         :rtype: bool
         """
         
-        # User does not exists or is inactive
-        LENSE.USER.ensure('exists', exc=AuthError, msg='User "{0}" does not exist'.format(user), args=[user])       
-        LENSE.USER.ensure('active', exc=AuthError, msg='User "{0}" is inactive'.format(user), args=[user])
+        # Get the user object
+        user = LENSE.ensure(LENSE.OBJECTS.USER.get(user),
+            error = 'Could not find user {0}'.format(user),
+            debug = 'Found user {0} object'.format(user),
+            code  = 404)
         
-        # Get the API key of the user
-        auth = LENSE.USER.key(user)
-        
-        # User has no key
-        if not auth:
-            raise AuthError('User "{0}" has no API key'.format(user))
+        # Get the API key
+        db_key = LENSE.ensure(AuthAPIKey.get(user),
+            error = 'Could not retrieve API key for user {0}'.format(user),
+            debug = 'Retrieved API key for user {0}'.format(user),
+            code  = 404)
         
         # Invalid key in request
-        if not auth == key:
+        if not db_key == usr_key:
             raise AuthError('User "{0}" has submitted an invalid API key'.format(user))
         return True
-    
-    @staticmethod
-    def create():
-        """
-        Generate a 64 character API key.
-        """
-        return rstring(64)

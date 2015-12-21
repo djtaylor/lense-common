@@ -25,6 +25,19 @@ class AuthAPIToken(object):
         return LENSE.OBJECTS.USER.grant_token(user)
     
     @staticmethod
+    def update(user):
+        """
+        Update a users API token.
+        
+        :param user: The user account to update the token for
+        :type  user: str
+        """
+        
+        # Update the user's token
+        LENSE.LOG.info('Updating API token for user: {0}'.format(user))
+        return LENSE.OBJECTS.USER.grant_token(user, overwrite=True)
+    
+    @staticmethod
     def get(user):
         """
         Get the API authentication token for a user or host account.
@@ -32,18 +45,16 @@ class AuthAPIToken(object):
         :param user: The user account to retrieve the token for
         :type  user: str
         """
-        
-        # Check if the user exists
-        if not LENSE.OBJECTS.USER.TOKEN.exists(user=user):
-            LENSE.LOG.error('API user "{0}" does not exist in database'.format(user))
-            return None
+         
+        # Get the user API token
+        api_token = LENSE.ensure(LENSE.OBJECTS.USER.get_token(user),
+            isnot = None,
+            error = 'Could not retrieve API token user {0}'.format(user),
+            debug = 'Retrieved user {0} API token'.format(user),
+            code  = 404)
 
-        # Get the user object / and API token
-        api_user  = LENSE.OBJECTS.USER.get(uuid=user)
-        api_token = LENSE.OBJECTS.USER.TOKEN.get(uuid=user)
-
-        # User has no API key
-        if not api_token:
+        # User has no API token
+        if not user.api_token:
             LENSE.LOG.error('API user "{0}" has no token in the database'.format(user))
             return None
         
@@ -51,29 +62,30 @@ class AuthAPIToken(object):
         return api_token
     
     @staticmethod
-    def validate(user, token):
+    def validate(user, usr_token):
         """
-        Validate the API token in a request from either a user or host account.
+        Validate the API token for a user or host account.
         
-        :param  user: The user account to validate
-        :type   user: str
-        :param token: The incoming API token to validate
-        :type  token: str
+        :param       user: The user account to validate
+        :type        user: str
+        :param  usr_token: The user submitted API token to validate
+        :type   usr_token: str
         :rtype: bool
         """
         
-        # User does not exists or is inactive
-        LENSE.USER.ensure('exists', exc=AuthError, msg='User "{0}" does not exist'.format(user), args=[user])       
-        LENSE.USER.ensure('active', exc=AuthError, msg='User "{0}" is inactive'.format(user), args=[user])
+        # Get the user object
+        user = LENSE.ensure(LENSE.OBJECTS.USER.get(user),
+            error = 'Could not find user {0}'.format(user),
+            debug = 'Found user {0} object'.format(user),
+            code  = 404)
         
-        # Get the users API token
-        auth = LENSE.USER.token(user)
+        # Get the API token
+        db_token = LENSE.ensure(AuthAPIToken.get(user),
+            error = 'Could not retrieve API token for user {0}'.format(user),
+            debug = 'Retrieved API token for user {0}'.format(user),
+            code  = 404)
         
-        # User has no token
-        if not auth:
-            raise AuthError('User "{0}" has no API token'.format(user))
-        
-        # Invalid API token
-        if not auth == token:
+        # Invalid token in request
+        if not db_token == usr_token:
             raise AuthError('User "{0}" has submitted an invalid API token'.format(user))
         return True
