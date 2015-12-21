@@ -77,7 +77,7 @@ class ObjectInterface(LenseBaseObject):
             error = 'Could not find user {0}'.format(uuid),
             debug = 'Retrieved user {0} object'.format(uuid),
             code  = 404)
-        return user.api_key
+        return user.values()['api_key']
         
     def get_token(self, user):
         """
@@ -92,7 +92,7 @@ class ObjectInterface(LenseBaseObject):
             error = 'Could not find user {0}'.format(uuid),
             debug = 'Retrieved user {0} object'.format(uuid),
             code  = 404)
-        return user.api_token
+        return user.values()['api_token']
         
     def grant_key(self, user, overwrite=False):
         """
