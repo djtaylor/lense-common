@@ -159,7 +159,7 @@ class ObjectInterface(LenseBaseObject):
                 error = 'Failed to create user {0} API key'.format(user.uuid),
                 debug = 'Created user {0} API key -> {1}'.format(user.uuid, key),
                 code  = 500)
-        return api_key
+        return key
     
     def grant_token(self, user, overwrite=False):
         """
