@@ -10,7 +10,7 @@ class EnsureError(Exception):
     Custom exception for handling ensure errors.
     """
     def __init__(self, msg, code=500):
-        super(RequestError, self).__init__(msg)
+        super(EnsureError, self).__init__(msg)
         self.code = code
 
 class AuthError(EnsureError):

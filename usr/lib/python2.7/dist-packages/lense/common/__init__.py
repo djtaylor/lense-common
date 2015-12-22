@@ -4,6 +4,10 @@ __version__ = '0.1.1'
 import __builtin__
 from sys import path, exit, stderr
 
+# Django Libraries
+from django.dispatch import receiver
+from django.db.backends.signals import connection_created
+
 # Lense Libraries
 from lense import import_class
 from lense.common.vars import PROJECTS
@@ -12,6 +16,11 @@ from lense.common.exceptions import InvalidProjectID, EnsureError
 
 # Drop-in Python path
 path.append(DROPIN_ROOT)
+
+# Enable MySQL autocommit
+@receiver(connection_created)
+def connection_init(sender, connection, **kwargv):
+    connection.cursor().execute("SET autocommit=1")
 
 class LenseCommon(object):
     """

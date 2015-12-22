@@ -91,11 +91,17 @@ class ObjectInterface(LenseBaseObject):
         :rtype: str
         """
         uuid = self.get_uuid(user)
-        user = LENSE.ensure(self.KEY.get(user=uuid),
-            error = 'Could not find user {0} API key'.format(uuid),
-            debug = 'Retrieved user {0} API key object'.format(uuid),
-            code  = 404)
-        return user.key
+        
+        # Does the user have a key entry
+        if self.KEY.filter(user=uuid).count():
+            user = LENSE.ensure(self.KEY.get(user=uuid),
+                error = 'Could not find user {0} API key'.format(uuid),
+                debug = 'Retrieved user {0} API key object'.format(uuid),
+                code  = 404)
+            return user.key
+        
+        # User has no key
+        return None
         
     def get_token(self, user):
         """
@@ -106,11 +112,17 @@ class ObjectInterface(LenseBaseObject):
         :rtype: str
         """
         uuid = self.get_uuid(user)
-        user = LENSE.ensure(self.TOKEN.get(user=uuid),
-            error = 'Could not find user {0} API token'.format(uuid),
-            debug = 'Retrieved user {0} API token object'.format(uuid),
-            code  = 404)
-        return user.token
+        
+        # Does the user have a token entry
+        if self.TOKEN.filter(user=uuid).count():
+            user = LENSE.ensure(self.TOKEN.get(user=uuid),
+                error = 'Could not find user {0} API token'.format(uuid),
+                debug = 'Retrieved user {0} API token object'.format(uuid),
+                code  = 404)
+            return user.token
+        
+        # User has no token
+        return None
         
     def grant_key(self, user, overwrite=False):
         """
@@ -122,8 +134,8 @@ class ObjectInterface(LenseBaseObject):
         :type  overwrite: bool
         :rtype: bool
         """
-        uuid    = self.get_uuid(user)
-        api_key = rstring(64)
+        uuid = self.get_uuid(user)
+        key  = rstring(64)
         
         # Get the user object
         user = LENSE.ensure(self.get(uuid=uuid),
@@ -133,23 +145,23 @@ class ObjectInterface(LenseBaseObject):
             code  = 404)
         
         # If the user already has a key
-        if self.KEY.exists(user=user.uuid):
+        if self.KEY.exists(user=uuid):
             LENSE.ensure(overwrite,
                 error = 'Cannot overwrite user {0} key without explicitly setting "overwrite" argument',
-                debug = 'Overwriting user {0} API key -> {1}'.format(uuid, api_key),
+                debug = 'Overwriting user {0} API key -> {1}'.format(uuid, key),
                 code  = 400)
             
             # Update the key
-            LENSE.ensure(self.KEY.update(user=user, api_key=api_key),
+            LENSE.ensure(self.KEY.update(user=uuid, key=key),
                 error = 'Failed to update user {0} API key'.format(uuid),
-                debug = 'Updated user {0} API key -> {1}'.format(uuid, api_key),
+                debug = 'Updated user {0} API key -> {1}'.format(uuid, key),
                 code  = 500)
         
         # Grant a new key
         else:
-            LENSE.ensure(self.KEY.create(user=user, api_key=api_key),
+            LENSE.ensure(self.KEY.create(user=uuid, key=key),
                 error = 'Failed to create user {0} API key'.format(uuid),
-                debug = 'Created user {0} API key -> {1}'.format(uuid, api_key),
+                debug = 'Created user {0} API key -> {1}'.format(uuid, key),
                 code  = 500)
         return api_key
     
@@ -174,21 +186,21 @@ class ObjectInterface(LenseBaseObject):
             code  = 404)
         
         # If the user already has a token
-        if self.TOKEN.exists(user=user.uuid):
+        if self.TOKEN.exists(user=uuid):
             LENSE.ensure(overwrite,
                 error = 'Cannot overwrite user {0} token without explicitly setting "overwrite" argument',
                 debug = 'Overwriting user {0} API token -> {1}'.format(uuid, api_key),
                 code  = 400)
             
             # Update the token
-            LENSE.ensure(self.TOKEN.update(user=user, token=token, expires=expires),
+            LENSE.ensure(self.TOKEN.update(user=uuid, token=token, expires=expires),
                 error = 'Failed to update user {0} API token'.format(uuid),
                 debug = 'Updated user {0} API token -> {1}'.format(uuid, token),
                 code  = 500)
         
         # Grant a new token
         else:
-            LENSE.ensure(self.TOKEN.create(user=user, token=token, expires=expires),
+            LENSE.ensure(self.TOKEN.create(user=uuid, token=token, expires=expires),
                 error = 'Failed to create user {0} API token'.format(uuid),
                 debug = 'Created user {0} API token -> {1}'.format(uuid, token),
                 code  = 500)
@@ -205,9 +217,10 @@ class ObjectInterface(LenseBaseObject):
         uuid   = self.get_uuid(user)
         groups = []
         
-        # Get each group
-        for group in list(LENSE.OBJECTS.GROUP.MEMBERS.get(member=uuid)):
-            groups.append(group.group)
+        # Is the user a member of any groups
+        if LENSE.OBJECTS.GROUP.MEMBERS.filter(member=uuid).count():
+            for group in list(LENSE.OBJECTS.GROUP.MEMBERS.get(member=uuid)):
+                groups.append(group.group)
         return groups
     
     def member_of(self, user, group):

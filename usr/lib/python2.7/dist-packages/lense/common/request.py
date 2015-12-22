@@ -297,7 +297,7 @@ class LenseRequestObject(object):
         
         # Request method / path / client / host / agent / query string / script / current URI
         self.method       = self._get_header_value('REQUEST_METHOD')
-        self.path         = self._get_header_value('PATH_INFO')[1:]
+        self.path         = self._get_header_value('PATH_INFO')
         self.client       = self._get_header_value('REMOTE_ADDR')
         self.host         = self._get_header_value('HTTP_HOST').split(':')[0]
         self.agent        = self._get_header_value('HTTP_USER_AGENT')
