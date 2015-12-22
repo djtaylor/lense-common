@@ -128,40 +128,36 @@ class ObjectInterface(LenseBaseObject):
         """
         Grant an API key to a user account.
         
-        :param      uuid: The UUID of the user to grant the key
-        :type       uuid: str
+        :param      user: The APIUser object to grant a key for
+        :type       user: APIUser
         :param overwrite: Overwrite the existing key if one exists.
         :type  overwrite: bool
         :rtype: bool
         """
-        uuid = self.get_uuid(user)
         key  = rstring(64)
         
-        # Get the user object
-        user = LENSE.ensure(self.get(uuid=uuid),
-            isnot = None,
-            error = 'Cannot grant key to user {0}, not found'.format(uuid),
-            debug = 'Retrieved user {0} object'.format(uuid),
-            code  = 404)
+        # Must be an APIUser instance
+        if not isinstance(user, self.model):
+            raise Exception('User argument must be an instance of APIUser')
         
         # If the user already has a key
-        if self.KEY.exists(user=uuid):
+        if self.KEY.exists(user=user.uuid):
             LENSE.ensure(overwrite,
-                error = 'Cannot overwrite user {0} key without explicitly setting "overwrite" argument',
-                debug = 'Overwriting user {0} API key -> {1}'.format(uuid, key),
+                error = 'Cannot overwrite user {0} key without explicitly setting "overwrite" argument'.format(user.uuid),
+                debug = 'Overwriting user {0} API key -> {1}'.format(user.uuid, key),
                 code  = 400)
             
             # Update the key
-            LENSE.ensure(self.KEY.update(user=uuid, key=key),
-                error = 'Failed to update user {0} API key'.format(uuid),
-                debug = 'Updated user {0} API key -> {1}'.format(uuid, key),
+            LENSE.ensure(self.KEY.update(user=user, key=key),
+                error = 'Failed to update user {0} API key'.format(user.uuid),
+                debug = 'Updated user {0} API key -> {1}'.format(user.uuid, key),
                 code  = 500)
         
         # Grant a new key
         else:
-            LENSE.ensure(self.KEY.create(user=uuid, key=key),
-                error = 'Failed to create user {0} API key'.format(uuid),
-                debug = 'Created user {0} API key -> {1}'.format(uuid, key),
+            LENSE.ensure(self.KEY.create(user=user, key=key),
+                error = 'Failed to create user {0} API key'.format(user.uuid),
+                debug = 'Created user {0} API key -> {1}'.format(user.uuid, key),
                 code  = 500)
         return api_key
     
@@ -169,40 +165,36 @@ class ObjectInterface(LenseBaseObject):
         """
         Create or set a user's token.
         
-        :param    user: User search string
-        :type     user: str
+        :param    user: The APIUser object to grant a token for
+        :type     user: APIUser
         :param   token: The token string
         :type    token: str
         """
-        uuid    = self.get_uuid(user)
         token   = rstring(255)
         expires = datetime.now() + timedelta(hours=settings.API_TOKEN_LIFE)
         
-        # Get the user object
-        user = LENSE.ensure(self.get(uuid=uuid),
-            isnot = None,
-            error = 'Cannot grant token to user {0}, not found'.format(uuid),
-            debug = 'Retrieved user {0} object'.format(uuid),
-            code  = 404)
+        # Must be an APIUser instance
+        if not isinstance(user, self.model):
+            raise Exception('User argument must be an instance of APIUser')
         
         # If the user already has a token
-        if self.TOKEN.exists(user=uuid):
+        if self.TOKEN.exists(user=user.uuid):
             LENSE.ensure(overwrite,
-                error = 'Cannot overwrite user {0} token without explicitly setting "overwrite" argument',
-                debug = 'Overwriting user {0} API token -> {1}'.format(uuid, api_key),
+                error = 'Cannot overwrite user {0} token without explicitly setting "overwrite" argument'.format(user.uuid),
+                debug = 'Overwriting user {0} API token -> {1}'.format(user.uuid, api_key),
                 code  = 400)
             
             # Update the token
-            LENSE.ensure(self.TOKEN.update(user=uuid, token=token, expires=expires),
-                error = 'Failed to update user {0} API token'.format(uuid),
-                debug = 'Updated user {0} API token -> {1}'.format(uuid, token),
+            LENSE.ensure(self.TOKEN.update(user=user, token=token, expires=expires),
+                error = 'Failed to update user {0} API token'.format(user.uuid),
+                debug = 'Updated user {0} API token -> {1}'.format(user.uuid, token),
                 code  = 500)
         
         # Grant a new token
         else:
-            LENSE.ensure(self.TOKEN.create(user=uuid, token=token, expires=expires),
-                error = 'Failed to create user {0} API token'.format(uuid),
-                debug = 'Created user {0} API token -> {1}'.format(uuid, token),
+            LENSE.ensure(self.TOKEN.create(user=user, token=token, expires=expires),
+                error = 'Failed to create user {0} API token'.format(user.uuid),
+                debug = 'Created user {0} API token -> {1}'.format(user.uuid, token),
                 code  = 500)
         return token
     
