@@ -26,14 +26,12 @@ class _LenseProjectLog(object):
         """
         Retrieve a configuration for the project log attributes class.
         """
-        print '_LenseProjectLog._get_config: conf={0}'.format(repr(conf))
         if not conf:
             return conf
         
         # Load the project configuration
         conf = import_class('parse', 'lense.common.config', args=[self._project])
-        print '_LenseProjectLog._get_config: import -> conf={0}'.format(repr(conf))
-        return getattr(conf, self._project, None)
+        return getattr(conf, self._project.lower(), None)
 
 class LenseProject(object):
     """

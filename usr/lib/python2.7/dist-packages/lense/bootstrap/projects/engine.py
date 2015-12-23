@@ -405,7 +405,7 @@ class BootstrapEngine(BootstrapCommon):
         self.deploy_apache()
         
         # Set log file permissions
-        self.set_permissions(self.ATTRS.LOG, owner='www-data:www-data')
+        self.set_permissions(self.CONFIG.engine.log, owner='www-data:www-data')
         
         # Add the Apache user to the lense group
         self.group_add_user('www-data')

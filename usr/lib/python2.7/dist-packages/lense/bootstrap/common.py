@@ -59,6 +59,7 @@ class BootstrapCommon(object):
     def __init__(self, project=None):
         self.project  = project
         self.ATTRS    = getattr(PROJECTS, project.upper())
+        self.CONFIG   = import_class('parse', 'lense.common.config', args=[project.upper()])
         self.handlers = {}
 
         # Internal feedback

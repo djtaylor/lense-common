@@ -15,7 +15,7 @@ CONFIG = Collection({
     'PORTAL': '/etc/lense/portal.conf',
     'CLIENT': '/etc/lense/client.conf',
     'SOCKET': '/etc/lense/socket.conf',
-    'BOOTSTRAP': '/usr/share/lense/bootstrap/config.json'
+    'BOOTSTRAP': '/etc/lense/bootstrap.conf'
 }).get()
 
 # WSGI Configuration Files
