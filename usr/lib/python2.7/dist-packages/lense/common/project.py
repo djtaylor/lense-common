@@ -14,8 +14,8 @@ class _LenseProjectLog(object):
         @param project: The target project
         @type  project: str
         """
+        self._project = project
         self._conf    = self._get_config(conf)
-        self._project = project.lower()
         
         # Log name / file / level
         self.name     = 'lense.{0}'.format(project.lower())
@@ -31,7 +31,7 @@ class _LenseProjectLog(object):
             return conf
         
         # Load the project configuration
-        conf = import_class('parse', 'lense.common.config', args=[project])
+        conf = import_class('parse', 'lense.common.config', args=[self._project])
         print '_LenseProjectLog._get_config: import -> conf={0}'.format(repr(conf))
         return getattr(conf, self._project, None)
 

@@ -14,7 +14,8 @@ CONFIG = Collection({
     'ENGINE': '/etc/lense/engine.conf',
     'PORTAL': '/etc/lense/portal.conf',
     'CLIENT': '/etc/lense/client.conf',
-    'SOCKET': '/etc/lense/socket.conf'
+    'SOCKET': '/etc/lense/socket.conf',
+    'BOOTSTRAP': '/usr/share/lense/bootstrap/config.json'
 }).get()
 
 # WSGI Configuration Files
@@ -48,27 +49,27 @@ HANDLERS = Collection({
 # Lense Projects
 PROJECTS = Collection({
     'ENGINE': {
-        'CONF': '/etc/lense/engine.conf',
+        'CONF': getattr(CONFIG, 'ENGINE'),
         'REQUEST': True,
         'OBJECTS': True,
         'AUTH': True
     },
     'PORTAL': {
-        'CONF': '/etc/lense/portal.conf',
+        'CONF': getattr(CONFIG, 'PORTAL'),
         'REQUEST': True,
         'OBJECTS': True,
         'AUTH': True
     },
     'CLIENT': {
-        'CONF': '/etc/lense/client.conf'
+        'CONF': getattr(CONFIG, 'CLIENT'),
     },
     'SOCKET': {
-        'CONF': '/etc/lense/socket.conf',
+        'CONF': getattr(CONFIG, 'SOCKET'),
         'RUN': '/var/run/lense',
         'PREFIX': '/usr/share/lense/socket'
     },
     'BOOTSTRAP': {
-        'CONF': '/usr/share/lense/bootstrap/config.json',
+        'CONF': getattr(CONFIG, 'BOOTSTRAP'),
         'REQUEST': True,
         'OBJECTS': True
     }
