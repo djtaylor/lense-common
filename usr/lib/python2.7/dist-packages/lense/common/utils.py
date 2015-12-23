@@ -231,38 +231,12 @@ def format_action(a, m, w=10, b=False):
     b = '' if not b else '\r'
     return "{0:<{1}}{2}{3}\n".format(a, w, m, b)
 
-class UtilsBase(object):
-    """
-    Utilities base class for specific classes. Constucts the configuration and logging
-    objects depending if you are on a server or agent.
-    """
-    def __init__(self, child):
-        """
-        Class constructor.
-        
-        :param child: Child class object
-        :type child: class object
-        """
-    
-        # Define the logger name
-        log_name  = '{}.{}'.format(__name__, child.__class__.__name__)
-
-        # Running utilities on the server
-        if os.path.isfile(CONFIG.ENGINE):
-            self.conf = config.parse('ENGINE')
-            self.log  = logger.create(log_name, self.conf.utils.log)
-            
-        # Raise an exception if neither the server nor agent configuration is found
-        else:
-            raise Exception('Could not locate the server configuration')
-
-class FileSec(UtilsBase):
+class FileSec(object):
     """
     File security class. Used to generate checksums, as well as encrypt and 
     decrypt files.
     """
     def __init__(self):
-        super(FileSec, self).__init__(self)
         
         # File chunk size
         self.chunk_size = 64*1024
@@ -292,7 +266,7 @@ class FileSec(UtilsBase):
         checksum = hash_obj.hexdigest()
         
         # Log and return the checksum
-        self.log.info('Generating SHA256 checksum [{}] for: {}'.format(checksum, filename))
+        LENSE.LOG.info('Generating SHA256 checksum [{}] for: {}'.format(checksum, filename))
         return checksum
     
     def encrypt(self, infile, outfile, key):
@@ -324,10 +298,10 @@ class FileSec(UtilsBase):
         :rtype: boolean
         """
         if not os.path.isfile(infile):
-            self.log.error('Failed to enrypt file [{}]: file not found'.format(infile))
+            LENSE.LOG.error('Failed to enrypt file [{}]: file not found'.format(infile))
             return False 
         if os.path.isfile(outfile):
-            self.log.error('Failed to encrypt file - output file [{}] already exists'.format(outfile))
+            LENSE.LOG.error('Failed to encrypt file - output file [{}] already exists'.format(outfile))
             return False
         
         # Encrypt the file
@@ -345,7 +319,7 @@ class FileSec(UtilsBase):
                     elif len(chunk) % 16 != 0:
                         chunk += b' ' * (16 - len(chunk) % 16)
                     ofh.write(encryptor.encrypt(chunk))
-        self.log.info('Encrypting file [{}] to [{}] using AES-256 and key string'.format(infile, outfile))
+        LENSE.LOG.info('Encrypting file [{}] to [{}] using AES-256 and key string'.format(infile, outfile))
         return True
     
     def decrypt(self, infile, outfile, key):
@@ -377,10 +351,10 @@ class FileSec(UtilsBase):
         :rtype: boolean
         """
         if not os.path.isfile(infile):
-            self.log.error('Failed to decrypt file [{}]: file not found'.format(infile))
+            LENSE.LOG.error('Failed to decrypt file [{}]: file not found'.format(infile))
             return False 
         if os.path.isfile(outfile):
-            self.log.error('Failed to decrypt file - output file [{}] already exists'.format(outfile))
+            LENSE.LOG.error('Failed to decrypt file - output file [{}] already exists'.format(outfile))
             return False
         
         # Decrypt the file
@@ -395,16 +369,15 @@ class FileSec(UtilsBase):
                         break
                     ofh.write(decryptor.decrypt(chunk))
                 ofh.truncate(origsize)
-        self.log.info('Decrypting file [{}] to [{}] using AES-256 and key string'.format(infile, outfile))
+        LENSE.LOG.info('Decrypting file [{}] to [{}] using AES-256 and key string'.format(infile, outfile))
         return True
 
-class JSONTemplate(UtilsBase):
+class JSONTemplate(object):
     """
     A utility class designed to validate a JSON object against a template file. Used
     to verify the structure of API requests.
     """
     def __init__(self, template=None):
-        super(JSONTemplate, self).__init__(self)
         
         # Set the template object
         self.template_obj = template
@@ -506,7 +479,7 @@ class JSONTemplate(UtilsBase):
         """
         Construct and return a JSON path error, showing exactly where validation failed and why.
         """
-        return self.log.error('Error at {}: {}'.format(map, msg))
+        return LENSE.LOG.error('Error at {}: {}'.format(map, msg))
     
     def validate(self, target_str=None):
         """
@@ -677,9 +650,9 @@ class JSONTemplate(UtilsBase):
             if cb: cb()
                    
         # Recursive callback
-        self.log.info('Initializing template validation run')
+        LENSE.LOG.info('Initializing template validation run')
         def rcb():
-            self.log.info('Completed template validation run')
+            LENSE.LOG.info('Completed template validation run')
                    
         # Walk through and validate the formula structure with the template
         return _dict_walk('root', self.template['root'], self.target, m, rcb)

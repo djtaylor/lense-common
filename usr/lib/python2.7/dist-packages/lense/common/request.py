@@ -1,4 +1,5 @@
 import json
+from re import compile
 from sys import getsizeof
 
 # Django Libraries
@@ -11,6 +12,7 @@ from lense.common.utils import truncate
 from lense.common.collection import Collection
 from lense.common.exceptions import RequestError
 from lense.common.http import HTTP_GET, HTTP_POST, HTTP_PUT, HEADER, PATH
+from django.template.defaultfilters import default
 
 class LenseWSGIRequest(object):
     """
@@ -254,11 +256,27 @@ class LenseRequestObject(object):
         """
         return self.headers.get('HTTP_{0}'.format(HEADER.API_TOKEN.upper().replace('-', '_')), '')
     
-    def _get_header_value(self, k, default=None):
+    def _get_header_value(self, key, default=None, regex=None):
         """
         Extract a value from the request headers.
+        
+        :param     key: The header hey to extract
+        :type      key: str
+        :param default: The default value to return if none found
+        :type  default: mixed
+        :param   regex: An optional compiled regex to extract a match from
+        :type    regex: SRE_Pattern (i.e., re.compile())
         """
-        return self.DJANGO.META.get(k, default)
+        header_value = self.DJANGO.META.get(key, default)
+        
+        # Default value found
+        if header_value == default:
+            return header_value
+        
+        # If passing through a regex
+        if regex:
+            return regex.sub(r'\g<1>', header_value)
+        return header_value
     
     def map_data(self, keys):
         """
@@ -297,7 +315,7 @@ class LenseRequestObject(object):
         
         # Request method / path / client / host / agent / query string / script / current URI
         self.method       = self._get_header_value('REQUEST_METHOD')
-        self.path         = self._get_header_value('PATH_INFO')
+        self.path         = self._get_header_value('PATH_INFO', regex=compile(r'^\/?(.*$)'))
         self.client       = self._get_header_value('REMOTE_ADDR')
         self.host         = self._get_header_value('HTTP_HOST').split(':')[0]
         self.agent        = self._get_header_value('HTTP_USER_AGENT')
