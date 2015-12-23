@@ -27,19 +27,21 @@ class LenseBaseObject(object):
         self.uidf   = self.model.UID_FIELD
 
         # Debug log prefix
-        self.logpre = '<OBJECTS:{0}> '.format(self.cls)
+        self.logpre = 'OBJECTS:{0}'.format(self.cls)
 
-    def log(self, msg, level='info'):
+    def log(self, msg, level='info', method=None):
         """
         Wrapper method for logging with a prefix.
         
-        :param   msg: The message to log
-        :type    msg: str
-        :param level: The desired log level
-        :type  level: str
+        :param    msg: The message to log
+        :type     msg: str
+        :param  level: The desired log level
+        :type   level: str
+        :param method: Optionally append the method to log prefix
+        :type  method: str
         """
         logger = getattr(LENSE.LOG, level, 'info')
-        logger('{0}{1}'.format(self.logpre, msg))
+        logger('<{0}{1}> {2}'.format(self.logpre, '' if not method else '.{0}'.format(method), msg))
 
     def is_email(self, emailstr):
         """
@@ -92,7 +94,7 @@ class LenseBaseObject(object):
         Check if an object exists.
         """
         count = self.model.objects.filter(**kwargs).count()
-        self.log('Found {0} objects -> filter: {1}'.format(str(count), str(kwargs)), level='debug')
+        self.log('Found {0} objects -> filter: {1}'.format(str(count), str(kwargs)), level='debug', method='exists')
         return count
     
     def update(self, **kwargs):
@@ -104,18 +106,18 @@ class LenseBaseObject(object):
         
         # Object doesn't exist, cannot updated
         if not obj:
-            self.log('Cannot update object -> {0}: Does not exist'.format(uid), level='debug')
+            self.log('Cannot update object -> {0}: Does not exist'.format(uid), level='debug', method='update')
             return False
         
         # Update the object
         try:
             obj.update(**kwargs)
-            self.log('Updated object -> {0}'.format(uid))
+            self.log('Updated object -> {0}'.format(uid), level='debug', method='update')
             return True
         
         # Failed to update object
         except Exception as e:
-            self.log('Failed to update object -> {0}: {1}'.format(uid, str(e)), level='exception')
+            self.log('Failed to update object -> {0}: {1}'.format(uid, str(e)), level='exception', method='update')
             return False
     
     def create(self, **kwargs):
@@ -128,14 +130,14 @@ class LenseBaseObject(object):
             obj = self.model(**kwargs)
             obj.save()
             uid = '{0}={1}'.format(self.uidf, getattr(obj, self.uidf))
-            self.log('Created object -> {0}'.format(uid), level='debug')
+            self.log('Created object -> {0}'.format(uid), level='debug', method='create')
             
             # Return the new object
             return obj
         
         # Failed to create the object
         except Exception as e:
-            self.log('Failed to create object: {0}'.format(self.cls, str(e)), level='exception')
+            self.log('Failed to create object: {0}'.format(self.cls, str(e)), level='exception', method='create')
             return False
     
     def delete(self, **kwargs):
@@ -147,18 +149,18 @@ class LenseBaseObject(object):
         
         # Object doesn't exist, cannot delete
         if not obj:
-            self.log('Cannot delete object -> {0}: Does not exist'.format(uid), level='debug')
+            self.log('Cannot delete object -> {0}: Does not exist'.format(uid), level='debug', method='delete')
             return False
         
         # Delete the object
         try:
             obj.delete()
-            self.log('Deleted object -> {0}'.format(self.cls, uid), level='debug')
+            self.log('Deleted object -> {0}'.format(self.cls, uid), level='debug', method='delete')
             return True
 
         # Failed to delete the object
         except Exception as e:
-            self.log('Failed to delete object -> {0}: {1}'.format(self.cls, uid, str(e)), level='exception')
+            self.log('Failed to delete object -> {0}: {1}'.format(self.cls, uid, str(e)), level='exception', method='delete')
             return False
     
     def get(self, **kwargs):
@@ -169,15 +171,15 @@ class LenseBaseObject(object):
         # Retrieving all
         if not kwargs:
             objects = self.model.objects.all()
-            self.log('Retrieved all objects: count={1}'.format(self.cls, objects.count()), level='debug')
+            self.log('Retrieved all objects: count={1}'.format(self.cls, objects.count()), level='debug', method='get')
             return objects
     
         # Object doesn't exist
         if not self.exists(**kwargs):
-            self.log('Object not found -> filter: {0}'.format(str(kwargs)), level='debug')
+            self.log('Object not found -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
             return None
     
         # Retrieving by parameters
         object = self.model.objects.get(**kwargs)
-        self.log('Retrieved object -> filter: {0}'.format(str(kwargs)), level='debug')
+        self.log('Retrieved object -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
         return object
