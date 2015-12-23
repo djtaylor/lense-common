@@ -1,0 +1,6 @@
+{
+	"bootstrap": {
+		"log": "/var/log/lense/bootstrap.log",
+		"log_level": "DEBUG"
+	}
+}
