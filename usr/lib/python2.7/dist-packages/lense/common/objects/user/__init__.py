@@ -36,6 +36,7 @@ class ObjectInterface(LenseBaseObject):
         }.iteritems():
             self.log('Extending user {0} attributes -> {1}={2}'.format(user.uuid,k,v), level='debug', method='extend')
             setattr(user, k, v)
+        return user
         
     def get(self, *args, **kwargs):
         """
