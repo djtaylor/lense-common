@@ -34,6 +34,7 @@ class ObjectInterface(LenseBaseObject):
             'api_token': self.get_token(user.uuid),
             'groups': self.get_groups(user.uuid)
         }.iteritems():
+            self.log('Extending user {0} attributes -> {1}={2}'.format(user.uuid,k,v), level='debug')
             setattr(user, k, v)
         
     def get(self, *args, **kwargs):
@@ -41,12 +42,22 @@ class ObjectInterface(LenseBaseObject):
         Retrieve an object definition.
         """
         if args:
-            uuid = self.get_uuid(args[0])
-            return self.extend(self.model.objects.get(uuid=uuid))
+            filter = {'uuid': self.get_uuid(args[0])}
+            
+            # User doesn't exist
+            if not self.exists(**filter):
+                self.log('Object not found -> filter: {0}'.format(str(filter)), level='debug')
+                return None
+            
+            # Get the user object
+            user = self.model.objects.get(**filter)
+            self.log('Retrieved object -> filter: {0}'.format(str(filter)), level='debug')
+            return self.extend(user)
         
         # Retrieving all
         if not kwargs:
             all_users = list(self.model.objects.all())
+            self.log('Retrieved all objects: count={1}'.format(self.cls, all_users.count()), level='debug')
             for user in all_users:
                 self.extend(user)
             return all_users
