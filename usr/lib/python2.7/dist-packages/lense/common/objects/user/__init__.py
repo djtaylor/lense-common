@@ -62,6 +62,11 @@ class ObjectInterface(LenseBaseObject):
                 self.extend(user)
             return all_users
     
+        # User doesn't exist
+        if not self.exists(**kwargs):
+            self.log('Object not found -> filter: {0}'.format(str(kwargs)), level='debug')
+            return None
+    
         # Retrieving by parameters
         return self.extend(self.model.objects.get(**kwargs))
         
