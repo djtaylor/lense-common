@@ -91,7 +91,9 @@ class LenseBaseObject(object):
         """
         Check if an object exists.
         """
-        return self.model.objects.filter(**kwargs).count()
+        count = self.model.objects.filter(**kwargs).count()
+        self.log('Found {0} objects -> filter: {1}'.format(str(count), str(kwargs)), level='debug')
+        return count
     
     def update(self, **kwargs):
         """
