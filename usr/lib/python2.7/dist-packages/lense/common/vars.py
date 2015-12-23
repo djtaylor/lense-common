@@ -48,31 +48,26 @@ HANDLERS = Collection({
 # Lense Projects
 PROJECTS = Collection({
     'ENGINE': {
-        'LOG':  '/var/log/lense/engine.log',
         'CONF': '/etc/lense/engine.conf',
         'REQUEST': True,
         'OBJECTS': True,
         'AUTH': True
     },
     'PORTAL': {
-        'LOG':  '/var/log/lense/portal.log',
         'CONF': '/etc/lense/portal.conf',
         'REQUEST': True,
         'OBJECTS': True,
         'AUTH': True
     },
     'CLIENT': {
-        'LOG':  '/var/log/lense/client.log',
         'CONF': '/etc/lense/client.conf'
     },
     'SOCKET': {
-        'LOG':  '/var/log/lense/socket.log',
         'CONF': '/etc/lense/socket.conf',
         'RUN': '/var/run/lense',
         'PREFIX': '/usr/share/lense/socket'
     },
     'BOOTSTRAP': {
-        'LOG':  '/var/log/lense/bootstrap.log',
         'REQUEST': True,
         'OBJECTS': True
     }

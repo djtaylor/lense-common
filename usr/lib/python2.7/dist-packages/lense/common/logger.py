@@ -2,7 +2,7 @@ from os import makedirs
 from time import strftime
 from os.path import isdir, dirname
 from json import dumps as json_dumps
-from logging import handlers, INFO, getLogger, Formatter
+from logging import handlers, getLogger, Formatter
 
 # Django Libraries
 from django.http import HttpResponse
@@ -184,7 +184,7 @@ class Logger:
     a message and return the value so it can be passed into an HTTP response.
     """
     @ staticmethod
-    def construct(name, log_file):
+    def construct(name, log_file, log_level='INFO'):
         """
         Construct the logging object. If the log handle already exists don't create
         anything so we don't get duplicated log messages.
@@ -206,7 +206,7 @@ class Logger:
         
         # Don't create duplicate handlers
         if not len(logger.handlers):
-            logger.setLevel(INFO)
+            logger.setLevel(getattr(logging, log_level, 'INFO'))
             
             # Set the file handler
             lfh = handlers.RotatingFileHandler(log_file, mode='a', maxBytes=10*1024*1024, backupCount=5)
@@ -224,9 +224,9 @@ def create_project(project):
     PROJECT = LenseProject(project)
     
     # Return a logger object
-    return create(PROJECT.LOG.name, PROJECT.LOG.file)
+    return create(PROJECT.LOG.name, PROJECT.LOG.file, PROJECT.LOG.level)
     
-def create(name=False, log_file=None):
+def create(name=False, log_file=None, log_level=None):
     """
     Factory method used to construct and return a Python logging object. Must supply
     a module prefix as well as a log file.
@@ -254,5 +254,5 @@ def create(name=False, log_file=None):
     :rtype: Logger
     """
     if name and log_file:
-        return Logger.construct(name, log_file)
+        return Logger.construct(name, log_file, log_level)
     raise Exception('Logger factory method must have a module name and log file as arguments')
