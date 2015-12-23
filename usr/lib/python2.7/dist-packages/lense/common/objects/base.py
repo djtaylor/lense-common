@@ -1,3 +1,4 @@
+from copy import copy
 from uuid import UUID
 
 # Django Libraries
@@ -22,8 +23,9 @@ class LenseBaseObject(object):
         self.module = mod
         self.cls    = cls
         
-        # Get the object model
+        # Get the object model / primary key
         self.model  = import_class(cls, mod, init=False)
+        self.pk     = self.model._meta.pk.name
 
     def is_email(self, emailstr):
         """
@@ -81,12 +83,12 @@ class LenseBaseObject(object):
         """
         Update an existing object.
         """
-        obj  = self.get(**kwargs)
-        uuid = kwargs.get('uuid', None)
+        obj = self.get(**kwargs)
+        uid = '{0}={1}'.format(self.pk, getattr(kwargs, self.pk))
         
         # Object doesn't exist, cannot updated
         if not obj:
-            LENSE.LOG.debug('Cannot update <{0}:{1}>, object does not exist'.format(self.cls, uuid))
+            LENSE.LOG.debug('Cannot update <{0}> object <{1}>, does not exist'.format(self.cls, uid))
             return False
         
         # Update the object
@@ -96,46 +98,49 @@ class LenseBaseObject(object):
         
         # Failed to update object
         except Exception as e:
-            LENSE.LOG.exception('Failed to update <{0}:{1}>: {1}'.format(self.cls, str(e)))
+            LENSE.LOG.exception('Failed to update <{0}> object <{1}>: {2}'.format(self.cls, uid, str(e)))
     
-    def create(self, **params):
+    def create(self, **kwargs):
         """
         Create a new object
         """
+        uid = '{0}={1}'.format(self.pk, getattr(kwargs, self.pk))
         try:
             
             # Create/save the object
             obj = self.model(**params)
             obj.save()
+            LENSE.LOG.debug('Created <{0}> object <{1}>'.format(self.cls, uid))
             
             # Return the new object
             return obj
         
         # Failed to create the object
         except Exception as e:
-            LENSE.LOG.exception('Failed to create {0}: {1}'.format(self.cls, str(e)))
+            LENSE.LOG.exception('Failed to create <{0}> object <{1}>: {2}'.format(self.cls, uid, str(e)))
             return False
     
     def delete(self, **kwargs):
         """
         Delete an object definition.
         """
-        obj  = self.get(**kwargs)
-        uuid = kwargs.get('uuid', None)
+        obj = self.get(**kwargs)
+        uid = '{0}={1}'.format(self.pk, kwargs.get(self.pk, None))
         
         # Object doesn't exist, cannot delete
         if not obj:
-            LENSE.LOG.debug('Cannot delete <{0}:{1}>, object does not exist'.format(self.cls, uuid))
+            LENSE.LOG.debug('Cannot delete <{0}>, object <{1}> does not exist'.format(self.cls, uid))
             return False
         
         # Delete the object
         try:
             obj.delete()
+            LENSE.LOG.debug('Deleted <{0}> object <{1}>'.format(self.cls, uid))
             return True
 
         # Failed to delete the object
         except Exception as e:
-            LENSE.LOG.exception('Failed to delete <{0}:{1}>: {2}'.format(self.cls, uuid, str(e)))
+            LENSE.LOG.exception('Failed to delete <{0}> object <{1}>: {2}'.format(self.cls, uid, str(e)))
             return False
     
     def get(self, **kwargs):
@@ -145,7 +150,11 @@ class LenseBaseObject(object):
         
         # Retrieving all
         if not kwargs:
-            return self.model.objects.all()
+            objects = self.model.objects.all()
+            LENSE.LOG.debug('Retrieved all <{0}> objects -> count: {1}'.format(self.cls, len(objects)))
+            return objects
     
         # Retrieving by parameters
-        return self.model.objects.get(**kwargs)
+        objects = self.model.objects.get(**kwargs)
+        LENSE.LOG.debug('Retrieved <{0}> objects -> count: {1}, filter: {2}'.format(self.cls, len(objects), str(kwargs)))
+        return objects

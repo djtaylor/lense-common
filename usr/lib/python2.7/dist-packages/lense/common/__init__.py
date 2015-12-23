@@ -49,7 +49,7 @@ class LenseCommon(object):
         self.REQUEST     = import_class('LenseRequestObject', 'lense.common.request', ensure=pattr('get_request'))
         self.LOG         = import_class('create_project', 'lense.common.logger', args=[project])
         self.OBJECTS     = import_class('LenseAPIObjects', 'lense.common.objects', ensure=pattr('get_objects'))
-        self.CONF        = import_class('parse', 'lense.common.config', ensure=pattr('get_conf'), args=[project])
+        self.CONF        = import_class('parse', 'lense.common.config', args=[project])
         self.API         = import_class('LenseAPIConstructor', 'lense.common.api', init=False)
         self.URL         = import_class('LenseURLConstructor', 'lense.common.url', init=False)
         self.MODULE      = import_class('LenseModules', 'lense.common.modules', init=False)
@@ -60,8 +60,18 @@ class LenseCommon(object):
         self.SOCKET      = None
         
         # Initialize logs
-        self.LOG.info('Starting {0}'.format(self.PROJECT.name))
-        self.LOG.info('CONF: {0} {1}'.format(self.PROJECT.conf, repr(self.CONF)))
+        self._log_startup()
+        
+    def _log_startup(self):
+        """
+        Start the logs for this project run.
+        """
+        self.LOG.info('Starting project: lense-{0}'.format(self.PROJECT.name.lower()))
+        
+        # Log the configuration
+        for s,a in self.CONF.__dict__.iteritems():
+            for k,v in a.__dict__.iteritems():
+                self.LOG.debug('[config] -> {0}.{1} = {2}'.format(s,k,v))
         
     def get_request(self):
         """
