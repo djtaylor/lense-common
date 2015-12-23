@@ -94,7 +94,7 @@ class LenseBaseObject(object):
         Check if an object exists.
         """
         count = self.model.objects.filter(**kwargs).count()
-        self.log('Found {0} objects -> filter: {1}'.format(str(count), str(kwargs)), level='debug', method='exists')
+        self.log('Found {0} object(s) -> filter: {1}'.format(str(count), str(kwargs)), level='debug', method='exists')
         return count
     
     def update(self, **kwargs):
@@ -179,7 +179,17 @@ class LenseBaseObject(object):
             self.log('Object not found -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
             return None
     
-        # Retrieving by parameters
-        object = self.model.objects.get(**kwargs)
-        self.log('Retrieved object -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
-        return object
+        # How many objects are we retrieving
+        count = self.model.objects.filter(**kwargs).count()
+    
+        # Single object
+        if count == 1:
+            object = self.model.objects.get(**kwargs)
+            self.log('Retrieved single object -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
+            return object
+            
+        # Multiple objects
+        else:
+            objects = list(self.model.objects.filter(**kwargs))
+            self.log('Retrieved objects -> count={0}, filter: {1}'.format(count, str(kwargs)), level='debug', method='get')
+            return objects
