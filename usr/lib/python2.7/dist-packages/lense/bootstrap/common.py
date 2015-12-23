@@ -299,11 +299,11 @@ class BootstrapCommon(object):
             self.mkdir(file if is_dir else self.dirname(file))
         
         # Make sure the file exists if the flag is given
-        if create and not path.isfile(file):
+        if create and not is_file:
             open(file, 'w').close()
         
         # If the path exists
-        if is_dir or is_file:
+        if path.isdir(file) or path.isfile(file):
             
             # Changing owner
             if owner:
