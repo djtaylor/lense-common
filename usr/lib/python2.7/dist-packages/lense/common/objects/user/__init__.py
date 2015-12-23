@@ -252,13 +252,7 @@ class ObjectInterface(LenseBaseObject):
         :type  group: str
         """
         groups = self.get_groups(user)
-        
-        is_member = False
-        for _group in getattr(self.get(**self.map_user(user)), 'groups', []):
-            if _group['uuid'] == group: 
-                is_member = True
-                break
-        return is_member
+        return False if not group in groups else True
         
     def active(self, **kwargs):
         """
