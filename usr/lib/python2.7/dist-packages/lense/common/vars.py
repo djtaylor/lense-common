@@ -68,6 +68,7 @@ PROJECTS = Collection({
         'PREFIX': '/usr/share/lense/socket'
     },
     'BOOTSTRAP': {
+        'CONF': '/usr/share/lense/bootstrap/config.json',
         'REQUEST': True,
         'OBJECTS': True
     }

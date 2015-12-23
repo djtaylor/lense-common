@@ -1,3 +1,6 @@
+import syslog
+
+# Lense Libraries
 from lense import import_class
 from lense.common.vars import PROJECTS, TEMPLATES
 from lense.common.exceptions import InvalidProjectID
@@ -23,11 +26,13 @@ class _LenseProjectLog(object):
         """
         Retrieve a configuration for the project log attributes class.
         """
+        print '_LenseProjectLog._get_config: conf={0}'.format(repr(conf))
         if not conf:
             return conf
         
         # Load the project configuration
         conf = import_class('parse', 'lense.common.config', args=[project])
+        print '_LenseProjectLog._get_config: import -> conf={0}'.format(repr(conf))
         return getattr(conf, self._project, None)
 
 class LenseProject(object):
