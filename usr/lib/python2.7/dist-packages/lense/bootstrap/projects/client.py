@@ -37,7 +37,7 @@ class BootstrapClient(BootstrapCommon):
         self.update_config()
         
         # Set log permissions
-        self.set_permissions(self.CONFIG.client.log, owner='www-data:lense', mode='644')
+        self.set_permissions(self.CONFIG.client.log, owner='www-data:lense', mode='664')
         
         # Show the bootstrap complete summary
         self._bootstrap_complete()
