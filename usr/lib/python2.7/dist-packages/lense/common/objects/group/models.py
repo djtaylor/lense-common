@@ -19,6 +19,9 @@ class APIGroupMembers(Model):
     group     = ForeignKey('group.APIGroups', to_field='uuid', db_column='group')
     member    = ForeignKey('user.APIUser', to_field='uuid', db_column='member')
     
+    # Unique ID field
+    UID_FIELD = 'group'
+    
     # Custom model metadata
     class Meta:
         db_table = 'api_group_members'
@@ -31,6 +34,9 @@ class APIGroups(Model):
     name      = CharField(max_length=64, unique=True)
     desc      = CharField(max_length=128)
     protected = NullBooleanField()
+    
+    # Unique ID field
+    UID_FIELD = 'uuid'
     
     # Custom objects manager
     objects   = APIGroupsManager()

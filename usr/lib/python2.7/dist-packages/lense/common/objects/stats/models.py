@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 # Django Libraries
 from django.db.models import Model, CharField, IntegerField, DateTimeField
 
@@ -5,6 +7,7 @@ class APIRequestStats(Model):
     """
     Main database model for storing API request stats.
     """
+    uuid         = CharField(max_length=36, unique=True, default=str(uuid4()))
     path         = CharField(max_length=128)
     method       = CharField(max_length=6)
     client_ip    = CharField(max_length=15)
@@ -18,6 +21,9 @@ class APIRequestStats(Model):
     rsp_time_ms  = IntegerField()
     created      = DateTimeField(auto_now_add=True)
     
+    # Unique ID field
+    UID_FIELD = 'uuid'
+    
     # Custom table metadata
     class Meta:
-        db_table = 'api_stats_request'
+        db_table  = 'api_stats_request'

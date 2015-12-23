@@ -23,9 +23,8 @@ class LenseBaseObject(object):
         self.module = mod
         self.cls    = cls
         
-        # Get the object model / primary key
+        # Get the object model / unique ID
         self.model  = import_class(cls, mod, init=False)
-        self.pk     = self.model._meta.pk.name
 
     def is_email(self, emailstr):
         """
@@ -84,7 +83,7 @@ class LenseBaseObject(object):
         Update an existing object.
         """
         obj = self.get(**kwargs)
-        uid = '{0}={1}'.format(self.pk, getattr(kwargs, self.pk))
+        uid = '{0}={1}'.format(self.pk, getattr(kwargs, self.model.UID_FIELD))
         
         # Object doesn't exist, cannot updated
         if not obj:
@@ -104,7 +103,7 @@ class LenseBaseObject(object):
         """
         Create a new object
         """
-        uid = '{0}={1}'.format(self.pk, getattr(kwargs, self.pk))
+        uid = '{0}={1}'.format(self.pk, getattr(kwargs, self.model.UID_FIELD))
         try:
             
             # Create/save the object
@@ -125,7 +124,7 @@ class LenseBaseObject(object):
         Delete an object definition.
         """
         obj = self.get(**kwargs)
-        uid = '{0}={1}'.format(self.pk, kwargs.get(self.pk, None))
+        uid = '{0}={1}'.format(self.pk, kwargs.get(self.model.UID_FIELD, None))
         
         # Object doesn't exist, cannot delete
         if not obj:

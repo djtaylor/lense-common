@@ -14,6 +14,9 @@ class ACLGlobalAccess(Model):
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
     handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='utility')
     
+    # Unique ID field
+    UID_FIELD = 'acl'
+    
     # Custom table metadata
     class Meta:
         db_table = 'acl_access_global'
@@ -24,6 +27,9 @@ class ACLObjectAccess(Model):
     """
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
     handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='utility')
+    
+    # Unique ID field
+    UID_FIELD = 'acl'
     
     # Custom table metadata
     class Meta:
@@ -44,6 +50,9 @@ class ACLObjects(Model):
     obj_key    = CharField(max_length=36)
     def_acl    = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='def_acl', null=True, blank=True, on_delete=SET_NULL)
 
+    # Unique ID field
+    UID_FIELD = 'uuid'
+
     # Custom objects manager
     objects    = ACLObjectsManager()
 
@@ -62,6 +71,9 @@ class ACLKeys(Model):
     type_object = BooleanField()
     type_global = BooleanField()
     
+    # Unique ID field
+    UID_FIELD = 'uuid'
+    
     # Custom objects manager
     objects     = ACLKeysManager()
     
@@ -78,6 +90,9 @@ class ACLGroupPermissions_Object_Group(Model):
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner', related_name='group_owner')
     allowed    = NullBooleanField()
     
+    # Unique ID field
+    UID_FIELD = 'acl'
+    
     # Custom table metadata
     class Meta:
         db_table = 'acl_group_permissions_object_group'
@@ -90,6 +105,9 @@ class ACLGroupPermissions_Object_User(Model):
     user       = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
     allowed    = NullBooleanField()
+    
+    # Unique ID field
+    UID_FIELD = 'acl'
     
     # Custom table metadata
     class Meta:
@@ -104,6 +122,9 @@ class ACLGroupPermissions_Object_Handler(Model):
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
     allowed    = NullBooleanField()
         
+    # Unique ID field
+    UID_FIELD = 'acl'
+        
     # Custom table metadata
     class Meta:
         db_table = 'acl_group_permissions_object_utility'
@@ -115,6 +136,9 @@ class ACLGroupPermissions_Global(Model):
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
     allowed    = NullBooleanField()
+    
+    # Unique ID field
+    UID_FIELD = 'acl'
     
     # Custom table metadata
     class Meta:

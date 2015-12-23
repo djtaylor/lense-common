@@ -16,6 +16,9 @@ class APIUserKeys(Model):
     user = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
     key  = CharField(max_length=64, unique=True)
     
+    # Unique ID field
+    UID_FIELD = 'user'
+    
     # Custom model metadata
     class Meta:
         db_table = 'api_user_keys'
@@ -30,9 +33,12 @@ class APIUserTokens(Model):
     token   = CharField(max_length=255, unique=True)
     expires = DateTimeField()
     
+    # Unique ID field
+    UID_FIELD = 'user'
+    
     # Custom model metadata
     class Meta:
-        db_table = 'api_user_tokens'
+        db_table  = 'api_user_tokens'
 
 class APIUser(AbstractBaseUser):
     """
@@ -64,6 +70,9 @@ class APIUser(AbstractBaseUser):
         default   = True,
         help_text = _('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.')
     )
+
+    # Unique ID field
+    UID_FIELD       = 'uuid'
 
     # Username field and required fields
     USERNAME_FIELD  = 'username'
