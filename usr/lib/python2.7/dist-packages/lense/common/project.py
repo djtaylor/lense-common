@@ -1,6 +1,3 @@
-import syslog
-
-# Lense Libraries
 from lense import import_class
 from lense.common.vars import PROJECTS, TEMPLATES
 from lense.common.exceptions import InvalidProjectID
