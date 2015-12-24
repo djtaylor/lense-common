@@ -71,30 +71,12 @@ class LenseBaseObject(object):
         except:
             return False
 
-    def map_user(self, uid):
-        """
-        Map a username or UUID to kwargs dictionary.
-        
-        :param user: User name or UUID
-        :type  user: str
-        :rtype: dict
-        """
-        if self.is_uuid(uid):
-            return {'uuid': uid}
-        return {'username': uid}
-
-    def filter(self, **kwargs):
-        """
-        Apply filters to the current object query.
-        """
-        return self.model.objects.filter(**kwargs)
-
     def exists(self, **kwargs):
         """
         Check if an object exists.
         """
         count = self.model.objects.filter(**kwargs).count()
-        self.log('Found {0} object(s) -> filter: {1}'.format(str(count), str(kwargs)), level='debug', method='exists')
+        self.log('Found {0} object(s) -> filter={1}'.format(str(count), str(kwargs)), level='debug', method='exists')
         return count
     
     def update(self, **kwargs):
@@ -137,7 +119,7 @@ class LenseBaseObject(object):
         
         # Failed to create the object
         except Exception as e:
-            self.log('Failed to create object: {0}'.format(self.cls, str(e)), level='exception', method='create')
+            self.log('Failed to create object -> {0}'.format(str(e)), level='exception', method='create')
             return False
     
     def delete(self, **kwargs):
@@ -155,41 +137,47 @@ class LenseBaseObject(object):
         # Delete the object
         try:
             obj.delete()
-            self.log('Deleted object -> {0}'.format(self.cls, uid), level='debug', method='delete')
+            self.log('Deleted object -> {0}'.format(uid), level='debug', method='delete')
             return True
 
         # Failed to delete the object
         except Exception as e:
-            self.log('Failed to delete object -> {0}: {1}'.format(self.cls, uid, str(e)), level='exception', method='delete')
+            self.log('Failed to delete object -> {0}: {1}'.format(uid, str(e)), level='exception', method='delete')
             return False
+    
+    def filter(self, **kwargs):
+        """
+        Retrieve multiple objects in a list format.
+        """
+        objects = self.model.objects.filter(**kwargs)
+        
+        # No objects found
+        if not objects.count():
+            self.log('No objects found -> filter={0}'.format(str(kwargs)), level='debug', method='filter')
+            return []
+        
+        # Return objects in a list
+        self.log('Retrieved objects -> count={0}, filter={1}'.format(objects.count(), str(kwargs)), level='debug', method='filter')
+        return list(objects)
     
     def get(self, **kwargs):
         """
         Retrieve an object definition.
         """
+        uid = '{0}={1}'.format(self.uidf, kwargs.get(self.uidf, None))
         
         # Retrieving all
         if not kwargs:
             objects = self.model.objects.all()
-            self.log('Retrieved all objects: count={1}'.format(self.cls, objects.count()), level='debug', method='get')
-            return objects
+            self.log('Retrieved all objects -> count={0}'.format(objects.count()), level='debug', method='get')
+            return list(objects)
     
         # Object doesn't exist
         if not self.exists(**kwargs):
-            self.log('Object not found -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
+            self.log('Object not found -> filter={0}'.format(str(kwargs)), level='debug', method='get')
             return None
     
-        # How many objects are we retrieving
-        count = self.model.objects.filter(**kwargs).count()
-    
-        # Single object
-        if count == 1:
-            object = self.model.objects.get(**kwargs)
-            self.log('Retrieved single object -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
-            return object
-            
-        # Multiple objects
-        else:
-            objects = list(self.model.objects.filter(**kwargs))
-            self.log('Retrieved objects -> count={0}, filter: {1}'.format(count, str(kwargs)), level='debug', method='get')
-            return objects
+        # Get the object
+        object = self.model.objects.get(**kwargs)
+        self.log('Retrieved object: {0}'.format(uid), level='debug', method='get')
+        return object

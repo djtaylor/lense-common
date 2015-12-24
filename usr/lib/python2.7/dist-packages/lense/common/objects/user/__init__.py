@@ -21,6 +21,9 @@ class ObjectInterface(LenseBaseObject):
         self.KEY     = LenseBaseObject('lense.common.objects.user.models', 'APIUserKeys')
         self.TOKEN   = LenseBaseObject('lense.common.objects.user.models', 'APIUserTokens')
         
+        # Authentication attributes
+        self.auth_error = None
+        
     def extend(self, user):
         """
         Construct extended user attributes.
@@ -43,7 +46,7 @@ class ObjectInterface(LenseBaseObject):
         Retrieve an object definition.
         """
         if args:
-            filter = {'uuid': self.get_uuid(args[0])}
+            kwargs = {'uuid': self.get_uuid(args[0])}
             
             # User doesn't exist
             if not self.exists(**filter):
@@ -374,6 +377,5 @@ class ObjectInterface(LenseBaseObject):
             
         # Failed to authenticate user
         except AuthError as e:
-            return LENSE.AUTH.set_error(
-                LENSE.LOG.error('Failed to authenticate user "{0}": {0}'.format(user, str(e)))
-            )
+            self.auth_error = str(e.message)
+            LENSE.LOG.error('Failed to authenticate user "{0}": {0}'.format(user, str(e)))
