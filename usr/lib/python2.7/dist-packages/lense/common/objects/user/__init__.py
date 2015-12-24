@@ -48,15 +48,10 @@ class ObjectInterface(LenseBaseObject):
         if args:
             kwargs = {'uuid': self.get_uuid(args[0])}
             
-            # User doesn't exist
-            if not self.exists(**filter):
-                self.log('Object not found -> filter: {0}'.format(str(filter)), level='debug', method='get')
-                return None
-            
-            # Get the user object
-            user = self.model.objects.get(**filter)
-            self.log('Retrieved object -> filter: {0}'.format(str(filter)), level='debug', method='get')
-            return self.extend(user)
+        # User doesn't exist
+        if not self.exists(**kwargs):
+            self.log('Object not found -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
+            return None
         
         # Retrieving all
         if not kwargs:
@@ -65,11 +60,6 @@ class ObjectInterface(LenseBaseObject):
             for user in all_users:
                 self.extend(user)
             return all_users
-    
-        # User doesn't exist
-        if not self.exists(**kwargs):
-            self.log('Object not found -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
-            return None
     
         # Retrieving by parameters
         user = self.model.objects.get(**kwargs)
@@ -115,7 +105,7 @@ class ObjectInterface(LenseBaseObject):
         uuid = self.get_uuid(user)
         
         # Does the user have a key entry
-        if self.KEY.filter(user=uuid).count():
+        if self.KEY.exists(user=uuid):
             user = LENSE.ensure(self.KEY.get(user=uuid),
                 error = 'Could not find user {0} API key'.format(uuid),
                 debug = 'Retrieved user {0} API key object'.format(uuid),
@@ -136,7 +126,7 @@ class ObjectInterface(LenseBaseObject):
         uuid = self.get_uuid(user)
         
         # Does the user have a token entry
-        if self.TOKEN.filter(user=uuid).count():
+        if self.TOKEN.exists(user=uuid):
             user = LENSE.ensure(self.TOKEN.get(user=uuid),
                 error = 'Could not find user {0} API token'.format(uuid),
                 debug = 'Retrieved user {0} API token object'.format(uuid),
