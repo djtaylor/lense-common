@@ -117,7 +117,7 @@ class LenseAPILogger(object):
         """
         self.msg = msg
         LENSE.LOG.info('client({}): {}'.format(self.client, msg))
-        self._reset_client(HttpResponse(self._api_response(True, data), MIME_TYPE.APPLICATION.JSON, status=200))
+        return self._reset_client(HttpResponse(self._api_response(True, data), MIME_TYPE.APPLICATION.JSON, status=200))
     
     def exception(self, msg=None, code=None, data={}):
         """

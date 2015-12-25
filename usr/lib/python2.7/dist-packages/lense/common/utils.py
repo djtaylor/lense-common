@@ -372,10 +372,9 @@ class FileSec(object):
         LENSE.LOG.info('Decrypting file [{}] to [{}] using AES-256 and key string'.format(infile, outfile))
         return True
 
-class JSONTemplate(object):
+class RMapValidate(object):
     """
-    A utility class designed to validate a JSON object against a template file. Used
-    to verify the structure of API requests.
+    Validate a request object's data against a handler request map.
     """
     def __init__(self, template=None):
         

@@ -6,7 +6,7 @@ from django.core.validators import validate_email
 
 # Lense Libraries
 from lense import import_class
-from lense.common.exceptions import RequestError
+from lense.common.exceptions import RequestError  
 
 class LenseBaseObject(object):
     """
@@ -24,7 +24,7 @@ class LenseBaseObject(object):
         
         # Get the object model / unique ID field
         self.model  = import_class(cls, mod, init=False)
-        self.uidf   = self.model.UID_FIELD
+        self.uidf   = getattr(self.model, 'UID_FIELD', self.cls)
 
         # Debug log prefix
         self.logpre = 'OBJECTS:{0}'.format(self.cls)
@@ -178,6 +178,6 @@ class LenseBaseObject(object):
             return None
     
         # Get the object
-        object = self.model.objects.get(**kwargs)
+        obj = self.model.objects.get(**kwargs)
         self.log('Retrieved object: {0}'.format(uid), level='debug', method='get')
-        return object
+        return obj

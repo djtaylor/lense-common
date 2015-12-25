@@ -1,37 +1,35 @@
 from lense import import_class
 from json import loads as json_loads
 from lense.common.utils import valid, invalid
+from lense.common.exceptions import RequestError
 
 class LenseAPIRequestMapper(object):
     """
     Map the incoming request to an API request handler.
     """ 
-    @staticmethod
-    def _merge_socket(j):
+    @classmethod
+    def _merge_socket(cls, rmap):
         """
         Merge request parameters for web socket request. Used for handling connections
         being passed along by the Socket.IO API proxy.
         
-        :param j: The JSON object to map
-        :type  j: dict
+        :param rmap: The request handler mapper JSON object
+        :type  rmap: dict
         """
-        
-        # Load the socket request validator map
-        sv = json_loads(open('{0}/api/base/socket.json'.format(LENSE.PROJECT.TEMPLATES), 'r').read())
+        sock_template = '{0}/api/base/socket.json'.format(LENSE.PROJECT.TEMPLATES)
+        sock_map = json_loads(open(sock_template, 'r').read())
         
         # Make sure the '_children' key exists
-        if not '_children' in j['root']:
-            j['root']['_children'] = {}
+        if not '_children' in rmap['root']:
+            rmap['root']['_children'] = {}
         
         # Merge the socket parameters map
-        j['root']['_children']['socket'] = sv
-        j['root']['_optional'].append('socket')
+        rmap['root']['_children']['socket'] = sock_map
+        rmap['root']['_optional'].append('socket')
+        return rmap
         
-        # Return the mapped object
-        return j
-        
-    @staticmethod
-    def run():
+    @classmethod
+    def run(cls):
         """
         Main method for constructing and returning the handler map.
         
@@ -42,21 +40,21 @@ class LenseAPIRequestMapper(object):
         path    = LENSE.REQUEST.path
         method  = LENSE.REQUEST.method
         
-        # Handler does not exist
-        if not LENSE.OBJECTS.HANDLER.exists(path=path, method=method):
-            return invalid(LENSE.HTTP.error(msg='Could not find handler for: path={0}, method={1}'.format(path, method)))
-        
         # Get the handler
-        handler = LENSE.OBJECTS.HANDLER.get(path=path, method=method)
+        LENSE.ensure(LENSE.OBJECTS.HANDLER.get(path=path, method=method),
+            isnot = None,
+            error = 'Could not find handler for: path={0}, method={1}'.format(path, method),
+            debug = 'Retrieved handler object for: path={0}, method={1}'.format(path, method),
+            code  = 404)
         
         # Load the request map
         rmap = {'root': json_loads(handler.rmap)}
         
         # Merge the web socket request validator
-        rmap = LenseAPIRequestMapper._merge_socket(rmap)
+        rmap = cls._merge_socket(rmap)
     
         # Construct the request map object
-        return valid({
+        return {
             'module': handler.mod,
             'class':  handler.cls,
             'path':   handler.path,
@@ -64,7 +62,7 @@ class LenseAPIRequestMapper(object):
             'method': handler.method,
             'anon':   handler.allow_anon,
             'rmap':   rmap
-        })
+        }
 
 class LenseAPIConstructor(object):
     """
