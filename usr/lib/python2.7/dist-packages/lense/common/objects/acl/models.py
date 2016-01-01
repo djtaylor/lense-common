@@ -7,48 +7,17 @@ from django.db.models import Model, ForeignKey, CharField, SET_NULL, \
 # Lense Libraries
 from lense.common.objects.acl.manager import ACLObjectsManager, ACLKeysManager
 
-class ACLGlobalAccess(Model):
-    """
-    Main database model for storing global ACL access keys.
-    """
-    acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='utility')
-    
-    # Unique ID field
-    UID_FIELD = 'acl'
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_access_global'
-
-class ACLObjectAccess(Model):
-    """
-    Main database model for storing object level ACL access keys.
-    """
-    acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='utility')
-    
-    # Unique ID field
-    UID_FIELD = 'acl'
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_access_object'
-
 class ACLObjects(Model):
     """
     Main database model for storing ACL object types.
     """
-    uuid       = CharField(max_length=36, unique=True)
-    type       = CharField(max_length=36, unique=True)
-    name       = CharField(max_length=36)
-    acl_mod    = CharField(max_length=128)
-    acl_cls    = CharField(max_length=64, unique=True)
-    acl_key    = CharField(max_length=36)
-    obj_mod    = CharField(max_length=128)
-    obj_cls    = CharField(max_length=64)
-    obj_key    = CharField(max_length=36)
-    def_acl    = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='def_acl', null=True, blank=True, on_delete=SET_NULL)
+    uuid        = CharField(max_length=36, unique=True)
+    name        = CharField(max_length=36)
+    object_type = CharField(max_length=36, unique=True)
+    object_mod  = CharField(max_length=128)
+    object_cls  = CharField(max_length=64)
+    object_key  = CharField(max_length=36)
+    def_acl     = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='def_acl', null=True, blank=True, on_delete=SET_NULL)
 
     # Unique ID field
     UID_FIELD = 'uuid'
@@ -80,66 +49,51 @@ class ACLKeys(Model):
     # Custom table metadata
     class Meta:
         db_table = 'acl_keys'
-    
-class ACLGroupPermissions_Object_Group(Model):
+        
+class ACLAccess_Object(Model):
     """
-    Main database model for storing object ACL permissions for group objects.
+    Main database model for storing global ACL access keys.
     """
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    group      = ForeignKey('group.APIGroups', to_field='uuid', db_column='group', related_name='group_target')
-    owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner', related_name='group_owner')
-    allowed    = NullBooleanField()
-    
-    # Unique ID field
-    UID_FIELD = 'acl'
+    handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='request_handler')
     
     # Custom table metadata
     class Meta:
-        db_table = 'acl_group_permissions_object_group'
+        db_table = 'acl_access_global'
 
-class ACLGroupPermissions_Object_User(Model):
+class ACLAccess_Global(Model):
     """
-    Main database model for storing object ACL permissions for group objects.
+    Main database model for storing object level ACL access keys.
     """
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    user       = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
-    owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
-    allowed    = NullBooleanField()
-    
-    # Unique ID field
-    UID_FIELD = 'acl'
+    handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='request_handler')
     
     # Custom table metadata
     class Meta:
-        db_table = 'acl_group_permissions_object_user'
+        db_table = 'acl_access_object'
         
-class ACLGroupPermissions_Object_Handler(Model):
+class ACLPermissions_Object(Model):
     """
-    Main database model for storing object ACL permissions for handler objects.
+    Main database model for storing object level access to user groups.
     """
-    acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
-    handler    = ForeignKey('handler.Handlers', to_field='uuid', db_column='utility')
-    owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
-    allowed    = NullBooleanField()
-        
-    # Unique ID field
-    UID_FIELD = 'acl'
+    acl         = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
+    object_id   = CharField(max_length=128)
+    object_type = CharField(max_length=32)
+    owner       = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
+    allowed     = NullBooleanField()
         
     # Custom table metadata
     class Meta:
-        db_table = 'acl_group_permissions_object_utility'
+        db_table = 'acl_object_permissions'
         
-class ACLGroupPermissions_Global(Model):
+class ACLPermissions_Global(Model):
     """
-    Main database model for storing global ACL permissions for groups.
+    Main database model for storing global level access to user groups.
     """
     acl        = ForeignKey('acl.ACLKeys', to_field='uuid', db_column='acl')
     owner      = ForeignKey('group.APIGroups', to_field='uuid', db_column='owner')
     allowed    = NullBooleanField()
     
-    # Unique ID field
-    UID_FIELD = 'acl'
-    
     # Custom table metadata
     class Meta:
-        db_table = 'acl_group_permissions_global'
+        db_table = 'acl_global_permssions'

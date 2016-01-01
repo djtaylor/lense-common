@@ -6,7 +6,7 @@ from django.core.validators import validate_email
 
 # Lense Libraries
 from lense import import_class
-from lense.common.exceptions import RequestError  
+from lense.common.exceptions import RequestError
 
 class LenseBaseObject(object):
     """
@@ -19,15 +19,28 @@ class LenseBaseObject(object):
         :param cls: The object model class
         :type  cls: str
         """
-        self.module = mod
-        self.cls    = cls
+        self.module  = mod
+        self.cls     = cls
         
         # Get the object model / unique ID field
-        self.model  = import_class(cls, mod, init=False)
-        self.uidf   = getattr(self.model, 'UID_FIELD', self.cls)
+        self.model   = import_class(cls, mod, init=False)
+        self.uidf    = getattr(self.model, 'UID_FIELD', self.cls)
+
+        # ACL authorization flag
+        self.use_acl = False
 
         # Debug log prefix
-        self.logpre = 'OBJECTS:{0}'.format(self.cls)
+        self.logpre  = 'OBJECTS:{0}'.format(self.cls)
+
+    def acl(self, flag):
+        """
+        Change the current ACL authorization flag.
+        """
+        LENSE.ensure(isinstance(flag, bool),
+            error = 'Argument must be True or False',
+            code  = 500)
+        self.use_acl = flag
+        return self
 
     def log(self, msg, level='info', method=None):
         """
@@ -158,7 +171,11 @@ class LenseBaseObject(object):
         
         # Return objects in a list
         self.log('Retrieved objects -> count={0}, filter={1}'.format(objects.count(), str(kwargs)), level='debug', method='filter')
-        return list(objects)
+        
+        # Ignore ACL
+        if not use_acl:
+            return list(objects)
+        return LENSE.AUTH.ACL.objects(list(object))
     
     def get(self, **kwargs):
         """
@@ -170,7 +187,11 @@ class LenseBaseObject(object):
         if not kwargs:
             objects = self.model.objects.all()
             self.log('Retrieved all objects -> count={0}'.format(objects.count()), level='debug', method='get')
-            return list(objects)
+            
+            # Ignore ACL
+            if not self.use_acl:
+                return list(objects)
+            return LENSE.AUTH.ACL.objects(list(objects))
     
         # Object doesn't exist
         if not self.exists(**kwargs):
@@ -180,4 +201,8 @@ class LenseBaseObject(object):
         # Get the object
         obj = self.model.objects.get(**kwargs)
         self.log('Retrieved object: {0}'.format(uid), level='debug', method='get')
-        return obj
+        
+        # Ignore ACL
+        if not self.use_acl:
+            return obj
+        return LENSE.AUTH.ACL.object(obj)

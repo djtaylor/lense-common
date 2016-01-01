@@ -12,7 +12,7 @@ class AuthInterface(object):
         self._portal = import_class('AuthPortal', 'lense.common.auth.portal', init=False)
         
         # ACL gateway
-        self.ACL     = None
+        self.ACL     = import_class('AuthACLGateway', 'lense.common.auth.acl')
         
         # Store the authentication error
         self._error  = None
@@ -53,6 +53,13 @@ class AuthInterface(object):
         :type  override: bool | True (allow all) False (allow none)
         """
         self.ACL = import_class('AuthACLGateway', 'lense.common.auth.acl', args=[request, override])
+    
+    def ensure(self, *args, **kwargs):
+        """
+        Raise an AuthError if ensure fails.
+        """
+        kwargs['exc'] = AuthError
+        return LENSE.ensure(*args, **kwargs)
     
     def KEY(self, user, key):
         """

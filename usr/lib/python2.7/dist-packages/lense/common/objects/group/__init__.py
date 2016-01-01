@@ -7,6 +7,23 @@ class ObjectInterface(LenseBaseObject):
         # Group members
         self.MEMBERS = LenseBaseObject('lense.common.objects.group.models', 'APIGroupMembers')
         
+    def get_permissions(self, group):
+        """
+        Construct an object of a group's permissions.
+        
+        :param  group: The group UUID
+        :type   group: str
+        :rtype: dict|None
+        """
+        if not self.exists(uuid=group):
+            return None
+        
+        # Global / object level permissions
+        return {
+            'global': LENSE.OBJECTS.ACL.PERMISSIONS('global').filter(owner=group),
+            'object': LENSE.OBJECTS.ACL.PERMISSIONS('object').filter(owner=group)
+        }
+        
     def add_member(self, group, member):
         """
         Add a member to a group.
