@@ -12,7 +12,7 @@ class AuthInterface(object):
         self._portal = import_class('AuthPortal', 'lense.common.auth.portal', init=False)
         
         # ACL gateway
-        self.ACL     = import_class('AuthACLGateway', 'lense.common.auth.acl')
+        self.ACL     = import_class('AuthACLGateway', 'lense.common.auth.acl', init=False)
         
         # Store the authentication error
         self._error  = None
@@ -43,17 +43,12 @@ class AuthInterface(object):
         self._error = LENSE.LOG.error(msg)
         return False
     
-    def set_acl(self, request, override=None):
+    def init_acl(self):
         """
-        Run the ACL gateway.
+        Initialize the ACL gateway.
+        """
+        self.ACL()
         
-        :param  request: The Lense request object
-        :type   request: LenseRequestObject
-        :param override: Override any built in authorization methods
-        :type  override: bool | True (allow all) False (allow none)
-        """
-        self.ACL = import_class('AuthACLGateway', 'lense.common.auth.acl', args=[request, override])
-    
     def ensure(self, *args, **kwargs):
         """
         Raise an AuthError if ensure fails.
