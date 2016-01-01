@@ -386,13 +386,7 @@ class BootstrapCommon(object):
         
         # Launch the request handler
         try:
-            response = handler.launch()
-            
-            # Is the response OK
-            if not response['valid']:
-                BOOTSTRAP.LOG.error('HTTP {0}: {1}'.format(response['code'], response['content']))
-            return response['data']
-            
+            return handler.launch().data
         except RequestError as e:
             BOOTSTRAP.LOG.exception(str(e))
             self.die('HTTP {0}: {1}'.format(e.code, e.message))
