@@ -369,6 +369,9 @@ class BootstrapCommon(object):
         # Setup the request data
         LENSE.REQUEST.set(LenseWSGIRequest.get(path=path, data=data, method=method))
         
+        # Initialize the ACL gateway
+        LENSE.AUTH.init_acl()
+        
         # Get the handler object
         handler_mod = None
         handler_cls = None
@@ -386,7 +389,9 @@ class BootstrapCommon(object):
         
         # Launch the request handler
         try:
-            return handler.launch().data
+            data = handler.launch().data
+            LENSE.AUTH.reset_acl()
+            return data
         except RequestError as e:
             BOOTSTRAP.LOG.exception(str(e))
             self.die('HTTP {0}: {1}'.format(e.code, e.message))

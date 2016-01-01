@@ -49,6 +49,12 @@ class AuthInterface(object):
         """
         self.ACL()
         
+    def reset_acl(self):
+        """
+        Reset the ACL gateway.
+        """
+        self.ACL = import_class('AuthACLGateway', 'lense.common.auth.acl', init=False)
+        
     def ensure(self, *args, **kwargs):
         """
         Raise an AuthError if ensure fails.

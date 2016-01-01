@@ -71,11 +71,20 @@ class AuthACLGateway(object):
     the ACL authorization backend.
     """
     def __init__(self):
-        self.user    = LENSE.REQUEST.USER.name
+        self.user     = LENSE.REQUEST.USER.name
         
         # Target handler / requesting group
-        self.handler = AuthACLHandler(LENSE.REQUEST.path, LENSE.REQUEST.method)
-        self.group   = AuthACLGroup(LENSE.REQUEST.USER.group)
+        self.handler  = AuthACLHandler(LENSE.REQUEST.path, LENSE.REQUEST.method)
+        self.group    = AuthACLGroup(LENSE.REQUEST.USER.group)
+        
+        # Disable ACL authorization
+        self.disabled = False
+        
+    def disable(self):
+        """
+        Disable ACL authorization.
+        """
+        self.disabled = True
         
     def request(self):
         """
@@ -118,6 +127,8 @@ class AuthACLGateway(object):
         :type  object: mixed
         :rtype: obj|None
         """
+        if self.disabled:
+            return obj
         
         # User has global access to the handler
         if self.handler.access_type == 'global':
@@ -158,6 +169,8 @@ class AuthACLGateway(object):
         :type  objects: list
         :rtype: list|None
         """
+        if self.disabled:
+            return objects
         
         # User has global access to the handler
         if self.handler.access_type == 'global':
