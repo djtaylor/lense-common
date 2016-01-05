@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 # Django Libraries
 from django.conf import settings
+from django.utils import timezone
 
 # Lense Libraries
 from lense import import_class, set_arg
@@ -183,7 +184,7 @@ class ObjectInterface(LenseBaseObject):
         :type    token: str
         """
         token   = rstring(255)
-        expires = datetime.now() + timedelta(hours=settings.API_TOKEN_LIFE)
+        expires = timezone.now() + timedelta(hours=settings.API_TOKEN_LIFE)
         
         # Must be an APIUser instance
         if not isinstance(user, self.model):
