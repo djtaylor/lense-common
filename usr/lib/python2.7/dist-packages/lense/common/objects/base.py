@@ -171,7 +171,7 @@ class LenseBaseObject(object):
         self.log('Retrieved objects -> count={0}, filter={1}'.format(objects.count(), str(kwargs)), level='debug', method='filter')
         
         # Ignore ACL
-        if not use_acl:
+        if not self.use_acl:
             return list(objects)
         
         # Reset ACL and filter results
