@@ -20,8 +20,8 @@ class AuthACLHandler(object):
         
         # Access ACL UUIDs
         self.acls = {
-            'object': [x['acl'] for x in self.access['object']],
-            'global': [x['acl'] for x in self.access['global']] }
+            'object': [x.acl for x in self.access['object']],
+            'global': [x.acl for x in self.access['global']] }
   
         # Handler access type / access ACL
         self.access_type = None
@@ -68,8 +68,8 @@ class AuthACLGroup(object):
         
         # Access ACL UUIDs
         self.acls = {
-            'object': [x['acl'] for x in self.permissions['object']],
-            'global': [x['acl'] for x in self.permissions['global']] }
+            'object': [x.acl for x in self.permissions['object']],
+            'global': [x.acl for x in self.permissions['global']] }
   
 class AuthACLGateway(object):
     """
