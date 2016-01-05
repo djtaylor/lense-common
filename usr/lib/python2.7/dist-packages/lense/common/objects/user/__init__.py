@@ -33,13 +33,16 @@ class ObjectInterface(LenseBaseObject):
         :type  user: APIUser
         :rtype: APIUser
         """
+        uuid = LENSE.OBJECTS.getattr(user, 'uuid')
+        
+        # Extend the user object
         for k,v in {
-            'api_key': self.get_key(user.uuid),
-            'api_token': self.get_token(user.uuid),
-            'groups': self.get_groups(user.uuid)
+            'api_key': self.get_key(uuid),
+            'api_token': self.get_token(uuid),
+            'groups': self.get_groups(uuid)
         }.iteritems():
             self.log('Extending user {0} attributes -> {1}={2}'.format(user.uuid,k,v), level='debug', method='extend')
-            setattr(user, k, v)
+            LENSE.OBJECTS.setattr(user, k, v)
         return user
         
     def get(self, **kwargs):
