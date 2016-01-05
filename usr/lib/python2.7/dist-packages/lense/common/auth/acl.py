@@ -122,7 +122,7 @@ class AuthACLGateway(object):
             debug = 'Access granted to request handler: user={0}, group={1}, handler={2}, acl={3}'.format(*debug_attrs),
             code  = 401)
         
-    def object(self, obj):
+    def _object(self, obj):
         """
         Confirm access to a single object.
         
@@ -130,8 +130,6 @@ class AuthACLGateway(object):
         :type  object: mixed
         :rtype: obj|None
         """
-        if self.disabled:
-            return obj
         
         # User has global access to the handler
         if self.handler.access_type == 'global':
@@ -168,16 +166,21 @@ class AuthACLGateway(object):
         """
         Filter multiple objects.
         
-        :param objects: The objects to filter through
-        :type  objects: list
-        :rtype: list|None
+        :param objects: The object(s) to filter through
+        :type  objects: object|list
+        :rtype: object|list|None
         """
-        if self.disabled:
-            return objects
         
         # User has global access to the handler
         if self.handler.access_type == 'global':
             return objects
+        
+        # Single object
+        if not isinstance(objects, list):
+            try:
+                return self._object(objects)
+            except:
+                return None
          
         # Construct a list of accessible objects
         accessible_objects = []

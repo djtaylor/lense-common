@@ -3,6 +3,9 @@ import re
 import sys
 import json
 
+# Django Libraries
+from django.db.models.fields.related import ManyToManyField
+
 # Lense Libraries
 from lense import import_class, set_arg
 from lense.common.exceptions import JSONException
@@ -17,6 +20,42 @@ class LenseAPIObjects(object):
         self.USER    = import_class('ObjectInterface', 'lense.common.objects.user')
         self.GROUP   = import_class('ObjectInterface', 'lense.common.objects.group')
         self.STATS   = import_class('ObjectInterface', 'lense.common.objects.stats')
+        
+    def to_dict(self, instance):
+        """
+        Method for dumping a single object instance to a dictionary.
+        
+        :param instance: The object instance to dump
+        :type  instance: object
+        :rtype: dict
+        """
+        opts = instance._meta
+        data = {}
+        for f in opts.concrete_fields + opts.many_to_many:
+            if isinstance(f, ManyToManyField):
+                if instance.pk is None:
+                    data[f.name] = []
+                else:
+                    data[f.name] = list(f.value_from_object(instance).values_list('pk', flat=True))
+            else:
+                data[f.name] = f.value_from_object(instance)
+        return data
+        
+    def dump(self, instance):
+        """
+        Dump either a single object instance or a list of objects.
+        
+        :param instance: The single object or list of objects to dump
+        :type  instance: object|list
+        :rtype: list|dict
+        """
+        
+        # Single object
+        if not isinstance(instance, list):
+            return self.to_dict(instance)
+        
+        # Multiple objects
+        return [self.to_dict(x) for x in instance]
 
 class JSONObject(object):
     """

@@ -19,25 +19,53 @@ class LenseBaseObject(object):
         :param cls: The object model class
         :type  cls: str
         """
-        self.module  = mod
-        self.cls     = cls
+        self.module   = mod
+        self.cls      = cls
         
         # Get the object model / unique ID field
-        self.model   = import_class(cls, mod, init=False)
-        self.uidf    = getattr(self.model, 'UID_FIELD', self.cls)
+        self.model    = import_class(cls, mod, init=False)
+        self.uidf     = getattr(self.model, 'UID_FIELD', self.cls)
 
-        # ACL authorization flag
-        self.use_acl = False
+        # ACL authorization flag / object dump
+        self.use_acl  = False
+        self.use_dump = False
 
         # Debug log prefix
-        self.logpre  = 'OBJECTS:{0}'.format(self.cls)
+        self.logpre   = 'OBJECTS:{0}'.format(self.cls)
 
-    def acl(self):
+    def _process(self, objects):
         """
-        Filter queries through the ACL gateway.
+        Process and return queried objects depending on internal flags.
+        
+        :param objects: The object(s) to filter
+        :type  objects: object|list
+        :rtype: object|list
+        """
+        
+        # ACL / object dump filters
+        objects = objects if not self.use_acl else LENSE.AUTH.ACL.objects(objects)
+        objects = objects if not self.use_dump else LENSE.OBJECTS.dump(objects)
+            
+        # Reset the internal flags
+        self.use_acl  = False
+        self.use_dump = False
+    
+        # Return the processed object(s)
+        return objects
+
+    def set(self, acl=False, dump=False):
+        """
+        Set internal flags prior to querying and returning results.
+        
+        :param  acl: Filter results through the ACL gateway
+        :type   acl: bool
+        :param dump: Dump results to a dictionary
+        :type  dump: bool
+        :rtype: self
         """
         if hasattr(LENSE.AUTH.ACL, 'ready'):
-            self.use_acl = True
+            self.use_acl = acl
+        self.use_dump = dump
         return self
 
     def log(self, msg, level='info', method=None):
@@ -170,13 +198,8 @@ class LenseBaseObject(object):
         # Return objects in a list
         self.log('Retrieved objects -> count={0}, filter={1}'.format(objects.count(), str(kwargs)), level='debug', method='filter')
         
-        # Ignore ACL
-        if not self.use_acl:
-            return list(objects)
-        
-        # Reset ACL and filter results
-        self.use_acl = False
-        return LENSE.AUTH.ACL.objects(list(object))
+        # Process and return the object(s)
+        return self._process(list(objects))
     
     def get(self, **kwargs):
         """
@@ -189,13 +212,8 @@ class LenseBaseObject(object):
             objects = self.model.objects.all()
             self.log('Retrieved all objects -> count={0}'.format(objects.count()), level='debug', method='get')
             
-            # Ignore ACL
-            if not self.use_acl:
-                return list(objects)
-            
-            # Reset ACL and filter results
-            self.use_acl = False
-            return LENSE.AUTH.ACL.objects(list(objects))
+            # Process and return the objects
+            return self._process(list(objects))
     
         # Object doesn't exist
         if not self.exists(**kwargs):
@@ -206,10 +224,5 @@ class LenseBaseObject(object):
         obj = self.model.objects.get(**kwargs)
         self.log('Retrieved object: {0}'.format(uid), level='debug', method='get')
         
-        # Ignore ACL
-        if not self.use_acl:
-            return obj
-        
-        # Reset ACL and filter results
-        self.use_acl = False
-        return LENSE.AUTH.ACL.object(obj)
+        # Process and return the object
+        return self._process(obj)
