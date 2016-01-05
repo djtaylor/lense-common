@@ -41,7 +41,7 @@ class ObjectInterface(LenseBaseObject):
             'api_token': self.get_token(uuid),
             'groups': self.get_groups(uuid)
         }.iteritems():
-            self.log('Extending user {0} attributes -> {1}={2}'.format(user.uuid,k,v), level='debug', method='extend')
+            self.log('Extending user {0} attributes -> {1}={2}'.format(uuid,k,v), level='debug', method='extend')
             LENSE.OBJECTS.setattr(user, k, v)
         return user
         
