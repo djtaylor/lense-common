@@ -4,7 +4,13 @@ class AuthACLHandler(object):
     target handler.
     """
     def __init__(self, path, method):
-        self.object = LENSE.OBJECTS.HANDLER.get(path=path, method=method)
+        self.object = LENSE.ensure(LENSE.OBJECTS.HANDLER.get(path=path, method=method),
+            isnot = None,
+            error = 'Could not retrieve handler for: path={0}, method={1}'.format(path, method),
+            debug = 'Retrieved handler for ACL authorization: path={0}, method={1}'.format(path, method),
+            code  = 404)
+        
+        # Store the handler UUID
         self.uuid   = self.object.uuid
         
         # Handler access
@@ -77,14 +83,8 @@ class AuthACLGateway(object):
         self.handler  = AuthACLHandler(LENSE.REQUEST.path, LENSE.REQUEST.method)
         self.group    = AuthACLGroup(LENSE.REQUEST.USER.group)
         
-        # Disable ACL authorization
-        self.disabled = False
-        
-    def disable(self):
-        """
-        Disable ACL authorization.
-        """
-        self.disabled = True
+        # Gateway ready
+        self.ready    = True
         
     def request(self):
         """

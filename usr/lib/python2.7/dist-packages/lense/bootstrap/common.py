@@ -11,7 +11,7 @@ from os import path, makedirs, system, listdir
 
 # Lense Libraries
 from lense import import_class
-from lense.common.exceptions import RequestError
+from lense.common.exceptions import RequestError, EnsureError
 from lense.common.request import LenseWSGIRequest
 from lense.common.config import LenseConfigEditor
 from lense.common.vars import WSGI_CONFIG, PROJECTS, CONFIG
@@ -392,7 +392,9 @@ class BootstrapCommon(object):
             data = handler.launch().data
             LENSE.AUTH.reset_acl()
             return data
-        except RequestError as e:
+        
+        # Request or ensure error
+        except (RequestError, EnsureError) as e:
             BOOTSTRAP.LOG.exception(str(e))
             self.die('HTTP {0}: {1}'.format(e.code, e.message))
     

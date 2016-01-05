@@ -32,14 +32,12 @@ class LenseBaseObject(object):
         # Debug log prefix
         self.logpre  = 'OBJECTS:{0}'.format(self.cls)
 
-    def acl(self, flag):
+    def acl(self):
         """
-        Change the current ACL authorization flag.
+        Filter queries through the ACL gateway.
         """
-        LENSE.ensure(isinstance(flag, bool),
-            error = 'Argument must be True or False',
-            code  = 500)
-        self.use_acl = flag
+        if hasattr(LENSE.AUTH.ACL, 'ready'):
+            self.use_acl = True
         return self
 
     def log(self, msg, level='info', method=None):
@@ -175,6 +173,9 @@ class LenseBaseObject(object):
         # Ignore ACL
         if not use_acl:
             return list(objects)
+        
+        # Reset ACL and filter results
+        self.use_acl = False
         return LENSE.AUTH.ACL.objects(list(object))
     
     def get(self, **kwargs):
@@ -191,6 +192,9 @@ class LenseBaseObject(object):
             # Ignore ACL
             if not self.use_acl:
                 return list(objects)
+            
+            # Reset ACL and filter results
+            self.use_acl = False
             return LENSE.AUTH.ACL.objects(list(objects))
     
         # Object doesn't exist
@@ -205,4 +209,7 @@ class LenseBaseObject(object):
         # Ignore ACL
         if not self.use_acl:
             return obj
+        
+        # Reset ACL and filter results
+        self.use_acl = False
         return LENSE.AUTH.ACL.object(obj)
