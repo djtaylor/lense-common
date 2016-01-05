@@ -199,22 +199,9 @@ class BootstrapEngine(BootstrapCommon):
         """
         Create ACL object definitions.
         """
-        for _acl_object in self.params.acl.objects:
-            data = {
-                "type": _acl_object['type'],
-                "name": _acl_object['name'],
-                "acl_mod": _acl_object['acl_mod'],
-                "acl_cls": _acl_object['acl_cls'],
-                "acl_key": _acl_object['acl_key'],
-                "obj_mod": _acl_object['obj_mod'],
-                "obj_cls": _acl_object['obj_cls'],
-                "obj_key": _acl_object['obj_key'],
-                "def_acl": _acl_object['def_acl']
-            }
-            
-            # Create the ACL object
-            self.launch_handler(path='acl/objects', data=data, method=HTTP_POST)
-            BOOTSTRAP.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(_acl_object['type'], _acl_object['name']))
+        for acl_object in self.params.acl.objects:
+            self.launch_handler(path='acl/objects', data=acl_object, method=HTTP_POST)
+            BOOTSTRAP.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(acl_object['object_type'], acl_object['object_name']))
     
     def _create_handlers_access(self):
         """
