@@ -144,6 +144,20 @@ def parse_response(obj):
     # Return the formatted response
     return return_obj
 
+class JSONSuccess(object):
+    """
+    Base class for successfull request responses.
+    """
+    def __init__(self, msg, data):
+        self.msg  = msg
+        self.data = data
+
+    def response(self):
+        """
+        Construct and return the HTTP 200 response.
+        """
+        return HttpResponse(json.dumps({'message': self.msg, 'data': self.data}), content_type=MIME_TYPE.APPLICATION.JSON, status=200)
+
 class JSONErrorBase(object):
     """
     Base response class for error and exception responses.
@@ -225,6 +239,19 @@ class LenseHTTP(object):
         Return an HTTP redirect object.
         """
         return HttpResponseRedirect('/{0}'.format(path))
+    
+    @staticmethod
+    def success(msg='OK', data={}):
+        """
+        Return HTTP 200 and response message/data.
+        
+        :param  msg: The response message to send
+        :type   msg: str
+        :param data: Additional response data
+        :type  data: str|dict|list
+        :rtype: JSONSuccess
+        """
+        return JSONSuccess(msg=msg, data=data).response()
     
     @staticmethod
     def error(msg=None, status=400):
