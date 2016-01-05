@@ -113,10 +113,13 @@ class AuthACLGateway(object):
         # Can the user access by either object or global level
         can_access = False if not (access_object or access_global) else True
         
+        # Debug log attributes
+        debug_attrs = [self.user, self.group.uuid, self.handler.uuid, self.handler.access_acl]
+        
         # Make sure the requesting group has some type of handler access
         LENSE.AUTH.ensure(can_access,
             error = 'No access granted for request handler',
-            debug = 'Access granted to request handler: user={0}, group={1}, handler={2}, acl={3}'.format(self.user, self.group.uuid, self.handler.uuid, use_acl),
+            debug = 'Access granted to request handler: user={0}, group={1}, handler={2}, acl={3}'.format(*debug_attrs),
             code  = 401)
         
     def object(self, obj):
