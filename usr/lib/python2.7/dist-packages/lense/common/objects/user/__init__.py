@@ -228,8 +228,8 @@ class ObjectInterface(LenseBaseObject):
         
         # Is the user a member of any groups
         if LENSE.OBJECTS.GROUP.MEMBERS.exists(member=uuid):
-            for groups in LENSE.OBJECTS.GROUP.MEMBERS.filter(member=uuid):
-                groups.append(groups.group.uuid)
+            for user_group in LENSE.OBJECTS.GROUP.MEMBERS.filter(member=uuid):
+                groups.append(user_group.group.uuid)
         return groups
     
     def member_of(self, user, group):
