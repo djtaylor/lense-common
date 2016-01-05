@@ -1,0 +1,26 @@
+[
+    {
+    	"name": "Request Handler",
+    	"object_type": "handler",
+    	"object_mod": "lense.common.objects.handler.models",
+    	"object_cls": "Handlers",
+    	"object_key": "uuid",
+    	"def_acl": "handler.view"
+    },
+    {
+    	"name": "API User",
+    	"object_type": "user",
+    	"object_mod": "lense.common.objects.user.models",
+    	"object_cls": "APIUser",
+    	"object_key": "uuid",
+    	"def_acl": "user.view"
+    },
+    {
+    	"name": "API Group",
+    	"object_type": "group",
+    	"object_mod": "lense.common.objects.group.models",
+    	"object_cls": "APIGroups",
+    	"object_key": "uuid",
+    	"def_acl": "group.view"
+    }
+]
