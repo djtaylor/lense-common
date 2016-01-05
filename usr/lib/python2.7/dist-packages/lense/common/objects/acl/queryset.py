@@ -33,8 +33,8 @@ class ACLKeysQuerySet(QuerySet):
         
         # Construct and return the definition
         return {
-            'types':   [x['type'] for x in acl_objects],
-            'details': {x['type']: x for x in acl_objects},
+            'types':   [x['object_type'] for x in acl_objects],
+            'details': {x['object_type']: x for x in acl_objects},
         }
         
     def _extract_handlers(self, handlers):
@@ -136,7 +136,7 @@ class ACLObjectsQuerySet(QuerySet):
         for obj_details in list(obj_class.objects.all().values()):
                 
             # API user objects
-            if acl_object['type'] == 'user':
+            if acl_object['object_type'] == 'user':
                 acl_object['objects'].append({
                     'id':    obj_details[obj_key],
                     'name':  obj_details['username'],
@@ -144,15 +144,15 @@ class ACLObjectsQuerySet(QuerySet):
                 })
                 
             # API group objects
-            if acl_object['type'] == 'group':
+            if acl_object['object_type'] == 'group':
                 acl_object['objects'].append({
                     'id':    obj_details[obj_key],
                     'name':  obj_details['name'],
                     'label': obj_details['desc']            
                 })
         
-            # Utility objects
-            if acl_object['type'] == 'handler':
+            # Handler objects
+            if acl_object['object_type'] == 'handler':
                 acl_object['objects'].append({
                     'id':    obj_details[obj_key],
                     'path':  obj_details['path'],
