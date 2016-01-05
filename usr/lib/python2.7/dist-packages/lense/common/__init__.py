@@ -13,6 +13,20 @@ from lense.common.exceptions import InvalidProjectID, EnsureError
 # Drop-in Python path
 path.append(DROPIN_ROOT)
 
+class LenseSetup(object):
+    """
+    Helper class for setting up commons for handling project requests.
+    """
+    @staticmethod
+    def engine(request):
+        """
+        Setup Lense commons for handling API requests.
+        """
+        LENSE.REQUEST.set(request)
+        LENSE.API.create_logger()
+        LENSE.connect_socket().set()
+        LENSE.AUTH.ACL.enable()
+
 class LenseCommon(object):
     """
     Common class for creating project specific instances of common libraries,
@@ -57,6 +71,7 @@ class LenseCommon(object):
         self.FEEDBACK    = import_class('Feedback', 'feedback')
         self.HTTP        = import_class('LenseHTTP', 'lense.common.http', init=False)
         self.MAIL        = import_class('LenseAPIEmail', 'lense.common.mailer', init=False)
+        self.SETUP       = import_class('LenseSetup', 'lense.common', init=False)
         self.SOCKET      = None
         
         # Initialize logs

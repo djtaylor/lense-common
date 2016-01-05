@@ -42,18 +42,6 @@ class AuthInterface(object):
         """
         self._error = LENSE.LOG.error(msg)
         return False
-    
-    def init_acl(self):
-        """
-        Initialize the ACL gateway.
-        """
-        self.ACL()
-        
-    def reset_acl(self):
-        """
-        Reset the ACL gateway.
-        """
-        self.ACL = import_class('AuthACLGateway', 'lense.common.auth.acl', init=False)
         
     def ensure(self, *args, **kwargs):
         """

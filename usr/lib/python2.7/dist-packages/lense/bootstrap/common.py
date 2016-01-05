@@ -387,7 +387,6 @@ class BootstrapCommon(object):
         # Launch the request handler
         try:
             data = handler.launch().data
-            LENSE.AUTH.reset_acl()
             return data
         
         # Request or ensure error

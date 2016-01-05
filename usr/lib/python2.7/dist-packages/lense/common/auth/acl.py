@@ -184,3 +184,10 @@ class AuthACLGateway(object):
             except:
                 pass
         return accessible_objects
+
+    @classmethod
+    def enable(cls):
+        """
+        Static method for enabling the ACL gateway. 
+        """
+        LENSE.AUTH.ACL = cls()
