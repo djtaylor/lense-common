@@ -42,29 +42,23 @@ class ObjectInterface(LenseBaseObject):
             setattr(user, k, v)
         return user
         
-    def get(self, *args, **kwargs):
+    def get(self, **kwargs):
         """
         Retrieve an object definition.
         """
-        if args:
-            kwargs = {'uuid': self.get_uuid(args[0])}
-            
-        # User doesn't exist
-        if not self.exists(**kwargs):
-            self.log('Object not found -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
+        user = super(ObjectInterface, self).get(**kwargs)
+        
+        # No user found
+        if not user:
             return None
         
-        # Retrieving all
-        if not kwargs:
-            all_users = list(self.model.objects.all())
-            self.log('Retrieved all objects: count={1}'.format(self.cls, all_users.count()), level='debug', method='get')
-            for user in all_users:
-                self.extend(user)
-            return all_users
-    
-        # Retrieving by parameters
-        user = self.model.objects.get(**kwargs)
-        self.log('Retrieved object -> filter: {0}'.format(str(kwargs)), level='debug', method='get')
+        # Multiple user objects
+        if isinstance(user, list):
+            for u in user:
+                self.extend(u)
+            return user
+        
+        # Single user object
         return self.extend(user)
         
     def get_uuid(self, user):
@@ -94,6 +88,16 @@ class ObjectInterface(LenseBaseObject):
             debug = 'Mapped username {0} to UUID'.format(user),
             code  = 404)
         return user_obj.uuid
+        
+    def map_uuid(self, user):
+        """
+        Map a user's UUID to a query filter.
+        
+        :param user: The user ID string to map
+        :type  user: str
+        :rtype: dict
+        """
+        return {'uuid': self.get_uuid(user)}
         
     def get_key(self, user):
         """
