@@ -16,8 +16,8 @@ class ACLKeysQuerySet(QuerySet):
         
         # Objects / access objects
         self.ACLObjects      = import_class('ACLObjects', 'lense.common.objects.acl.models', init=False)
-        self.ACLObjectAccess = import_class('ACLObjectAccess', 'lense.common.objects.acl.models', init=False)
-        self.ACLGlobalAccess = import_class('ACLGlobalAccess', 'lense.common.objects.acl.models', init=False)
+        self.ACLObjectAccess = import_class('ACLAccess_Object', 'lense.common.objects.acl.models', init=False)
+        self.ACLGlobalAccess = import_class('ACLAccess_Global', 'lense.common.objects.acl.models', init=False)
         
         # ACL object types / handlers
         self.obj_types = self._get_objects()
