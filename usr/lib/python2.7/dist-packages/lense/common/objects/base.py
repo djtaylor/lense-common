@@ -53,42 +53,6 @@ class LenseBaseObject(object):
         # Return the processed object(s)
         return objects
 
-    def setattr(self, obj, key, val):
-        """
-        Abstract method for setting a value on an object depending on if it is
-        an object or a dictionary.
-        
-        :param obj: The object to set a new attribute valiue
-        :type  obj: object|dict
-        :param key: The new attribute key
-        :type  key: str
-        :param val: The new attribute value
-        :type  val: mixed
-        """
-        
-        # Dictionary
-        if isinstance(obj, dict):
-            obj[key] = val
-        
-        # Object
-        else:
-            setattr(obj, key, val)
-
-    def getattr(self, obj, key):
-        """
-        Abstract method for returning an objects key value depending on if it is
-        an object or a dictionary of values.
-        
-        :param obj: The object to extract an attribute from
-        :type  obj: dict|object
-        :param key: The key to extract
-        :type  key: str
-        :rtype: str|None
-        """
-        if isinstance(obj, dict):
-            return obj.get(key, None)
-        return getattr(obj, key, None)
-
     def set(self, acl=False, dump=False):
         """
         Set internal flags prior to querying and returning results.
