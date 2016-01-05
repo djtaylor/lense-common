@@ -15,8 +15,8 @@ class AuthACLHandler(object):
         
         # Handler access
         self.access = {
-            'object': LENSE.OBJECTS.ACL.ACCESS('object').filter(handler=self.object.uuid).values(),
-            'global': LENSE.OBJECTS.ACL.ACCESS('global').filter(handler=self.object.uuid).values() }
+            'object': LENSE.OBJECTS.ACL.ACCESS('object').filter(handler=self.object.uuid),
+            'global': LENSE.OBJECTS.ACL.ACCESS('global').filter(handler=self.object.uuid) }
         
         # Access ACL UUIDs
         self.acls = {
@@ -63,8 +63,8 @@ class AuthACLGroup(object):
         
         # Permissions
         self.permissions = {
-            'object': LENSE.OBJECTS.ACL.PERMISSIONS('object').filter(owner=self.object.uuid).values(),
-            'global': LENSE.OBJECTS.ACL.PERMISSIONS('global').filter(owner=self.object.uuid).values() }
+            'object': LENSE.OBJECTS.ACL.PERMISSIONS('object').filter(owner=self.object.uuid),
+            'global': LENSE.OBJECTS.ACL.PERMISSIONS('global').filter(owner=self.object.uuid) }
         
         # Access ACL UUIDs
         self.acls = {
