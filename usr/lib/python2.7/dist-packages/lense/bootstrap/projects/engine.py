@@ -201,7 +201,7 @@ class BootstrapEngine(BootstrapCommon):
         """
         for acl_object in self.params.acl.objects:
             self.launch_handler(path='acl/objects', data=acl_object, method=HTTP_POST)
-            BOOTSTRAP.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(acl_object['object_type'], acl_object['object_name']))
+            BOOTSTRAP.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(acl_object['object_type'], acl_object['name']))
     
     def _create_handlers_access(self):
         """
