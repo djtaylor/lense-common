@@ -1,0 +1,19 @@
+{
+    "cls": "Handler_List",
+    "name": "Handler_List",
+    "path": "handler/list",
+    "method": "GET",
+    "desc": "Public endpoint for listing available request handlers.",
+    "mod": "lense.engine.api.handlers.handler",
+    "protected": true,
+    "enabled": true,
+    "object": "handler",
+    "object_key": "uuid",
+    "allow_anon": true,
+    "rmap": {
+        "_required": [],
+        "_optional": [],
+        "_type": "dict",
+        "_children": { }
+    }
+}
