@@ -17,15 +17,30 @@ class LenseSetup(object):
     """
     Helper class for setting up commons for handling project requests.
     """
-    @staticmethod
-    def engine(request):
+    @classmethod
+    def engine(cls, request):
         """
         Setup Lense commons for handling API requests.
         """
         LENSE.REQUEST.set(request)
         LENSE.API.create_logger()
-        LENSE.connect_socket().set()
         LENSE.AUTH.ACL.enable()
+        cls.socket()
+
+    @classmethod
+    def socket(cls):
+        """
+        Setup the Socket.IO proxy server connection.
+        """
+        LENSE.SOCKET = import_class('LenseSocketIO', 'lense.common.socket')
+        LENSE.SOCKET.set()
+
+    @classmethod
+    def client(cls, cli=False):
+        """
+        Setup the Lense client for handling programmatic or CLI requests.
+        """
+        LENSE.CLIENT = import_class('LenseClient', 'lense.client', init=False)
 
 class LenseCommon(object):
     """
@@ -72,6 +87,7 @@ class LenseCommon(object):
         self.HTTP        = import_class('LenseHTTP', 'lense.common.http', init=False)
         self.MAIL        = import_class('LenseAPIEmail', 'lense.common.mailer', init=False)
         self.SETUP       = import_class('LenseSetup', 'lense.common', init=False)
+        self.CLIENT      = None
         self.SOCKET      = None
         
         # Initialize logs
@@ -94,13 +110,6 @@ class LenseCommon(object):
         """
         self.REQUEST = import_class('LenseRequestObject', 'lense.common.request')
         return self.REQUEST
-        
-    def connect_socket(self):
-        """
-        Initialize the SocketIO connection.
-        """
-        self.SOCKET = import_class('LenseSocketIO', 'lense.common.socket')
-        return self.SOCKET
         
     def ensure(self, result, **kwargs):
         """
