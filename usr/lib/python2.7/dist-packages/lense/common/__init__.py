@@ -40,7 +40,7 @@ class LenseSetup(object):
         """
         Setup the Lense client for handling programmatic or CLI requests.
         """
-        LENSE.CLIENT = import_class('LenseClient', 'lense.client', init=False)
+        LENSE.CLIENT = import_class('ClientHandler_Mod', 'lense.client.handler')
 
 class LenseCommon(object):
     """

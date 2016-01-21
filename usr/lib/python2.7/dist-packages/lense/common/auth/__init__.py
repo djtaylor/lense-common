@@ -14,9 +14,6 @@ class AuthInterface(object):
         # ACL gateway
         self.ACL     = import_class('AuthACLGateway', 'lense.common.auth.acl', init=False)
         
-        # Store the authentication error
-        self._error  = None
-        
     def check_pw_strength(self, passwd):
         """
         Make sure a password meets strength requirements.
@@ -25,23 +22,6 @@ class AuthInterface(object):
         if not regex.match(passwd):
             return False
         return True
-        
-    def get_error(self):
-        """
-        Return any authentication errors
-        """
-        return self._error
-    
-    def set_error(self, msg):
-        """
-        Set the most recent error message.
-        
-        :param msg: The error message to store
-        :type  msg: str
-        :rtype: bool
-        """
-        self._error = LENSE.LOG.error(msg)
-        return False
         
     def ensure(self, *args, **kwargs):
         """
@@ -59,10 +39,7 @@ class AuthInterface(object):
         :param  key: The API request key
         :type   key: str
         """
-        try:
-            return self._key.validate(user, key)
-        except AuthError as e:
-            return self.set_error(str(e))
+        return self._key.validate(user, key)
     
     def TOKEN(self, user, token):
         """
@@ -73,10 +50,7 @@ class AuthInterface(object):
         :param token: The API request token
         :type  token: str
         """
-        try:
-            return self._token.validate(user, token)
-        except AuthError as e:
-            return self.set_error(str(e))
+        return self._token.validate(user, token)
         
     def PORTAL(self, user, passwd):
         """
@@ -87,7 +61,4 @@ class AuthInterface(object):
         :param passwd: The reques password
         :type  passwd: str
         """
-        try:
-            return self._portal.validate(user, passwd)
-        except AuthError as e:
-            return self.set_error(str(e))
+        return self._portal.validate(user, passwd)

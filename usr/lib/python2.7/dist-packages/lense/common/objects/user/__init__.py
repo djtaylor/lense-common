@@ -322,50 +322,44 @@ class ObjectInterface(LenseBaseObject):
         :param  token: The user's attempted API token
         :type   token: str
         """
-        try:
             
-            # Target user
-            user   = set_arg(user, LENSE.REQUEST.USER.name)
+        # Target user
+        user   = set_arg(user, LENSE.REQUEST.USER.name)
+        
+        # User does not exist / is inactive
+        LENSE.ensure(self.exists(uuid=self.get_uuid(user)),
+            error = 'User {0} does not exist'.format(user),
+            debug = 'Found user for {0}, checking state'.format(user),
+            code  = 404)
+        LENSE.ensure(self.active(uuid=self.get_uuid(user)),
+            error = 'User {0} does not exist'.format(user),
+            debug = 'User {0} is active, authenticating'.format(user),
+            code  = 404)
+        
+        # Portal authentication
+        if LENSE.PROJECT.name.upper() == 'PORTAL':
+            return LENSE.AUTH.PORTAL(user, set_arg(passwd, LENSE.REQUEST.USER.passwd))
+
+        # Engine authentication
+        if LENSE.PROJECT.name.upper() == 'ENGINE':
             
-            # User does not exist / is inactive
-            LENSE.ensure(self.exists(uuid=self.get_uuid(user)),
-                error = 'User {0} does not exist'.format(user),
-                debug = 'Found user for {0}, checking state'.format(user),
-                code  = 404)
-            LENSE.ensure(self.active(uuid=self.get_uuid(user)),
-                error = 'User {0} does not exist'.format(user),
-                debug = 'User {0} is active, authenticating'.format(user),
-                code  = 404)
+            # Get the user group
+            group = set_arg(group, LENSE.REQUEST.USER.group)
             
-            # Portal authentication
-            if LENSE.PROJECT.name.upper() == 'PORTAL':
-                return LENSE.AUTH.PORTAL(user, set_arg(passwd, LENSE.REQUEST.USER.passwd))
-    
-            # Engine authentication
-            if LENSE.PROJECT.name.upper() == 'ENGINE':
-                
-                # Get the user group
-                group = set_arg(group, LENSE.REQUEST.USER.group)
-                
-                # Make sure the user is a group member
-                LENSE.ensure(self.member_of(user, group),
-                    error = 'User {0} is not a member of group {1}'.format(user, group),
-                    debug = 'User {0} is a member of group {1}'.format(user, group),
-                    code  = 400)
-                
-                # Token / key authentication
-                token = set_arg(token, LENSE.REQUEST.token)
-                key   = set_arg(key, LENSE.REQUEST.key)
-                
-                # Check token authentication first
-                if token:
-                    return LENSE.AUTH.TOKEN(user, token)
-                
-                # Key authentication
-                if key:
-                    return LENSE.AUTH.KEY(user, key)
+            # Make sure the user is a group member
+            LENSE.ensure(self.member_of(user, group),
+                error = 'User {0} is not a member of group {1}'.format(user, group),
+                debug = 'User {0} is a member of group {1}'.format(user, group),
+                code  = 400)
             
-        # Failed to authenticate user
-        except AuthError as e:
-            self.auth_error = str(e.message)
-            LENSE.LOG.error('Failed to authenticate user "{0}": {0}'.format(user, str(e)))
+            # Token / key authentication
+            token = set_arg(token, LENSE.REQUEST.token)
+            key   = set_arg(key, LENSE.REQUEST.key)
+            
+            # Check token authentication first
+            if token:
+                return LENSE.AUTH.TOKEN(user, token)
+            
+            # Key authentication
+            if key:
+                return LENSE.AUTH.KEY(user, key)

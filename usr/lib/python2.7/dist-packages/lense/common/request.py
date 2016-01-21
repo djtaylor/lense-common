@@ -116,12 +116,12 @@ class LenseRequestUser(object):
         """
         Retrieve the user model.
         """
-        
-        # Import the user object
-        from lense.common.objects.user.models import APIUser
+        model = import_class('APIUser', 'lense.common.objects.user.models', init=False)
         
         # Return the user model
-        return None if not self.name else APIUser.objects.filter(username=self.name).values()[0]
+        if model.objects.filter(username=self.name).count():
+            return model.objects.get(username=self.name)
+        return None
     
     def _getattr(self, key, default=None, header=None, session=None, model=False, post=False):
         """
@@ -137,8 +137,8 @@ class LenseRequestUser(object):
             return self._request.META.get(self._format_header(header), default)
         
         # Attempt model retrieval
-        if model and isinstance(self.model, dict):
-            return self.model.get(key, default)
+        if model and self.model:
+            return getattr(self.model, key, default)
             
         # Attempt POST variable retrieval
         if post and hasattr(self._request, 'POST'):
@@ -177,12 +177,7 @@ class LenseRequestObject(object):
     
         # PUT/POST requests
         if self.method in [HTTP_POST, HTTP_PUT]:
-            
-            # Load the data string and strip special characters
-            data_str = getattr(self.DJANGO, 'body', '{}')
-            
-            # Return the JSON object
-            return self._json_decode(data_str)
+            return json.loads(getattr(self.DJANGO, 'body', '{}'))
         
         # GET/DELETE requests
         else:
@@ -222,27 +217,6 @@ class LenseRequestObject(object):
                         
             # Return the request data
             return data
-    
-    def _json_decode(self, json_str):
-        """
-        Hack/helper method for properly decoding JSON strings.
-        """
-        
-        # If the string is empty
-        if not json_str:
-            return {}
-        
-        # If already an object
-        if isinstance(json_str, dict):
-            return json_str
-        
-        # Decode the data
-        json_data = json.loads(json_str)
-        if not isinstance(json_data, dict):
-            
-            # If still needs further decoding
-            return self._json_decode(json_data)
-        return json_data
     
     def _get_key(self):
         """
