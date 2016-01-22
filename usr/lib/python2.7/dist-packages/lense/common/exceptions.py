@@ -19,6 +19,9 @@ class AuthError(EnsureError):
 class RequestError(EnsureError):
     pass
 
+class ClientError(EnsureError):
+    pass
+
 class JSONException(Exception):
     """
     Custom exceptions when encountering JSON object errors.
