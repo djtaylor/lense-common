@@ -58,7 +58,10 @@ class AuthACLGroup(object):
     requesting group.
     """
     def __init__(self, group):
-        self.object = LENSE.OBJECTS.GROUP.get(uuid=group)
+        self.object = LENSE.ensure(LENSE.OBJECTS.GROUP.get(uuid=group),
+            isnot = None,
+            error = 'Could not find group: {0}'.format(group),
+            code  = 404)
         self.uuid   = self.object.uuid
         
         # Permissions

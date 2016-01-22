@@ -332,7 +332,7 @@ class ObjectInterface(LenseBaseObject):
             debug = 'Found user for {0}, checking state'.format(user),
             code  = 404)
         LENSE.ensure(self.active(uuid=self.get_uuid(user)),
-            error = 'User {0} does not exist'.format(user),
+            error = 'User {0} is not active'.format(user),
             debug = 'User {0} is active, authenticating'.format(user),
             code  = 404)
         

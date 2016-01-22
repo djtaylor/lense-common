@@ -7,6 +7,43 @@ class ObjectInterface(LenseBaseObject):
         # Group members
         self.MEMBERS = LenseBaseObject('lense.common.objects.group.models', 'APIGroupMembers')
         
+    def extend(self, group):
+        """
+        Construct extended group attributes.
+        
+        :param group: The group object to extend
+        :type  group: APIGroup
+        :rtype: APIUser
+        """
+        uuid = LENSE.OBJECTS.getattr(group, 'uuid')
+        
+        # Extend the user object
+        for k,v in {
+            'members': [x.group.uuid for x in self.MEMBERS.filter(group=uuid)]
+        }.iteritems():
+            self.log('Extending group {0} attributes -> {1}={2}'.format(uuid,k,v), level='debug', method='extend')
+            LENSE.OBJECTS.setattr(group, k, v)
+        return group
+        
+    def get(self, **kwargs):
+        """
+        Retrieve an object definition.
+        """
+        group = super(ObjectInterface, self).get(**kwargs)
+        
+        # No group found
+        if not group:
+            return None
+        
+        # Multiple group objects
+        if isinstance(group, list):
+            for g in group:
+                self.extend(g)
+            return group
+        
+        # Single group object
+        return self.extend(group)    
+    
     def get_permissions(self, group):
         """
         Construct an object of a group's permissions.

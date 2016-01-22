@@ -36,7 +36,7 @@ class LenseSetup(object):
         LENSE.SOCKET.set()
 
     @classmethod
-    def client(cls, cli=False):
+    def client(cls):
         """
         Setup the Lense client for handling programmatic or CLI requests.
         """
