@@ -10,5 +10,9 @@
     "object": null,
     "object_key": null,
     "allow_anon": true,
-    "rmap": {}
+    "rmap": {
+        "_required": [],
+        "_optional": [],
+        "_type": "dict"
+    }
 }
