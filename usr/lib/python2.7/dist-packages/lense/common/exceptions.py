@@ -19,7 +19,7 @@ class AuthError(EnsureError):
 class RequestError(EnsureError):
     pass
 
-class ClientError(EnsureError):
+class ClientError(Exception):
     pass
 
 class JSONException(Exception):
