@@ -5,6 +5,7 @@ import traceback
 
 # Django Libraries
 from django.core.serializers.json import DjangoJSONEncoder
+from django.template import RequestContext, Context, loader
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 
 # Lense Libraries
@@ -182,6 +183,19 @@ class LenseHTTP(object):
         :rtype: JSONSuccess
         """
         return JSONSuccess(msg=msg, data=data).response()
+    
+    @staticmethod
+    def browser_error(template, data):
+        """
+        Return a error to the browser for rendering.
+        """
+        
+        # Template / request object
+        t = loader.get_template(template)
+        r = LENSE.REQUEST.DJANGO
+        
+        # Return and render the error template
+        return HttpResponseServerError(t.render(RequestContext(r, data)))
     
     @staticmethod
     def error(msg=None, status=400):

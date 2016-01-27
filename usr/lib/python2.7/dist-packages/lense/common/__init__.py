@@ -36,11 +36,19 @@ class LenseSetup(object):
         LENSE.SOCKET.set()
 
     @classmethod
-    def client(cls):
+    def portal(cls, request):
+        """
+        Setup Lense commons for handling portal requests.
+        """
+        LENSE.REQUEST.SET(request)
+        LENSE.PORTAL = import_class('LensePortal', 'lense.portal')
+
+    @classmethod
+    def client(cls, **kwargs):
         """
         Setup the Lense client for handling programmatic or CLI requests.
         """
-        LENSE.CLIENT = import_class('ClientHandler_Mod', 'lense.client.handler')
+        LENSE.CLIENT = import_class('ClientHandler_Mod', 'lense.client.handler', kwargs=kwargs)
 
 class LenseCommon(object):
     """
@@ -89,6 +97,7 @@ class LenseCommon(object):
         self.SETUP       = import_class('LenseSetup', 'lense.common', init=False)
         self.CLIENT      = None
         self.SOCKET      = None
+        self.PORTAL      = None
         
         # Initialize logs
         self._log_startup()
