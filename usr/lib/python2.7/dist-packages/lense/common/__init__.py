@@ -40,7 +40,7 @@ class LenseSetup(object):
         """
         Setup Lense commons for handling portal requests.
         """
-        LENSE.REQUEST.SET(request)
+        LENSE.REQUEST.set(request)
         LENSE.PORTAL = import_class('LensePortal', 'lense.portal')
 
     @classmethod

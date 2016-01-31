@@ -33,15 +33,15 @@ TEMPLATES = Collection({
 # Request Handlers
 HANDLERS = Collection({
     'ENGINE': {
-        'DIR': '{0}/lense/engine/api/handlers'.format(MODULE_ROOT),
+        'DIR': '{0}/engine/api/handlers'.format(MODULE_ROOT),
         'MOD': 'lense.engine.api.handlers'
     },
     'PORTAL': {
-        'DIR': '{0}/lense/portal/ui/handlers'.format(MODULE_ROOT),
-        'MOD': 'lense.engine.api.handlers'
+        'DIR': '{0}/portal/ui/handlers'.format(MODULE_ROOT),
+        'MOD': 'lense.portal.ui.handlers'
     },
     'CLIENT': {
-        'DIR': '{0}/lense/client/module'.format(MODULE_ROOT),
+        'DIR': '{0}/client/module'.format(MODULE_ROOT),
         'MOD': 'lense.client.module'
     }
 }).get()
