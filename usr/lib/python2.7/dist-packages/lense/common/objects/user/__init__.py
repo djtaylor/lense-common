@@ -338,7 +338,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Portal authentication
         if LENSE.PROJECT.name.upper() == 'PORTAL':
-            return LENSE.AUTH.PORTAL(user, set_arg(passwd, LENSE.REQUEST.USER.passwd))
+            LENSE.AUTH.PORTAL(user, set_arg(passwd, LENSE.REQUEST.USER.passwd))
 
         # Engine authentication
         if LENSE.PROJECT.name.upper() == 'ENGINE':
@@ -358,8 +358,12 @@ class ObjectInterface(LenseBaseObject):
             
             # Check token authentication first
             if token:
-                return LENSE.AUTH.TOKEN(user, token)
+                LENSE.AUTH.TOKEN(user, token)
             
             # Key authentication
             if key:
-                return LENSE.AUTH.KEY(user, key)
+                LENSE.AUTH.KEY(user, key)
+                
+        # User authenticated
+        self.authenticated = True
+        return True
