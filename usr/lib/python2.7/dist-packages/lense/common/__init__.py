@@ -41,7 +41,7 @@ class LenseSetup(object):
         Setup Lense commons for handling portal requests.
         """
         LENSE.REQUEST.set(request)
-        LENSE.PORTAL = import_class('LensePortal', 'lense.portal')
+        LENSE.PORTAL = import_class('PortalInterface', 'lense.portal')
 
     @classmethod
     def client(cls, **kwargs):
