@@ -138,7 +138,7 @@ class Bootstrap(BootstrapCommon):
                     m(answers['init'][k])
             del answers['init']
             return answers
-        return None
+        return {}
             
     def _run(self):
         """
