@@ -1,6 +1,6 @@
 {
     "cls": "ACLObjects_Update",
-    "name": "ACLObjects_Update",
+    "name": "acl_object_update",
     "path": "acl/objects",
     "method": "PUT",
     "desc": "Update an ACL object definition",

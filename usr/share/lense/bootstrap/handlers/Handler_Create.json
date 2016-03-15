@@ -1,6 +1,6 @@
 {
     "cls": "Handler_Create",
-    "name": "Handler_Create",
+    "name": "handler_create",
     "path": "handler",
     "method": "POST",
     "desc": "Create a new API handler",

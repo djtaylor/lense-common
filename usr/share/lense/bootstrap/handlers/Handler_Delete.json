@@ -1,6 +1,6 @@
 {
     "cls": "Handler_Delete",
-    "name": "Handler_Delete",
+    "name": "handler_delete",
     "path": "handler",
     "method": "DELETE",
     "desc": "Delete an existing API handler",

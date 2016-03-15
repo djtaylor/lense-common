@@ -1,6 +1,6 @@
 {
     "cls": "GroupMember_Add",
-    "name": "GroupMember_Add",
+    "name": "group_add_member",
     "path": "group/member",
     "method": "POST",
     "desc": "Add a user to an API group",

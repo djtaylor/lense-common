@@ -1,6 +1,6 @@
 {
     "cls": "ACLObjects_Delete",
-    "name": "ACLObjects_Delete",
+    "name": "acl_object_delete",
     "path": "acl/objects",
     "method": "DELETE",
     "desc": "Delete an existing ACL object definition",

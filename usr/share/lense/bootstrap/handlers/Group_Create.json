@@ -1,6 +1,6 @@
 {
     "cls": "Group_Create",
-    "name": "Group_Create",
+    "name": "group_create",
     "path": "group",
     "method": "POST",
     "desc": "Create a new API group",

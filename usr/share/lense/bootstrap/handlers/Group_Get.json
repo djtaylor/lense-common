@@ -1,6 +1,6 @@
 {
     "cls": "Group_Get",
-    "name": "Group_Get",
+    "name": "group_get",
     "path": "group",
     "method": "GET",
     "desc": "Get details for an API group",

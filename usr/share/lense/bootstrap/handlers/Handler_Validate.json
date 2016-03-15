@@ -1,6 +1,6 @@
 {
     "cls": "Handler_Validate",
-    "name": "Handler_Validate",
+    "name": "handler_validate",
     "path": "handler/validate",
     "method": "PUT",
     "desc": "Validate changes to an API handler",

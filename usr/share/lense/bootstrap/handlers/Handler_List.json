@@ -1,6 +1,6 @@
 {
     "cls": "Handler_List",
-    "name": "Handler_List",
+    "name": "handler_list",
     "path": "handler/list",
     "method": "GET",
     "desc": "Public endpoint for listing available request handlers.",

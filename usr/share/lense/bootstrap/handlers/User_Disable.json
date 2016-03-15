@@ -1,6 +1,6 @@
 {
     "cls": "User_Disable",
-    "name": "User_Disable",
+    "name": "user_disable",
     "path": "user/disable",
     "method": "PUT",
     "desc": "Disable a user account",

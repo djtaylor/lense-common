@@ -1,6 +1,6 @@
 {
     "cls": "User_Get",
-    "name": "User_Get",
+    "name": "user_get",
     "path": "user",
     "method": "GET",
     "desc": "Get API user details",

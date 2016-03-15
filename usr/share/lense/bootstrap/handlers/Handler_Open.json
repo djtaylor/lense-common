@@ -1,6 +1,6 @@
 {
     "cls": "Handler_Open",
-    "name": "Handler_Open",
+    "name": "handler_open",
     "path": "handler/open",
     "method": "PUT",
     "desc": "Open an API handler for editing",

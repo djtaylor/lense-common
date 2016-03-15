@@ -174,49 +174,19 @@ class LenseRequestObject(object):
         Load request data depending on the method. For POST requests, load the request
         body, for GET requests, load the query string.
         """
-    
-        # PUT/POST requests
-        if self.method in [HTTP_POST, HTTP_PUT]:
-            return json.loads(getattr(self.DJANGO, 'body', '{}'))
+        try:
+            
+            # PUT/POST requests
+            if self.method in [HTTP_POST, HTTP_PUT]:
+                return LENSE.HTTP.parse_request_body(getattr(self.DJANGO, 'body', '{}'))
+            
+            # GET/DELETE requests
+            else:
+                return LENSE.HTTP.parse_query_string(self.DJANGO.META['QUERY_STRING'])
         
-        # GET/DELETE requests
-        else:
-            data = {}
-            
-            # Store the query string
-            query_str = self.DJANGO.META['QUERY_STRING']
-            
-            # If the query string is not empty
-            if query_str:
-                
-                # Process each query string key
-                for query_pair in self.DJANGO.META['QUERY_STRING'].split('&'):
-                    
-                    # If processing a key/value pair
-                    if '=' in query_pair:
-                        query_set = query_pair.split('=')
-                        
-                        # Return JSON if possible
-                        try:
-                            data[query_set[0]] = json.loads(query_set[1])
-                            
-                        # Non-JSON parseable value
-                        except:
-                            
-                            # Integer value
-                            try:
-                                data[query_set[0]] = int(query_set[1])
-                            
-                            # String value
-                            except:
-                                data[query_set[0]] = query_set[1]
-                        
-                    # If processing a key flag
-                    else:
-                        data[query_pair] = True
-                        
-            # Return the request data
-            return data
+        # Error while parsing JSON
+        except ValueError as e:
+            raise RequestError(LENSE.LOG.exception('Failed to parse request data: {0}'.format(str(e))))
     
     def _get_key(self):
         """

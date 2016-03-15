@@ -19,7 +19,7 @@ class AuthError(EnsureError):
 class RequestError(EnsureError):
     pass
 
-class ClientError(Exception):
+class ClientError(EnsureError):
     pass
 
 class JSONException(Exception):
@@ -34,3 +34,10 @@ class InvalidProjectID(Exception):
     """
     def __init__(self, project):
         super(InvalidProjectID, self).__init__('Invalid project ID: {0}'.format(project))
+        
+class InitializeError(Exception):
+    """
+    Wrapper class for handling project intialization errors.
+    """
+    def __init__(self, project, reason='An unknown error occurred'):
+        super(InitializeError, self).__init__('Failed to initialize project {0}: {1}'.format(project, reason))

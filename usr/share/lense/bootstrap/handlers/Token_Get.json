@@ -1,6 +1,6 @@
 {
     "cls": "Token_Get",
-    "name": "Token_Get",
+    "name": "token_get",
     "path": "token",
     "method": "GET",
     "desc": "Make an API token request",

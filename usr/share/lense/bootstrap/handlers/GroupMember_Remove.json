@@ -1,6 +1,6 @@
 {
     "cls": "GroupMember_Remove",
-    "name": "GroupMember_Remove",
+    "name": "group_remove_member",
     "path": "group/member",
     "method": "DELETE",
     "desc": "Remove a user from an API group",

@@ -1,6 +1,6 @@
 {
     "cls": "Support_Get",
-    "name": "Support_Get",
+    "name": "support_get",
     "path": "support",
     "method": "GET",
     "desc": "Public handler for listing API capabilities.",

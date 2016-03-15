@@ -165,6 +165,51 @@ class LenseHTTP(object):
     Common class for handling HTTP attributes, requests, and responses.
     """
     @staticmethod
+    def parse_request_body(request_body):
+        """
+        Parse the request body from PUT/POST requests.
+        """
+        LENSE.LOG.debug('Parsing request body: {0}'.format(repr(request_body)))
+        return json.loads(request_body)
+    
+    @staticmethod
+    def parse_query_string(query_str):
+        """
+        Parse request data from a query string in the request URL.
+        """
+        LENSE.LOG.debug('Parsing request query string: {0}'.format(repr(query_str)))
+        data = {}
+        
+        # No query string
+        if not query_str: return data
+        
+        # Process each query string key
+        for query_pair in self.DJANGO.META['QUERY_STRING'].split('&'):
+            
+            # If processing a key/value pair
+            if '=' in query_pair:
+                query_set = query_pair.split('=')
+                
+                # Return JSON if possible
+                try:
+                    data[query_set[0]] = json.loads(query_set[1])
+                    
+                # Non-JSON parseable value
+                except:
+                    
+                    # Integer value
+                    try:
+                        data[query_set[0]] = int(query_set[1])
+                    
+                    # String value
+                    except:
+                        data[query_set[0]] = query_set[1]
+                
+            # If processing a key flag
+            else:
+                data[query_pair] = True
+    
+    @staticmethod
     def redirect(path):
         """
         Return an HTTP redirect object.

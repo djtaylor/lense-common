@@ -1,6 +1,6 @@
 {
     "cls": "User_Delete",
-    "name": "User_Delete",
+    "name": "user_delete",
     "path": "user",
     "method": "DELETE",
     "desc": "Delete an existing API user",

@@ -1,6 +1,6 @@
 {
     "cls": "ACLObjects_Get",
-    "name": "ACLObjects_Get",
+    "name": "acl_object_get",
     "path": "acl/objects",
     "method": "GET",
     "desc": "Get a listing of ACL objects",

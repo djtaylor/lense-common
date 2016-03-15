@@ -1,6 +1,6 @@
 {
     "cls": "StatsRequest_Get",
-    "name": "StatsRequest_Get",
+    "name": "stats_get_request",
     "path": "stats/request",
     "method": "GET",
     "desc": "Get API request statistics",

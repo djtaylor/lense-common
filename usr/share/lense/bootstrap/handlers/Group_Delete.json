@@ -1,6 +1,6 @@
 {
     "cls": "Group_Delete",
-    "name": "Group_Delete",
+    "name": "group_delete",
     "path": "group",
     "method": "DELETE",
     "desc": "Delete an existing API group",

@@ -1,6 +1,6 @@
 {
     "cls": "ACLKeys_Delete",
-    "name": "ACLKeys_Delete",
+    "name": "acl_key_delete",
     "path": "acl/keys",
     "method": "DELETE",
     "desc": "Delete an existing ACL definition",

@@ -1,6 +1,6 @@
 {
     "cls": "Group_Update",
-    "name": "Group_Update",
+    "name": "group_update",
     "path": "group",
     "method": "PUT",
     "desc": "Update an existing API group",

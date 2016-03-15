@@ -1,6 +1,6 @@
 {
     "cls": "Handler_Get",
-    "name": "Handler_Get",
+    "name": "handler_get",
     "path": "handler",
     "method": "GET",
     "desc": "Get a listing of API handlers",

@@ -8,7 +8,7 @@ from sys import path, exit, stderr
 from lense import import_class
 from lense.common.vars import PROJECTS
 from lense import MODULE_ROOT, DROPIN_ROOT
-from lense.common.exceptions import InvalidProjectID, EnsureError
+from lense.common.exceptions import InvalidProjectID, InitializeError, EnsureError
 
 # Drop-in Python path
 path.append(DROPIN_ROOT)
@@ -44,11 +44,11 @@ class LenseSetup(object):
         LENSE.PORTAL = import_class('PortalInterface', 'lense.portal')
 
     @classmethod
-    def client(cls, **kwargs):
+    def client(cls):
         """
-        Setup the Lense client for handling programmatic or CLI requests.
+        Setup the Lense client for handling module/CLI level requests.
         """
-        LENSE.CLIENT = import_class('ClientHandler_Mod', 'lense.client.handler', kwargs=kwargs)
+        LENSE.CLIENT = import_class('ClientInterface', 'lense.client.interface')
 
 class LenseCommon(object):
     """
@@ -234,6 +234,10 @@ def init_project(project, name='LENSE'):
     """
     if not hasattr(PROJECTS, project):
         raise InvalidProjectID(project)
+    
+    # Cannot reinitialize project
+    if hasattr(__builtin__, name):
+        raise InitializeError(project, 'Already initialized: {0}'.format(repr(getattr(__builtin__, name))))
     
     # Set up the project singletons
     setattr(__builtin__, name, LenseCommon(project))

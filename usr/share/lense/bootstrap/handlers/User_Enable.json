@@ -1,6 +1,6 @@
 {
     "cls": "User_Enable",
-    "name": "User_Enable",
+    "name": "user_enable",
     "path": "user/enable",
     "method": "PUT",
     "desc": "Enable a user account",

@@ -1,6 +1,6 @@
 {
     "cls": "Handler_Close",
-    "name": "Handler_Close",
+    "name": "handler_close",
     "path": "handler/close",
     "method": "PUT",
     "desc": "Close the editing lock on an API handler",
