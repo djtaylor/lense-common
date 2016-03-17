@@ -169,7 +169,6 @@ class LenseHTTP(object):
         """
         Parse the request body from PUT/POST requests.
         """
-        LENSE.LOG.debug('Parsing request body: {0}'.format(repr(request_body)))
         return json.loads(request_body)
     
     @staticmethod
@@ -184,7 +183,7 @@ class LenseHTTP(object):
         if not query_str: return data
         
         # Process each query string key
-        for query_pair in self.DJANGO.META['QUERY_STRING'].split('&'):
+        for query_pair in query_str.split('&'):
             
             # If processing a key/value pair
             if '=' in query_pair:
@@ -208,6 +207,9 @@ class LenseHTTP(object):
             # If processing a key flag
             else:
                 data[query_pair] = True
+                
+        # Return constructed data
+        return data
     
     @staticmethod
     def redirect(path):

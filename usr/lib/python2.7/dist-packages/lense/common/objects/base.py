@@ -80,7 +80,13 @@ class LenseBaseObject(object):
         :type  method: str
         """
         logger = getattr(LENSE.LOG, level, 'info')
-        logger('<{0}{1}> {2}'.format(self.logpre, '' if not method else '.{0}'.format(method), msg))
+        logger('<{0}{1}:{2}@{3}> {4}'.format(
+            self.logpre, 
+            '' if not method else '.{0}'.format(method), 
+            LENSE.REQUEST.USER.name,
+            LENSE.REQUEST.client,
+            msg
+        ))
 
     def is_email(self, emailstr):
         """
@@ -123,7 +129,7 @@ class LenseBaseObject(object):
         Update an existing object.
         """
         obj = self.get(**kwargs)
-        uid = '{0}={1}'.format(self.uidf, getattr(kwargs, self.uidf))
+        uid = '{0}={1}'.format(self.uidf, kwargs.get(self.uidf, None))
         
         # Object doesn't exist, cannot updated
         if not obj:

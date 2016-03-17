@@ -1,4 +1,5 @@
 from lense import import_class
+from lense.common.auth import AuthBase
 from lense.common.exceptions import AuthError
 
 class AuthPortal(object):

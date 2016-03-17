@@ -44,6 +44,13 @@ class LenseSetup(object):
         LENSE.PORTAL = import_class('PortalInterface', 'lense.portal')
 
     @classmethod
+    def auth(cls):
+        """
+        Setup Lense authentication backend.
+        """
+        LENSE.AUTH = import_class('AuthInterface', 'lense.common.auth')
+
+    @classmethod
     def client(cls):
         """
         Setup the Lense client for handling module/CLI level requests.
@@ -82,7 +89,6 @@ class LenseCommon(object):
         SOCKET:     SocketIO handler
         """
         self.COLLECTION  = import_class('Collection', 'lense.common.collection', init=False)
-        self.AUTH        = import_class('AuthInterface', 'lense.common.auth', ensure=pattr('get_auth'))
         self.REQUEST     = import_class('LenseRequestObject', 'lense.common.request', ensure=pattr('get_request'))
         self.LOG         = import_class('create_project', 'lense.common.logger', args=[project])
         self.OBJECTS     = import_class('LenseAPIObjects', 'lense.common.objects', ensure=pattr('get_objects'))
@@ -98,6 +104,7 @@ class LenseCommon(object):
         self.CLIENT      = None
         self.SOCKET      = None
         self.PORTAL      = None
+        self.AUTH        = None
         
         # Initialize logs
         self._log_startup()

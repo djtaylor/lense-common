@@ -8,6 +8,7 @@ from django.contrib.auth import get_backends, get_user_model
 # Lense Libraries
 from lense.common import config
 from lense.common import logger
+from lense.common.auth import AuthBase
 from lense.common.utils import rstring
 from lense.common.auth.utils import AuthGroupsLDAP
 

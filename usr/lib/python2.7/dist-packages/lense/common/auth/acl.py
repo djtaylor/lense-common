@@ -1,3 +1,5 @@
+from lense.common.auth import AuthBase
+
 class AuthACLHandler(object):
     """
     Class object for storing ACL information related to the 
@@ -199,4 +201,5 @@ class AuthACLGateway(object):
         """
         Static method for enabling the ACL gateway. 
         """
-        LENSE.AUTH.ACL = cls()
+        if not LENSE.REQUEST.is_anonymous:
+            LENSE.AUTH.ACL = cls()

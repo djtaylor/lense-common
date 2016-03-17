@@ -1,12 +1,12 @@
+from lense.common.auth import AuthBase
 from lense.common.exceptions import AuthError
 from lense.common.utils import valid, invalid, rstring
 
-class AuthAPIKey(object):
+class AuthAPIKey(AuthBase):
     """
     API class used to handle validating, retrieving, and generating API keys.
     """
-    @staticmethod
-    def create(user):
+    def create(self, user):
         """
         Generate a new API authentication key.
         
@@ -15,11 +15,13 @@ class AuthAPIKey(object):
         """
             
         # Create a new API key
-        LENSE.LOG.info('Generating API key for user: {0}'.format(user))
-        return LENSE.OBJECTS.USER.grant_key(user)
+        return self.ensure(LENSE.OBJECTS.USER.grant_key(user),
+            isnot = None,
+            error = 'Failed to generate API key for user: {0}'.format(user),
+            debug = 'Generating API key for user: {0}'.format(user),
+            code  = 500)
     
-    @staticmethod
-    def update(user):
+    def update(self, user):
         """
         Update a users API key.
         
@@ -28,11 +30,13 @@ class AuthAPIKey(object):
         """
         
         # Update the user's token
-        LENSE.LOG.info('Updating API key for user: {0}'.format(user))
-        return LENSE.OBJECTS.USER.grant_key(user, overwrite=True)
+        return self.ensure(LENSE.OBJECTS.USER.grant_key(user, overwrite=True),
+            isnot = None,
+            error = 'Failed to update API key for user: {0}'.format(user),
+            debug = 'Updating API key for user: {0}'.format(user),
+            code  = 500)
     
-    @staticmethod
-    def get(user):
+    def get(self, user):
         """
         Get the API key of a user or host account.
         
@@ -41,7 +45,7 @@ class AuthAPIKey(object):
         """
         
         # Get the user API key
-        api_key = LENSE.ensure(LENSE.OBJECTS.USER.get_key(user),
+        api_key = self.ensure(LENSE.OBJECTS.USER.get_key(user),
             isnot = None,
             error = 'Could not retrieve API key user {0}'.format(user),
             debug = 'Retrieved user {0} API key'.format(user),
@@ -49,14 +53,13 @@ class AuthAPIKey(object):
 
         # User has no API key
         if not user.api_key:
-            LENSE.LOG.error('API user "{0}" has no key in the database'.format(user))
+            self.log.error('API user "{0}" has no key in the database'.format(user))
             return None
         
         # Return the API key
         return api_key
     
-    @staticmethod
-    def validate(user, usr_key):
+    def validate(self, user, usr_key):
         """
         Validate the API key for a user or host account.
         
@@ -68,18 +71,19 @@ class AuthAPIKey(object):
         """
         
         # Get the user object
-        user = LENSE.ensure(LENSE.OBJECTS.USER.get(**LENSE.OBJECTS.USER.map_uuid(user)),
+        user = self.ensure(LENSE.OBJECTS.USER.get(**LENSE.OBJECTS.USER.map_uuid(user)),
             error = 'Could not find user {0}'.format(user),
             debug = 'Found user {0} object'.format(user),
             code  = 404)
         
         # Get the API key
-        db_key = LENSE.ensure(AuthAPIKey.get(user),
+        db_key = self.ensure(self.get(user),
             error = 'Could not retrieve API key for user {0}'.format(user),
             debug = 'Retrieved API key for user {0}'.format(user),
             code  = 404)
         
-        # Invalid key in request
-        if not db_key == usr_key:
-            raise AuthError('User "{0}" has submitted an invalid API key'.format(user))
-        return True
+        # Validate the key
+        return self.ensure((db_key == usr_key),
+            error = 'User "{0}" has submitted an invalid API key'.format(user),
+            debug = 'User "{0}" has submitted a valid API key'.format(user),
+            code  = 401)

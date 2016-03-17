@@ -5,14 +5,14 @@ from django.conf import settings
 
 # Lense Libraries
 from lense.common.utils import rstring
+from lense.common.auth import AuthBase
 from lense.common.exceptions import AuthError
 
-class AuthAPIToken(object):
+class AuthAPIToken(AuthBase):
     """
     API class used to assist in validating, creating, and retrieving API authentication tokens.
     """
-    @staticmethod
-    def create(user):
+    def create(self, user):
         """
         Generate a new API authentication token.
         
@@ -21,11 +21,13 @@ class AuthAPIToken(object):
         """
             
         # Create a new API token
-        LENSE.LOG.info('Generating API token for user: {0}'.format(user))
-        return LENSE.OBJECTS.USER.grant_token(user)
+        return self.ensure(LENSE.OBJECTS.USER.grant_token(user),
+            isnot = None,
+            error = 'Failed to generate API token for user: {0}'.format(user),
+            debug = 'Generating API token for user: {0}'.format(user),
+            code  = 500)
     
-    @staticmethod
-    def update(user):
+    def update(self, user):
         """
         Update a users API token.
         
@@ -34,11 +36,13 @@ class AuthAPIToken(object):
         """
         
         # Update the user's token
-        LENSE.LOG.info('Updating API token for user: {0}'.format(user))
-        return LENSE.OBJECTS.USER.grant_token(user, overwrite=True)
+        return self.ensure(LENSE.OBJECTS.USER.grant_token(user, overwrite=True),
+            isnot = None,
+            error = 'Failed to update API token for user: {0}'.format(user),
+            debug = 'Updating API token for user: {0}'.format(user),
+            code  = 500)
     
-    @staticmethod
-    def get(user):
+    def get(self, user):
         """
         Get the API authentication token for a user or host account.
         
@@ -47,7 +51,7 @@ class AuthAPIToken(object):
         """
          
         # Get the user API token
-        api_token = LENSE.ensure(LENSE.OBJECTS.USER.get_token(user),
+        api_token = self.ensure(LENSE.OBJECTS.USER.get_token(user),
             isnot = None,
             error = 'Could not retrieve API token user {0}'.format(user),
             debug = 'Retrieved user {0} API token'.format(user),
@@ -61,8 +65,7 @@ class AuthAPIToken(object):
         # Return the API token
         return api_token
     
-    @staticmethod
-    def validate(user, usr_token):
+    def validate(self, user, usr_token):
         """
         Validate the API token for a user or host account.
         
@@ -74,18 +77,19 @@ class AuthAPIToken(object):
         """
         
         # Get the user object
-        user = LENSE.ensure(LENSE.OBJECTS.USER.get(**LENSE.OBJECTS.USER.map_uuid(user)),
+        user = self.ensure(LENSE.OBJECTS.USER.get(**LENSE.OBJECTS.USER.map_uuid(user)),
             error = 'Could not find user {0}'.format(user),
             debug = 'Found user {0} object'.format(user),
             code  = 404)
         
         # Get the API token
-        db_token = LENSE.ensure(AuthAPIToken.get(user),
+        db_token = self.ensure(self.get(user),
             error = 'Could not retrieve API token for user {0}'.format(user),
             debug = 'Retrieved API token for user {0}'.format(user),
             code  = 404)
         
-        # Invalid token in request
-        if not db_token == usr_token:
-            raise AuthError('User "{0}" has submitted an invalid API token'.format(user))
-        return True
+        # Validate the token
+        return self.ensure((db_token == usr_token),
+            error = 'User "{0}" has submitted an invalid API token'.format(user),
+            debug = 'User "{0}" has submitted a valid API token'.format(user),
+            code  = 401)

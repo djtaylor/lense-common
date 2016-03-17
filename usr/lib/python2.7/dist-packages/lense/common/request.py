@@ -96,11 +96,11 @@ class LenseRequestUser(object):
         # Internal Django request / user object / username / user model
         self._request   = request
         self.object     = request.user
-        self.name       = self._getattr('username', header=HEADER.API_USER)
+        self.name       = self._getattr('username', header=HEADER.API_USER, default='anonymous')
         self.model      = self._getmodel()
  
         # User attributes
-        self.group      = self._getattr('group', header=HEADER.API_GROUP, session='active_group')
+        self.group      = self._getattr('group', header=HEADER.API_GROUP, session='active_group', default='anonymous')
         self.authorized = self._getattr('is_authenticated', default=False)
         self.admin      = self._getattr('is_admin', default=False, session='is_admin', model=True)
         self.active     = self._getattr('is_active', default=False, model=True)
@@ -271,6 +271,8 @@ class LenseRequestObject(object):
         self.size         = int(getsizeof(getattr(request, 'body', '')))
         self.data         = self._load_data()
     
+        LENSE.LOG.debug('Request data: type={0}, content={1}'.format(type(self.data), self.data))
+    
         # Request user / session
         self.USER         = LenseRequestUser(request)
         self.SESSION      = LenseRequestSession(request.session)
@@ -287,6 +289,9 @@ class LenseRequestObject(object):
         self._GET         = Collection(request.GET).get()
         self._POST        = Collection(request.POST).get()
         self.body         = request.body
+    
+        # Setup authentication
+        LENSE.SETUP.auth()
     
         # Debug logging for each request
         self._log_request()

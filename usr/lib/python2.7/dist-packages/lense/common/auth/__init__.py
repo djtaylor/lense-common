@@ -2,14 +2,41 @@ from re import compile
 from lense import import_class
 from lense.common.exceptions import AuthError
 
+class AuthBase(object):
+    """
+    Base object for authentication classes.
+    """
+    def __init__(self):
+        self.logpre = '<AUTH:{0}:{1}@{2}>'.format(
+            self.__class__.__name__, 
+            LENSE.REQUEST.USER.name, 
+            LENSE.REQUEST.client
+        )
+        
+    def log(self, msg, level='info'):
+        """
+        Log wrapper per handler.
+        """
+        logger = getattr(LENSE.LOG, level, 'info')
+        logger('{0} {1}'.format(self.logpre, msg))
+
+    def ensure(self, *args, **kwargs):
+        """
+        Wrapper method for authentication classes.
+        """
+        for k in ['debug', 'error', 'log']:
+            if k in kwargs:
+                kwargs[k] = '{0} {1}'.format(self.logpre, kwargs[k])
+        return LENSE.AUTH.ensure(*args, **kwargs)
+
 class AuthInterface(object):
     """
     Lense authentication interface.
     """
     def __init__(self):
-        self._key    = import_class('AuthAPIKey', 'lense.common.auth.key', init=False)
-        self._token  = import_class('AuthAPIToken', 'lense.common.auth.token', init=False)
-        self._portal = import_class('AuthPortal', 'lense.common.auth.portal', init=False)
+        self._key    = import_class('AuthAPIKey', 'lense.common.auth.key')
+        self._token  = import_class('AuthAPIToken', 'lense.common.auth.token')
+        self._portal = import_class('AuthPortal', 'lense.common.auth.portal')
         
         # ACL gateway
         self.ACL     = import_class('AuthACLGateway', 'lense.common.auth.acl', init=False)
