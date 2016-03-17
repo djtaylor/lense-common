@@ -1,6 +1,5 @@
 from lense import import_class
 from json import loads as json_loads
-from lense.common.utils import valid, invalid
 from lense.common.exceptions import RequestError
 
 class LenseAPIRequestMapper(object):
@@ -32,8 +31,6 @@ class LenseAPIRequestMapper(object):
     def run(cls):
         """
         Main method for constructing and returning the handler map.
-        
-        @return valid|invalid
         """
         
         # Request path and method

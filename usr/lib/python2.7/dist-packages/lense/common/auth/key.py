@@ -1,6 +1,6 @@
 from lense.common.auth import AuthBase
 from lense.common.exceptions import AuthError
-from lense.common.utils import valid, invalid, rstring
+from lense.common.utils import rstring
 
 class AuthAPIKey(AuthBase):
     """
