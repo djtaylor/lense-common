@@ -1,12 +1,13 @@
 from lense.common.auth import AuthBase
 
-class AuthACLHandler(object):
+class AuthACLHandler(AuthBase):
     """
     Class object for storing ACL information related to the 
     target handler.
     """
     def __init__(self, path, method):
-        self.object = LENSE.ensure(LENSE.OBJECTS.HANDLER.get(path=path, method=method),
+        super(AuthACLHandler, self).__init__()
+        self.object = self.ensure(LENSE.OBJECTS.HANDLER.get(path=path, method=method),
             isnot = None,
             error = 'Could not retrieve handler for: path={0}, method={1}'.format(path, method),
             debug = 'Retrieved handler for ACL authorization: path={0}, method={1}'.format(path, method),
@@ -49,18 +50,19 @@ class AuthACLHandler(object):
         :param access_type: Either object or global access
         :type  access:type:
         """
-        LENSE.ensure(access_type in ['object', 'global'],
+        self.ensure(access_type in ['object', 'global'],
             error = 'Invalid access type: {0}'.format(access_type),
             code  = 500)
         self.access_type = access_type
   
-class AuthACLGroup(object):
+class AuthACLGroup(AuthBase):
     """
     Class object for storing ACL information related to the 
     requesting group.
     """
     def __init__(self, group):
-        self.object = LENSE.ensure(LENSE.OBJECTS.GROUP.get(uuid=group),
+        super(AuthACLGroup, self).__init__()
+        self.object = self.ensure(LENSE.OBJECTS.GROUP.get(uuid=group),
             isnot = None,
             error = 'Could not find group: {0}'.format(group),
             code  = 404)
@@ -76,12 +78,13 @@ class AuthACLGroup(object):
             'object': [x.acl for x in self.permissions['object']],
             'global': [x.acl for x in self.permissions['global']] }
   
-class AuthACLGateway(object):
+class AuthACLGateway(AuthBase):
     """
     Primary class for the request processor to interact with
     the ACL authorization backend.
     """
     def __init__(self):
+        super(AuthACLGateway, self).__init__()
         self.user     = LENSE.REQUEST.USER.name
         
         # Target handler / requesting group
@@ -122,7 +125,7 @@ class AuthACLGateway(object):
         debug_attrs = [self.user, self.group.uuid, self.handler.uuid, self.handler.access_acl]
         
         # Make sure the requesting group has some type of handler access
-        LENSE.AUTH.ensure(can_access,
+        self.ensure(can_access,
             error = 'No access granted for request handler',
             debug = 'Access granted to request handler: user={0}, group={1}, handler={2}, acl={3}'.format(*debug_attrs),
             code  = 401)
@@ -141,25 +144,25 @@ class AuthACLGateway(object):
             return obj
         
         # Handler has not object association
-        LENSE.ensure(self.handler.object_type,
+        self.ensure(self.handler.object_type,
             isnot = None,
             error = 'Cannot access, request handler has no ACL object type association',
             code  = 500)
         
         # Look for the object ID
-        object_id = LENSE.ensure(getattr(obj, self.handler.object_key, False),
+        object_id = self.ensure(getattr(obj, self.handler.object_key, False),
             isnot = False,
             error = 'Could not find object',
             code  = 404)
         
         # Look for an associated permissions object
-        perms_object = LENSE.AUTH.ensure(LENSE.OBJECTS.ACL.PERMISSIONS('object').get(object_type=self.handler.object_type, object_id=object_id),
+        perms_object = self.ensure(LENSE.OBJECTS.ACL.PERMISSIONS('object').get(object_type=self.handler.object_type, object_id=object_id),
             isnot = None,
             error = 'Group does not have access to this object',
             code  = 401)
         
         # Make sure access is not explicitly disabled
-        LENSE.AUTH.ensure(perms_object.allowed,
+        self.ensure(perms_object.allowed,
             isnot = False,
             error = 'Access to this object is disabled',
             code  = 401)

@@ -337,9 +337,17 @@ class BootstrapCommon(object):
                 
             # Process each attribute
             for attr in attrs:
+                stored = BOOTSTRAP.retrieve(attr['key'])
+                
+                # Give priority to answers file
                 if attr['key'] in answers:
                     BOOTSTRAP.FEEDBACK.info('Answer key found: {0}'.format(attr['key']))
                     val = answers[attr['key']]
+                    
+                # Look in global storage
+                elif stored:
+                    BOOTSTRAP.FEEDBACK.info('Storage key found: {0}'.format(attr['key']))
+                    val = stored
                     
                 else:
                 

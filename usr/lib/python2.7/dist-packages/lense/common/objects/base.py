@@ -156,7 +156,7 @@ class LenseBaseObject(object):
             # Create/save the object
             obj = self.model(**kwargs)
             obj.save()
-            uid = '{0}={1}'.format(self.uidf, getattr(obj, self.uidf))
+            uid = '{0}={1}'.format(self.uidf, getattr(obj, self.uidf, None))
             self.log('Created object -> {0}'.format(uid), level='debug', method='create')
             
             # Return the new object

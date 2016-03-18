@@ -65,7 +65,10 @@ class LenseCommon(object):
     def __init__(self, project):
         
         # Get the project attributes
-        self.PROJECT = import_class('LenseProject', 'lense.common.project', args=[project])
+        self.PROJECT  = import_class('LenseProject', 'lense.common.project', args=[project])
+        
+        # Generic storage
+        self._storage = {}
         
         # Get project attribute
         def pattr(a):
@@ -108,6 +111,18 @@ class LenseCommon(object):
         
         # Initialize logs
         self._log_startup()
+        
+    def retrieve(self, key, default=None):
+        """
+        Retrieve a key value from generic storage.
+        """
+        return self._storage.get(key, default)
+        
+    def store(self, key, value):
+        """
+        Store a key/value pair in generic storage.
+        """
+        self._storage[key] = value
         
     def _log_startup(self):
         """

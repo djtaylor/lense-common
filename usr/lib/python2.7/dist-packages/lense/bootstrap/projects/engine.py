@@ -1,4 +1,4 @@
-from os import path
+from os import path, makedirs
 from MySQLdb import connect as mysql_connect
 
 # Lense Libraries
@@ -358,6 +358,24 @@ class BootstrapEngine(BootstrapCommon):
         # Set up the database seed data
         self._database_seed()
         
+    def _write_env(self, user, group, key):
+        """
+        Write the connection attributes to the current user's ~/.lense/env.sh file.
+        """
+        lense_home = path.expanduser('~/.lense')
+        lense_env  = '{0}/env.sh'.format(lense_home)
+        
+        # Make sure the Lense home directory exists
+        if not path.isdir(lense_home):
+            makedirs(lense_home)
+            
+        # Write the environment shell file
+        with open(lense_env, 'w') as f:
+            f.write('export LENSE_API_USER="{0}"\n'.format(user))
+            f.write('export LENSE_API_GROUP="{0}"\n'.format(group))
+            f.write('export LENSE_API_KEY="{0}"\n'.format(key))
+        BOOTSTRAP.FEEDBACK.success('Wrote Lense environment file: {0}'.format(lense_env))
+        
     def _bootstrap_complete(self):
         """
         Brief summary of the completed bootstrap process.
@@ -366,15 +384,18 @@ class BootstrapEngine(BootstrapCommon):
         # Get the admin user
         admin_user = self.params.get_user(USERS.ADMIN.NAME)
         
+        # Write the Lense environment file
+        self._write_env(admin_user['username'], admin_user['group'], admin_user['key'])
+        
+        # Store the administrator API key
+        BOOTSTRAP.store('admin_key', admin_user['key'])
+        
         # Print the summary
         BOOTSTRAP.FEEDBACK.block([
             'Finished bootstrapping Lense API engine!\n',
-            'You should restart your Apache service to load the new virtual host',
-            'configuration. In order to use the Lense CLI client you should add the',
-            'following environment variables to your ~/.bashrc file:\n',
-            'export LENSE_API_USER="{0}"'.format(admin_user['username']),
-            'export LENSE_API_GROUP="{0}"'.format(admin_user['group']),
-            'export LENSE_API_KEY="{0}"'.format(admin_user['key'])  
+            'Please restart Apache to load the new virtual host(s). You can load the',
+            'Lense environment file by adding the following to your ~/.bashrc file:\n',
+            '[[ -f ~/.lense/env.sh ]] && . ~/.lense/env.sh' 
         ], 'COMPLETE')
         
     def run(self):
