@@ -9,7 +9,7 @@
     "enabled": true,
     "object": null,
     "object_key": null,
-    "allow_anon": true,
+    "allow_anon": false,
     "rmap": {
         "_required": [],
         "_optional": [],

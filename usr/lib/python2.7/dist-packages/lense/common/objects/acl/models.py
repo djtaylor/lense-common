@@ -4,9 +4,6 @@ import importlib
 from django.db.models import Model, ForeignKey, CharField, SET_NULL, \
                              TextField, NullBooleanField, BooleanField
 
-# Lense Libraries
-from lense.common.objects.acl.manager import ACLObjectsManager, ACLKeysManager
-
 class ACLObjects(Model):
     """
     Main database model for storing ACL object types.
@@ -21,9 +18,6 @@ class ACLObjects(Model):
 
     # Unique ID field
     UID_FIELD = 'uuid'
-
-    # Custom objects manager
-    objects    = ACLObjectsManager()
 
     # Custom table metadata
     class Meta:
@@ -42,9 +36,6 @@ class ACLKeys(Model):
     
     # Unique ID field
     UID_FIELD = 'uuid'
-    
-    # Custom objects manager
-    objects     = ACLKeysManager()
     
     # Custom table metadata
     class Meta:

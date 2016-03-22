@@ -15,13 +15,30 @@ class LenseSocketIO(object):
                 self.io = SocketIO(LENSE.CONF.socket.host, int(LENSE.CONF.socket.port))
                 
                 # Socket connection opened sucessfully
-                LENSE.LOG.info('Initialized SocketIO proxy connection -> {0}:{1}'.format(LENSE.CONF.socket.host, LENSE.CONF.socket.port))
+                self.log('Initialized SocketIO proxy connection -> {0}:{1}'.format(LENSE.CONF.socket.host, LENSE.CONF.socket.port), level='info', method='__init__')
             else:
-                LENSE.LOG.info('SocketIO proxy server disabled - skipping...')
+                self.log('SocketIO proxy administratively disabled: conf.socket.enable = {0}'.format(repr(LENSE.CONF.socket.enable)), level='info', method='__init__')
             
         # Critical error when opening connection
         except Exception as e:
-            LENSE.LOG.info('Failed to initialize SocketIO proxy connection: {}'.format(str(e)))
+            self.log('Failed to initialize SocketIO connection', level='exception', method='__init__')
+        
+    def log(self, msg, level='info', method=None):
+        """
+        Wrapper method for logging with a prefix.
+        
+        :param    msg: The message to log
+        :type     msg: str
+        :param  level: The desired log level
+        :type   level: str
+        :param method: Optionally append the method to log prefix
+        :type  method: str
+        """
+        logger = getattr(LENSE.LOG, level, 'info')
+        logger('<SOCKET{0}> {1}'.format(
+            '' if not method else '.{0}'.format(method),
+            msg
+        ))
         
     def set(self, params=None):
         """
@@ -29,7 +46,7 @@ class LenseSocketIO(object):
         """
         self.params = set_arg(params, LENSE.REQUEST.data.get('socket', None))
         if self.params:
-            LENSE.LOG.info('Received connection from web socket client: {}'.format(str(self.params)))
+            self.log('Received connection from web socket client: {0}'.format(self.params), method='set')
         return params
         
     def disconnect(self):
@@ -38,7 +55,7 @@ class LenseSocketIO(object):
         """
         try:
             self.io.disconnect()
-            LENSE.LOG.info('Closing SocketIO proxy connection')
+            self.log('Closing SocketIO connection', method='disconnect')
         except:
             pass
         
@@ -48,6 +65,7 @@ class LenseSocketIO(object):
         """
         if self.io and LENSE.CONF.socket.enable:
             self.io.emit('update', {'type': t, 'content': d})
+            self.log('Broadcasting message: type={0}, content={1}'.format(t, d), level='debug', method='broadcast')
         
     def loading(self, m=None):
         """
@@ -55,3 +73,4 @@ class LenseSocketIO(object):
         """
         if self.params and self.io and LENSE.CONF.socket.enable:
             self.io.emit('update', { 'room': self.params['room'], 'type': 'loading', 'content': m})
+            self.log('Sending loading message: room={0}, type=loading, content={1}'.format(self.params['room'], m), level='debug', method='loading')

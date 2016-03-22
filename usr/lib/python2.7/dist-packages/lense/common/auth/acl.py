@@ -7,6 +7,34 @@ class AuthACLHandler(AuthBase):
     """
     def __init__(self, path, method):
         super(AuthACLHandler, self).__init__()
+        
+        # ACL handler attributes
+        self.object      = None
+        self.uuid        = None
+        self.access      = None
+        self.acls        = None
+        
+        # Access type / access ACL
+        self.access_type = None
+        self.access_acl  = None
+        
+        # Object type / key
+        self.object_type = None
+        self.object_key  = None
+        
+        # Construct the ACL handler
+        self._construct()
+        
+    def _construct(self):
+        """
+        Private method for constructing the ACL handler object.
+        """
+        
+        # ACL gateway disabled
+        if not LENSE.AUTH.ACL.enabled:
+            return True
+        
+        # Handler object
         self.object = self.ensure(LENSE.OBJECTS.HANDLER.get(path=path, method=method),
             isnot = None,
             error = 'Could not retrieve handler for: path={0}, method={1}'.format(path, method),
@@ -62,6 +90,26 @@ class AuthACLGroup(AuthBase):
     """
     def __init__(self, group):
         super(AuthACLGroup, self).__init__()
+        
+        # ACL group attributes
+        self.object      = None
+        self.uuid        = None
+        self.permissions = None
+        self.acls        = None
+        
+        # Construct ACL groups
+        self._construct()
+        
+    def _construct(self):
+        """
+        Private method for constructing ACL groups if the ACL gateway is enabled.
+        """
+        
+        # ACL gateway disabled
+        if not LENSE.AUTH.ACL.enabled:
+            return True
+        
+        # Group object / UUID
         self.object = self.ensure(LENSE.OBJECTS.GROUP.get(uuid=group),
             isnot = None,
             error = 'Could not find group: {0}'.format(group),
@@ -83,6 +131,11 @@ class AuthACLGateway(AuthBase):
     Primary class for the request processor to interact with
     the ACL authorization backend.
     """
+    
+    # ACL enabled/disabled flag / anonymous flag
+    enabled   = LENSE.CONF.auth.acl
+    anonymous = LENSE.REQUEST.is_anonymous
+    
     def __init__(self):
         super(AuthACLGateway, self).__init__()
         self.user     = LENSE.REQUEST.USER.name
@@ -91,46 +144,49 @@ class AuthACLGateway(AuthBase):
         self.handler  = AuthACLHandler(LENSE.REQUEST.path, LENSE.REQUEST.method)
         self.group    = AuthACLGroup(LENSE.REQUEST.USER.group)
         
-        # Gateway ready
-        self.ready    = True
-        
-    def request(self):
+    @classmethod
+    def request(cls):
         """
         Authorized group access to the request handler.
         """
+        
+        # Is the ACL gateway enabled
+        if not LENSE.AUTH.ACL.enabled:
+            return LENSE.AUTH.ACL.log('ACL gateway disabled - granting access to handler', level='debug')
         
         # Global / object access
         access_global = False
         access_object = False
         
         # Global access
-        for acl in self.handler.acls['global']:
-            if acl in self.group.acls['global']:
-                self.handler.set_access('global')
-                self.handler.set_acl(acl)
+        for acl in LENSE.AUTH.ACL.handler.acls['global']:
+            if acl in LENSE.AUTH.ACL.group.acls['global']:
+                LENSE.AUTH.ACL.handler.set_access('global')
+                LENSE.AUTH.ACL.handler.set_acl(acl)
                 access_global = True
         
         # No global access, try object
         if not access_global:
-            for acl in self.handler.acls['object']:
-                if acl in self.group.acls['object']:
-                    self.handler.set_access('object')
-                    self.handler.set_acl(acl)
+            for acl in LENSE.AUTH.ACL.handler.acls['object']:
+                if acl in LENSE.AUTH.ACL.group.acls['object']:
+                    LENSE.AUTH.ACL.handler.set_access('object')
+                    LENSE.AUTH.ACL.handler.set_acl(acl)
                     access_object = True
         
         # Can the user access by either object or global level
         can_access = False if not (access_object or access_global) else True
         
         # Debug log attributes
-        debug_attrs = [self.user, self.group.uuid, self.handler.uuid, self.handler.access_acl]
+        debug_attrs = [LENSE.AUTH.ACL.user, LENSE.AUTH.ACL.group.uuid, LENSE.AUTH.ACL.handler.uuid, LENSE.AUTH.ACL.handler.access_acl]
         
         # Make sure the requesting group has some type of handler access
-        self.ensure(can_access,
+        LENSE.AUTH.ACL.ensure(can_access,
             error = 'No access granted for request handler',
             debug = 'Access granted to request handler: user={0}, group={1}, handler={2}, acl={3}'.format(*debug_attrs),
             code  = 401)
         
-    def _object(self, obj):
+    @classmethod
+    def _object(cls, obj):
         """
         Confirm access to a single object.
         
@@ -140,29 +196,29 @@ class AuthACLGateway(AuthBase):
         """
         
         # User has global access to the handler
-        if self.handler.access_type == 'global':
+        if LENSE.AUTH.ACL.handler.access_type == 'global':
             return obj
         
         # Handler has not object association
-        self.ensure(self.handler.object_type,
+        LENSE.AUTH.ACL.ensure(LENSE.AUTH.ACL.handler.object_type,
             isnot = None,
             error = 'Cannot access, request handler has no ACL object type association',
             code  = 500)
         
         # Look for the object ID
-        object_id = self.ensure(getattr(obj, self.handler.object_key, False),
+        object_id = LENSE.AUTH.ACL.ensure(getattr(obj, LENSE.AUTH.ACL.handler.object_key, False),
             isnot = False,
             error = 'Could not find object',
             code  = 404)
         
         # Look for an associated permissions object
-        perms_object = self.ensure(LENSE.OBJECTS.ACL.PERMISSIONS('object').get(object_type=self.handler.object_type, object_id=object_id),
+        perms_object = LENSE.AUTH.ACL.ensure(LENSE.OBJECTS.ACL.PERMISSIONS('object').get(object_type=LENSE.AUTH.ACL.handler.object_type, object_id=object_id),
             isnot = None,
             error = 'Group does not have access to this object',
             code  = 401)
         
         # Make sure access is not explicitly disabled
-        self.ensure(perms_object.allowed,
+        LENSE.AUTH.ACL.ensure(perms_object.allowed,
             isnot = False,
             error = 'Access to this object is disabled',
             code  = 401)
@@ -170,7 +226,8 @@ class AuthACLGateway(AuthBase):
         # Access granted
         return obj
         
-    def objects(self, objects):
+    @classmethod
+    def objects(cls, objects):
         """
         Filter multiple objects.
         
@@ -179,14 +236,19 @@ class AuthACLGateway(AuthBase):
         :rtype: object|list|None
         """
         
+        # ACL gateway disabled
+        if not LENSE.AUTH.ACL.enabled:
+            LENSE.AUTH.ACL.log('ACL gateway disabled - granting access to all objects', level='debug')
+            return objects
+        
         # User has global access to the handler
-        if self.handler.access_type == 'global':
+        if LENSE.AUTH.ACL.handler.access_type == 'global':
             return objects
         
         # Single object
         if not isinstance(objects, list):
             try:
-                return self._object(objects)
+                return LENSE.AUTH.ACL._object(objects)
             except:
                 return None
          
@@ -194,7 +256,7 @@ class AuthACLGateway(AuthBase):
         accessible_objects = []
         for obj in objects:
             try:
-                accessible_objects.append(self.object(obj))
+                accessible_objects.append(LENSE.AUTH.ACL._object(obj))
             except:
                 pass
         return accessible_objects
@@ -204,5 +266,18 @@ class AuthACLGateway(AuthBase):
         """
         Static method for enabling the ACL gateway. 
         """
-        if not LENSE.REQUEST.is_anonymous:
-            LENSE.AUTH.ACL = cls()
+        
+        # Initialize the gateway
+        LENSE.AUTH.ACL = cls()
+        
+        # Disabled via configuration
+        if not cls.enabled:
+            return LENSE.AUTH.ACL.log('ACL gateway administratively disabled: conf.auth.acl = {0}'.format(repr(cls.enabled)))
+        
+        # Anonymous request
+        if cls.anonymous:
+            return LENSE.AUTH.ACL.log('ACL gateway disabled for anonymous request')
+        
+        # Enable the ACL gateway
+        LENSE.AUTH.ACL.log('Enabling ACL gateway')
+        LENSE.AUTH.ACL.enabled = True

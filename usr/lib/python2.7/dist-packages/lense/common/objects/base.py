@@ -33,6 +33,9 @@ class LenseBaseObject(object):
         # Debug log prefix
         self.logpre   = 'OBJECTS:{0}'.format(self.cls)
 
+        # Selected object
+        self.selected = None
+
     def _process(self, objects):
         """
         Process and return queried objects depending on internal flags.
@@ -126,25 +129,31 @@ class LenseBaseObject(object):
     
     def update(self, **kwargs):
         """
-        Update an existing object.
+        Update a selected object object.
         """
-        obj = self.get(**kwargs)
         uid = '{0}={1}'.format(self.uidf, kwargs.get(self.uidf, None))
         
-        # Object doesn't exist, cannot updated
-        if not obj:
-            self.log('Cannot update object -> {0}: Does not exist'.format(uid), level='debug', method='update')
-            return False
+        # No object selected
+        if not self.selected:
+            self.log('Cannot perform update, no object(s) selected')
         
         # Update the object
         try:
-            obj.update(**kwargs)
+            for k,v in kwargs.iteritems():
+                setattr(self.selected, k, v)
+            self.selected.save()
             self.log('Updated object -> {0}'.format(uid), level='debug', method='update')
+            
+            # Deselect the object
+            self.selected = None
             return True
         
         # Failed to update object
         except Exception as e:
             self.log('Failed to update object -> {0}: {1}'.format(uid, str(e)), level='exception', method='update')
+            
+            # Deselect the object
+            self.selected = None
             return False
     
     def create(self, **kwargs):
@@ -202,10 +211,30 @@ class LenseBaseObject(object):
             return []
         
         # Return objects in a list
-        self.log('Retrieved objects -> count={0}, filter={1}'.format(objects.count(), str(kwargs)), level='debug', method='filter')
+        self.log('Retrieved objects -> count={0}, lfilter={1}'.format(objects.count(), str(kwargs)), level='debug', method='filter')
         
         # Process and return the object(s)
         return self._process(list(objects))
+    
+    def select(self, **kwargs):
+        """
+        Select an object before running an update.
+        """
+        self.selected = self.get(**kwargs)
+        
+        # No object found
+        if not self.selected:
+            raise RequestError(self.log('Could not locate object <{0}>: filter={1}'.format(self.cls, kwargs)), code=404)
+        
+        # Cannot select multiple objects
+        if isinstance(self.selected, list):
+            raise RequestError(self.log('Selection of multiple <{0}> objects not supported: found={1}'.format(self.cls, str(len(self.selected)))))
+        
+        # Log object selected
+        self.log('Selected object <{0}>: {1}'.format(self.cls, ', '.join(['{0}={1}'.format(k,v) for k,v in kwargs.iteritems()])))
+        
+        # Return the base object handler
+        return self
     
     def get(self, **kwargs):
         """

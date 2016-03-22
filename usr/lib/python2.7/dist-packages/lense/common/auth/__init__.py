@@ -29,17 +29,27 @@ class AuthBase(object):
                 kwargs[k] = '{0} {1}'.format(self.logpre, kwargs[k])
         return LENSE.AUTH.ensure(*args, **kwargs)
 
-class AuthInterface(object):
+class AuthInterface(AuthBase):
     """
     Lense authentication interface.
     """
     def __init__(self):
+        super(AuthInterface, self).__init__()
+        
+        # Key / token / portal authentication
         self._key    = import_class('AuthAPIKey', 'lense.common.auth.key')
         self._token  = import_class('AuthAPIToken', 'lense.common.auth.token')
         self._portal = import_class('AuthPortal', 'lense.common.auth.portal')
         
         # ACL gateway
-        self.ACL     = import_class('AuthACLGateway', 'lense.common.auth.acl', init=False)
+        self.ACL     = self.bootstrap_acl()
+        
+    def bootstrap_acl(self):
+        """
+        Bootstrap the ACL backend depending only for the API engine.
+        """
+        if LENSE.PROJECT.name == 'ENGINE':
+            return import_class('AuthACLGateway', 'lense.common.auth.acl', init=False)
         
     def check_pw_strength(self, passwd):
         """
