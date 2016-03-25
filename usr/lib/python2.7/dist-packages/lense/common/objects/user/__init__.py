@@ -257,29 +257,38 @@ class ObjectInterface(LenseBaseObject):
         """
         return getattr(self.get(**kwargs), 'is_active', False)
     
-    def login(self, request=None, user=None):
+    def login(self, username, password, redirect='home'):
         """
         Login a portal user.
         
-        :param request: The Django request object
-        :type  request: HttpRequest
-        :param    user: The user to login
-        :type     user: str
+        :param username: The username
+        :type  username: str
+        :param password: User's password
+        :type  password: str
         """
         try:
             
-            # Request object / username
-            request = set_arg(request, LENSE.REQUEST.DJANGO)
-            user    = set_arg(user, LENSE.REQUEST.USER.name)
+            # Authenticate the user
+            auth_user = self.authenticate(user=username, passwd=password)
             
             # Login the user
-            self._login(request, user)
-            LENSE.LOG.info('Logged in user: {0}'.format(user))
-            return True
+            self._login(LENSE.REQUEST.DJANGO, auth_user)
+            LENSE.LOG.info('Logged in user: {0}'.format(username))
+            
+            # Set session variables
+            LENSE.REQUEST.SESSION.set('user', username)
+        
+            # Redirect to bootstrap handler
+            return LENSE.HTTP.redirect('bootstrap', data='api_user={0}&api_group={1}&api_key={2}&api_token={3}'.format(
+                auth_user.username,
+                auth_user.groups[0],
+                auth_user.api_key,
+                auth_user.api_token
+            ))
         
         # Failed to log in user
         except Exception as e:
-            LENSE.LOG.exception('Failed to log in user "{0}": {1}'.format(user, str(e)))
+            LENSE.LOG.exception('Failed to log in user "{0}": {1}'.format(username, str(e)))
             return False
         
     def logout(self, request=None, user=None):
@@ -338,7 +347,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Portal authentication
         if LENSE.PROJECT.name.upper() == 'PORTAL':
-            LENSE.AUTH.PORTAL(user, set_arg(passwd, LENSE.REQUEST.USER.passwd))
+            return LENSE.AUTH.PORTAL(user, passwd)
 
         # Engine authentication
         if LENSE.PROJECT.name.upper() == 'ENGINE':

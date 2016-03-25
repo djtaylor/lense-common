@@ -3,7 +3,7 @@ from uuid import uuid4
 # Django Libraries
 from django.utils import timezone
 from django.core.validators import RegexValidator
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, UserManager
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Model, CharField,DateTimeField, ForeignKey, EmailField, BooleanField
 
@@ -77,6 +77,9 @@ class APIUser(AbstractBaseUser):
     # Username field and required fields
     USERNAME_FIELD  = 'username'
     REQUIRED_FIELDS = ['email']
+
+    # Manager instance
+    objects         = UserManager()
 
     def get_full_name(self):
         """

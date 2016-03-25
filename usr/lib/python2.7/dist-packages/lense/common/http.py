@@ -165,18 +165,10 @@ class LenseHTTP(object):
     Common class for handling HTTP attributes, requests, and responses.
     """
     @staticmethod
-    def parse_request_body(request_body):
-        """
-        Parse the request body from PUT/POST requests.
-        """
-        return json.loads(request_body)
-    
-    @staticmethod
     def parse_query_string(query_str):
         """
         Parse request data from a query string in the request URL.
         """
-        LENSE.LOG.debug('Parsing request query string: {0}'.format(repr(query_str)))
         data = {}
         
         # No query string
@@ -212,11 +204,11 @@ class LenseHTTP(object):
         return data
     
     @staticmethod
-    def redirect(path):
+    def redirect(path, data=None):
         """
         Return an HTTP redirect object.
         """
-        return HttpResponseRedirect('/{0}'.format(path))
+        return HttpResponseRedirect('/{0}{1}'.format(path, '' if not data else '?{0}'.format(data)))
     
     @staticmethod
     def success(msg='OK', data={}):

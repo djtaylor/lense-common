@@ -9,10 +9,28 @@ from django.test.client import RequestFactory
 from lense import import_class
 from lense.common import logger 
 from lense.common.utils import truncate
-from lense.common.collection import Collection
+from lense.common.collection import Collection, merge_dict
 from lense.common.exceptions import RequestError
 from lense.common.http import HTTP_GET, HTTP_POST, HTTP_PUT, HEADER, PATH
 from django.template.defaultfilters import default
+
+class LenseRequestBase(object):
+    """
+    Base class for request related class objects.
+    """
+    def __init__(self):
+        self.logpre = 'REQUEST:{0}'.format(self.__class__.__name__)
+        
+    def log(self, msg, level='info', method=None):
+        """
+        Log wrapper per handler.
+        """
+        logger = getattr(LENSE.LOG, level, 'info')
+        logger('<{0}{1}> {2}'.format(
+            self.logpre, 
+            '' if not method else '.{0}'.format(method),
+            msg
+        ))
 
 class LenseWSGIRequest(object):
     """
@@ -65,33 +83,43 @@ class LenseWSGIRequest(object):
         # Return the request object
         return request
 
-class LenseRequestSession(object):
+class LenseRequestSession(LenseRequestBase):
     """
     Helper class for handling session attributes.
     """
     def __init__(self, session):
+        super(LenseRequestSession, self).__init__()
+        
+        # Store session object
         self._session = session
         
         # Session ID
         self.id       = getattr(session, 'session_id', None)  
         
-    def SET(self, key, value):
+        # Log the session attributes
+        self.log('Loading session "{0}" data: {1}'.format(self.id, dict(session)), level='debug', method='__init__')
+        
+    def set(self, key, value):
         """
         Set a new session value or update an existing one
         """
         self._session[key] = value
+        self.log('Setting session key: {0}={1}'.format(key, value), level='debug', method='set')
         
-    def GET(self, key, default=None):
+    def get(self, key, default=None):
         """
         Retrieve a session value.
         """
-        return getattr(self._session, key, default)
+        key_value = getattr(self._session, key, default)
+        self.log('Retrieving session key: {0}={1}'.format(key, key_value), level='debug', method='get')
+        return key_value
 
-class LenseRequestUser(object):
+class LenseRequestUser(LenseRequestBase):
     """
     Helper class for extracting and storing user attributes.
     """
     def __init__(self, request):
+        super(LenseRequestUser, self).__init__()
         
         # Internal Django request / user object / username / user model
         self._request   = request
@@ -99,12 +127,23 @@ class LenseRequestUser(object):
         self.name       = self._getattr('username', header=HEADER.API_USER, default='anonymous')
         self.model      = self._getmodel()
  
+        self.log('Request user: {0}'.format(request.user), level='debug', method='__init__')
+ 
         # User attributes
         self.group      = self._getattr('group', header=HEADER.API_GROUP, session='active_group', default='anonymous')
         self.authorized = self._getattr('is_authenticated', default=False)
         self.admin      = self._getattr('is_admin', default=False, session='is_admin', model=True)
         self.active     = self._getattr('is_active', default=False, model=True)
         self.passwd     = self._getattr('password', default=None, post=True)
+    
+        # Log user details
+        self.log('Constructed request user object: name={0}, group={1}, authorized={2}, admin={3}, active={4}'.format(
+            self.name,
+            self.group,
+            self.authorized,
+            self.admin,
+            self.active
+        ), level='debug', method='__init__')
     
     def _format_header(self, header):
         """
@@ -150,7 +189,7 @@ class LenseRequestUser(object):
         # Return the attribute or return value of method
         return attr if not callable(attr) else attr()
 
-class LenseRequestObject(object):
+class LenseRequestObject(LenseRequestBase):
     """
     Extract and construct information from the Django request object.
     """
@@ -158,7 +197,7 @@ class LenseRequestObject(object):
         """
         Log incoming requests to the request log.
         """
-        LENSE.LOG.info('method={0}, path={1}, client={2}, user={3}, group={4}, key={5}, token={6}, data={7}'.format(
+        self.log('method={0}, path={1}, client={2}, user={3}, group={4}, key={5}, token={6}, data={7}'.format(
             self.method,
             self.path,
             self.client,
@@ -167,26 +206,61 @@ class LenseRequestObject(object):
             self.key,
             self.token,
             truncate(str(self.data))
-        ))
+        ), level='debug', method='_log_request')
+    
+    def _parse_data(self, data_str):
+        """
+        Parse a data query string or request body.
+        """
+        if not data_str:
+            return {}
+        
+        # Try JSON first
+        try:
+            data_obj = json.loads(data_str)
+            self.log('Parsed JSON request data: {0}'.format(data_str), level='debug', method='_parse_data')
+            return data_obj
+            
+        # Query string?
+        except Exception as e:
+            try:
+                data_obj = LENSE.HTTP.parse_query_string(data_str)
+                self.log('Parsed query string request data: {0}'.format(data_str), level='debug', method='_parse_data')
+                return data_obj
+            
+            # Request body not query string or JSON string
+            except Exception as e:
+                self.log('Failed to parse data string ({0}): {1}'.format(data_str, str(e)), level='exception', method='_parse_data')
+                return {}
     
     def _load_data(self):
         """
         Load request data depending on the method. For POST requests, load the request
         body, for GET requests, load the query string.
         """
-        try:
-            
-            # PUT/POST requests
-            if self.method in [HTTP_POST, HTTP_PUT]:
-                return LENSE.HTTP.parse_request_body(getattr(self.DJANGO, 'body', '{}'))
-            
-            # GET/DELETE requests
-            else:
-                return LENSE.HTTP.parse_query_string(self.DJANGO.META['QUERY_STRING'])
         
-        # Error while parsing JSON
-        except ValueError as e:
-            raise RequestError(LENSE.LOG.exception('Failed to parse request data: {0}'.format(str(e))))
+        # Extract request body / query string
+        request_body  = getattr(self.DJANGO, 'body', '{}')
+        request_query = self.DJANGO.META.get('QUERY_STRING', '')
+       
+        # Log incoming data
+        self.log('Processing request data: body=({0}), query_string=({1})'.format(request_body, request_query), level='debug', method='_load_data')
+
+        # Return an request data
+        try:
+            merged_data = merge_dict(
+                self._parse_data(request_body),
+                self._parse_data(request_query)
+            )
+            
+        # Failed to merge data, key conflict
+        except Exception as e:
+            raise RequestError('Failed to parse request data: {0}'.format(str(e)), code=400)
+            return {}
+    
+        # Log the merged data and return
+        self.log('Loaded request data: {0}'.format(json.dumps(merged_data)), level='debug', method='_load_data')
+        return merged_data
     
     def _get_key(self):
         """
@@ -252,6 +326,7 @@ class LenseRequestObject(object):
         @param request: The incoming Django request object
         @type  project: DjangoRequest
         """
+        super(LenseRequestObject, self).__init__()
     
         # Store the raw request object and headers
         self.DJANGO       = request
@@ -270,8 +345,6 @@ class LenseRequestObject(object):
         # Request size / payload
         self.size         = int(getsizeof(getattr(request, 'body', '')))
         self.data         = self._load_data()
-    
-        LENSE.LOG.debug('Request data: type={0}, content={1}'.format(type(self.data), self.data))
     
         # Request user / session
         self.USER         = LenseRequestUser(request)

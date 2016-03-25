@@ -6,10 +6,9 @@ from django_auth_ldap.config import LDAPSearch, LDAPSearchUnion
 
 # Lense Libraries
 import lense.common.config as config
-from lense.common.auth import AuthBase
 
 # Configuration
-CONFIG = config.parse('ENGINE')
+CONFIG = config.parse('PORTAL')
 
 class AuthGroupsLDAP(object):
     """

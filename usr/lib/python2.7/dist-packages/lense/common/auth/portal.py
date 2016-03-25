@@ -10,13 +10,26 @@ class AuthPortal(object):
     def validate(user, password):
         auth = import_class('authenticate', 'django.contrib.auth', init=False)
  
-        # User does not exists or is inactive
-        LENSE.USER.ensure('exists', exc=AuthError, msg='User "{0}" does not exist'.format(user), args=[user])       
-        LENSE.USER.ensure('active', exc=AuthError, msg='User "{0}" is inactive'.format(user), args=[user])
+        # Get the user object
+        user_object = LENSE.AUTH.ensure(LENSE.OBJECTS.USER.get(username=user),
+            isnot = None,
+            error = 'Could authenticate user "{0}": not found'.format(user),
+            debug = 'User "{0}" discovered, proceeded with authentication'.format(user),
+            code  = 404)
  
-        # Try user/password authentication
-        if not auth(username=user, password=password):
+        # Make sure is active
+        LENSE.AUTH.ensure(user_object.is_active,
+            value = True,
+            error = 'Authentication failed, user "{0}" is inactive'.format(user),
+            debug = 'User "{0}" is active, proceeding with authentication'.format(user),
+            code  = 401)
+ 
+        # Attempt to authenticate the user
+        auth_user = auth(username=user, password=password)
+ 
+        # Authentication failed
+        if not auth_user:
             raise AuthError('Invalid username/password')
 
         # Authorization OK
-        return True
+        return auth_user

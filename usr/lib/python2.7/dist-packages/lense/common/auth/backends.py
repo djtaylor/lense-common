@@ -3,18 +3,11 @@ import re
 # Django Libraries
 from django_auth_ldap.backend import LDAPBackend
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth import get_backends, get_user_model
+from django.contrib.auth import get_user_model
 
 # Lense Libraries
-from lense.common import config
-from lense.common import logger
-from lense.common.auth import AuthBase
 from lense.common.utils import rstring
 from lense.common.auth.utils import AuthGroupsLDAP
-
-# Configuration / logger
-CONFIG = config.parse('ENGINE')
-LOG    = logger.create(__name__, CONFIG.utils.log)
                 
 class AuthBackendLDAP(LDAPBackend):
     """
@@ -90,6 +83,7 @@ class AuthBackendInterface(ModelBackend):
     server configuration.
     """
     def __init__(self):
+        super(AuthBackendInterface, self).__init__()
         
         # Get the usermodel
         self.user_model = get_user_model()
@@ -108,7 +102,7 @@ class AuthBackendInterface(ModelBackend):
         """
         
         # Log the authentication attempt
-        LOG.info('Attempting LDAP authentication for user [{}]'.format(username))
+        LENSE.LOG.info('Attempting LDAP authentication for user [{}]'.format(username))
         
         # Try to authenticate the user
         try:
@@ -116,9 +110,9 @@ class AuthBackendInterface(ModelBackend):
             
             # Log the authentication status
             if auth_status:
-                LOG.info('LDAP authentication status for user [{}]: authenticated={}'.format(auth_status.username, repr(auth_status.is_authenticated())))
+                LENSE.LOG.info('LDAP authentication status for user [{}]: authenticated={}'.format(auth_status.username, repr(auth_status.is_authenticated())))
             else:
-                LOG.error('LDAP authentication failed for user [{}]'.format(username))
+                LENSE.LOG.error('LDAP authentication failed for user [{}]'.format(username))
                 
                 # Fallback to database authentication if possible
                 return self._authenticate_database(username, password, allow_ldap=True)
@@ -128,7 +122,7 @@ class AuthBackendInterface(ModelBackend):
             
         # Fallback to database authentication
         except Exception as e:
-            LOG.exception('LDAP authentication failed for user [{}]: {}'.format(username, str(e)))
+            LENSE.LOG.exception('LDAP authentication failed for user [{}]: {}'.format(username, str(e)))
             
             # Return the database authentication object
             return self._authenticate_database(username, password, allow_ldap=True)
@@ -143,23 +137,42 @@ class AuthBackendInterface(ModelBackend):
         
         # If user is an LDAP account and LDAP is not allowed
         if user_obj.from_ldap and not allow_ldap:
-            LOG.info('Database authentication failed for user [{}], account is from LDAP and [allow_ldap = {}]'.format(username, repr(allow_ldap)))
+            LENSE.LOG.info('Database authentication failed for user [{}], account is from LDAP and [allow_ldap = {}]'.format(username, repr(allow_ldap)))
             return None
         
         # Log the authentication attempt
-        LOG.info('Attempting database authentication for user [{}]'.format(username))
+        LENSE.LOG.info('Attempting database authentication for user [{}]'.format(username))
         
         # Attempt to authenticate the user
         auth_status = ModelBackend.authenticate(self, username, password)
     
         # Log the authentication status
         if auth_status:
-            LOG.info('Database authentication status for user [{}]: authenticated={}'.format(auth_status.username, repr(auth_status.is_authenticated())))
+            LENSE.LOG.info('Database authentication status for user [{}]: authenticated={}'.format(auth_status.username, repr(auth_status.is_authenticated())))
         else:
-            LOG.error('Database authentication failed for user [{}]'.format(username))
+            LENSE.LOG.error('Database authentication failed for user [{}]'.format(username))
             
         # Return the authentication status
         return auth_status
+    
+    def get_user(self, user_id):
+        """
+        Get the authenticating user.
+        """
+        LENSE.LOG.info('Get user for auth backend')
+        
+        # Get the user authentication model
+        UserModel = get_user_model()
+        
+        # Try to get the user object
+        try:
+            
+            # Get the user by PK
+            return UserModel._default_manager.get(pk=user_id)
+            
+        # User not found
+        except UserModel.DoesNotExist:
+            return None
     
     def authenticate(self, username=None, password=None):
         """
@@ -167,7 +180,7 @@ class AuthBackendInterface(ModelBackend):
         """
         
         # If LDAP authentication is configured
-        if CONFIG.auth.backend == 'ldap':
+        if LENSE.CONF.auth.backend == 'ldap':
             
             # If the user doesn't exist
             if not self.user_model.objects.filter(username=username).count():
