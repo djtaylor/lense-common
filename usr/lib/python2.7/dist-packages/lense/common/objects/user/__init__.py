@@ -271,6 +271,9 @@ class ObjectInterface(LenseBaseObject):
             # Authenticate the user
             auth_user = self.authenticate(user=username, passwd=password)
             
+            # Get the user object
+            user_obj  = self.get(username=username)
+            
             # Login the user
             self._login(LENSE.REQUEST.DJANGO, auth_user)
             LENSE.LOG.info('Logged in user: {0}'.format(username))
@@ -279,11 +282,11 @@ class ObjectInterface(LenseBaseObject):
             LENSE.REQUEST.SESSION.set('user', username)
         
             # Redirect to bootstrap handler
-            return LENSE.HTTP.redirect('bootstrap', data='api_user={0}&api_group={1}&api_key={2}&api_token={3}'.format(
-                auth_user.username,
-                auth_user.groups[0],
-                auth_user.api_key,
-                auth_user.api_token
+            return LENSE.HTTP.redirect('auth', data='bootstrap&api_user={0}&api_group={1}&api_key={2}&api_token={3}'.format(
+                user_obj.username,
+                user_obj.groups[0],
+                user_obj.api_key,
+                user_obj.api_token
             ))
         
         # Failed to log in user
