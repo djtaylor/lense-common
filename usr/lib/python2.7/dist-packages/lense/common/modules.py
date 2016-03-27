@@ -66,8 +66,12 @@ class LenseModules(object):
         # Scan every handler
         for handler in listdir(handler_attrs.DIR):
             
-            # Ignore special files
-            if re.match(r'^__.*$', handler) or re.match(r'^.*\.pyc$', handler):
+            # Ignore init module by default
+            if not ext == '__init__' and re.match(r'^__.*$', handler):
+                continue
+            
+            # Ignore binary files
+            if re.match(r'^.*\.pyc$', handler):
                 continue
             
             # Handler file path / Python path

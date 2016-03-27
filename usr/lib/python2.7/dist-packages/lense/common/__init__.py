@@ -2,7 +2,10 @@ __version__ = '0.1.1'
 
 # Python Libraries
 import __builtin__
+import os
+from shutil import rmtree
 from sys import path, exit, stderr
+from shutil import move as move_file
 
 # Lense Libraries
 from lense import import_class
@@ -222,6 +225,58 @@ class LenseCommon(object):
         
         # Return the result
         return result
+        
+    def rmfile(self, file):
+        """
+        Remove a file/symlink if it exists.
+        
+        :param file: The target file
+        :type  file: str
+        """
+        if os.path.isfile(file) or os.path.islink(file):
+            unlink(file)
+        
+    def rmdir(self, path):
+        """
+        Recursively remove a directory.
+        
+        :param path: The directory to remove
+        :type  path: str
+        """
+        if os.path.isdir(path):
+            rmtree(path)
+        
+    def mvfile(self, src, dst):
+        """
+        Move a file from one place to another.
+        
+        :param src: The source file
+        :type  src: str
+        :param dst: The destination file
+        :type  dst: str
+        """
+        move_file(src, dst)
+        
+    def mklink(self, target, link):
+        """
+        Make a symbolic link.
+        
+        :param target: The target file
+        :type  target: str
+        :param   link: The target link
+        :type    link: str
+        """
+        os.symlink(target, link)
+        
+    def mkdir(self, dir_path):
+        """
+        Make a directory and return the path name.
+        
+        :rtype: str
+        """
+        if not os.path.isdir(dir_path):
+            os.makedirs(dir_path)
+        return dir_path
         
     def die(self, msg, code=1, pre=None, post=None):
         """

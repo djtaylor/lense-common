@@ -1,4 +1,5 @@
 from os import environ
+from lense import get_applications
 from lense.common.utils import rstring
 
 # Debug mode
@@ -33,19 +34,14 @@ DATABASES = {
 }
 
 # Managed applications
-INSTALLED_APPS = (
+INSTALLED_APPS = get_applications([
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'lense.common.objects.acl',
-    'lense.common.objects.group',
-    'lense.common.objects.user',
-    'lense.common.objects.handler',
-    'lense.common.objects.stats'
-)
+    'django.contrib.staticfiles'
+])
 
 # Django middleware classes
 MIDDLEWARE_CLASSES = (

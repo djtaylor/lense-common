@@ -232,7 +232,7 @@ class ObjectInterface(LenseBaseObject):
         # Is the user a member of any groups
         if LENSE.OBJECTS.GROUP.MEMBERS.exists(member=uuid):
             for user_group in LENSE.OBJECTS.GROUP.MEMBERS.filter(member=uuid):
-                groups.append(user_group.group.uuid)
+                groups.append({'uuid': user_group.group.uuid, 'name': user_group.group.name})
         return groups
     
     def member_of(self, user, group):
@@ -245,7 +245,10 @@ class ObjectInterface(LenseBaseObject):
         :type  group: str
         """
         groups = self.get_groups(user)
-        return False if not group in groups else True
+        for g in groups:
+            if (g['uuid'] == group) or (group['name'] == group):
+                return True
+        return False
         
     def active(self, **kwargs):
         """
@@ -268,26 +271,40 @@ class ObjectInterface(LenseBaseObject):
         """
         try:
             
-            # Authenticate the user
-            auth_user = self.authenticate(user=username, passwd=password)
+            # Login the user
+            self._login(LENSE.REQUEST.DJANGO, self.authenticate(user=username, passwd=password))
+            LENSE.LOG.info('Logged in user: {0}'.format(username))
             
             # Get the user object
-            user_obj  = self.get(username=username)
-            
-            # Login the user
-            self._login(LENSE.REQUEST.DJANGO, auth_user)
-            LENSE.LOG.info('Logged in user: {0}'.format(username))
+            user = self.get(username=username)
             
             # Set session variables
             LENSE.REQUEST.SESSION.set('user', username)
         
+            # SocketIO endpoint
+            socket_endpoint = '{0}://{1}:{2}'.format(
+                LENSE.CONF.socket.proto,
+                LENSE.CONF.socket.host,
+                LENSE.CONF.socket.port
+            )
+        
+            # Bootstrap data
+            bootstrap_data = '&'.join([
+                'bootstrap',
+                'user={0}'.format(user.username),
+                'group={0}'.format(user.groups[0]['uuid']),
+                'key={0}'.format(user.api_key),
+                'token={0}'.format(user.api_token),
+                'endpoint={0}'.format(socket_endpoint),
+                'session={0}'.format(LENSE.REQUEST.SESSION.id)
+            ])
+        
             # Redirect to bootstrap handler
-            return LENSE.HTTP.redirect('auth', data='bootstrap&api_user={0}&api_group={1}&api_key={2}&api_token={3}'.format(
-                user_obj.username,
-                user_obj.groups[0],
-                user_obj.api_key,
-                user_obj.api_token
-            ))
+            return LENSE.HTTP.redirect('auth', data=bootstrap_data)
+        
+        # Authentication error
+        except AuthError as e:
+            return LENSE.HTTP.redirect('auth', data='error={0}'.format(str(e)))
         
         # Failed to log in user
         except Exception as e:

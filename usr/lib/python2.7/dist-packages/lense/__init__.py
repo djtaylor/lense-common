@@ -1,3 +1,4 @@
+from os import listdir
 from sys import exc_info
 from sys import stderr, exit
 from traceback import print_exc
@@ -19,6 +20,23 @@ def set_arg(default, alt):
     :rtype: str|None
     """
     return default if default else alt
+
+def get_applications(defaults=[]):
+    """
+    Return a tuple of available applications.
+    
+    :param defaults: Default Django applications to load
+    :type  defaults: list
+    :rtype: tuple
+    """
+    
+    # Applications root
+    APPS_ROOT = '{0}/common/objects'.format(MODULE_ROOT)
+    
+    # Get all applications
+    for app in listdir(APPS_ROOT):
+        defaults.append('lense.common.objects.{0}'.format(app))
+    return tuple(defaults)
 
 def import_class(cls, mod, init=True, ensure=True, args=[], kwargs={}):
     """
