@@ -5,7 +5,6 @@ from json import loads as json_loads
 from collections import Mapping
 
 # Django Libraries
-from django.conf import Settings
 from django import setup as django_setup
 from django.conf import settings as django_settings
 

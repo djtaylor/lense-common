@@ -1,9 +1,10 @@
+import re
 from os import listdir
 from sys import exc_info
 from sys import stderr, exit
 from traceback import print_exc
 from importlib import import_module
-from os.path import dirname, abspath
+from os.path import dirname, abspath, isdir
 
 # Module root / drop-in root
 MODULE_ROOT = dirname(abspath(__file__))
@@ -21,7 +22,7 @@ def set_arg(default, alt):
     """
     return default if default else alt
 
-def get_applications(defaults=[]):
+def get_applications(defaults=[], by_name=False):
     """
     Return a tuple of available applications.
     
@@ -35,7 +36,23 @@ def get_applications(defaults=[]):
     
     # Get all applications
     for app in listdir(APPS_ROOT):
-        defaults.append('lense.common.objects.{0}'.format(app))
+        
+        # Ignore special and binary files
+        if re.match(r'^__.*$', app) or re.match(r'^.*\.pyc$', app):
+            continue
+        
+        # Look for application directories
+        if isdir('{0}/{1}'.format(APPS_ROOT, app)):
+            
+            # If loading by name
+            if by_name:
+                defaults.append([app, 'lense.common.objects.{0}'.format(app)])
+            
+            # Load by application path only
+            else:
+                defaults.append('lense.common.objects.{0}'.format(app))
+    
+    # Return available applications
     return tuple(defaults)
 
 def import_class(cls, mod, init=True, ensure=True, args=[], kwargs={}):

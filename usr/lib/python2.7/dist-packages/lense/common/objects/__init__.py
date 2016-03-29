@@ -7,19 +7,16 @@ import json
 from django.db.models.fields.related import ManyToManyField
 
 # Lense Libraries
-from lense import import_class, set_arg
 from lense.common.exceptions import JSONException
+from lense import import_class, set_arg, get_applications
 
 class LenseAPIObjects(object):
     """
     API object manager.
     """
     def __init__(self):
-        self.HANDLER = import_class('ObjectInterface', 'lense.common.objects.handler')
-        self.ACL     = import_class('ObjectInterface', 'lense.common.objects.acl')
-        self.USER    = import_class('ObjectInterface', 'lense.common.objects.user')
-        self.GROUP   = import_class('ObjectInterface', 'lense.common.objects.group')
-        self.STATS   = import_class('ObjectInterface', 'lense.common.objects.stats')
+        for app in get_applications(by_name=True):
+            setattr(self, app[0].upper(), import_class('ObjectInterface', app[1]))
         
     def to_dict(self, instance):
         """
