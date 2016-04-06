@@ -5,12 +5,8 @@ class BootstrapPortal(BootstrapCommon):
     """
     Class object for handling bootstrap of the Lense API portal.
     """
-    def __init__(self, args, answers):
+    def __init__(self):
         super(BootstrapPortal, self).__init__('portal')
-
-        # Arguments / answers
-        self.args     = args
-        self.answers  = answers
         
         # Bootstrap parameters
         self.params   = PortalParams()
@@ -33,7 +29,7 @@ class BootstrapPortal(BootstrapCommon):
     def run(self):
             
         # Get user input
-        self.read_input(self.answers.get('portal', {}))
+        self.read_input(BOOTSTRAP.ANSWERS.get('portal', {}))
         
         # Update the configuration
         self.update_config()

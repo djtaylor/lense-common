@@ -41,6 +41,7 @@ class BootstrapArgs(object):
         self.parser.add_argument('-s', '--socket', help='Bootstrap the Lense API Socket.IO proxy', action='store_true')
         self.parser.add_argument('-d', '--dbinit', help='Set database intialization environment variables from a file', action='append')
         self.parser.add_argument('-a', '--answers', help='Path to an optional answers file to speed up bootstrapping', action='append')
+        self.parser.add_argument('-F', '--flushdb', help='Flush any existing databases for a clean bootstrap', action='store_true')
       
         # Parse CLI arguments
         _argv = copy(argv)

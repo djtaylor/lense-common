@@ -3,8 +3,6 @@ from sys import exit
 from re import compile
 from pwd import getpwnam
 from getpass import getpass
-from feedback import Feedback
-from subprocess import Popen, PIPE
 from collections import OrderedDict
 from json import loads as json_loads
 from os import path, makedirs, system, listdir
@@ -14,10 +12,7 @@ from lense import import_class
 from lense.common.exceptions import RequestError, EnsureError
 from lense.common.request import LenseWSGIRequest
 from lense.common.config import LenseConfigEditor
-from lense.common.vars import WSGI_CONFIG, PROJECTS, CONFIG
-
-# Seed data
-BOOTSTRAP_DATA = '/usr/share/lense/bootstrap'
+from lense.common.vars import WSGI_CONFIG, PROJECTS, CONFIG, SHARE
 
 class BootstrapInput(object):
     """
@@ -40,7 +35,7 @@ class BootstrapInput(object):
         """
         Load attributes for input prompts.
         """
-        prompt_manifests = '{0}/prompts/{1}'.format(BOOTSTRAP_DATA, project)
+        prompt_manifests = '{0}/prompts/{1}'.format(SHARE.BOOTSTRAP, project)
         prompts = OrderedDict()
         
         # Start to load the prompt data
@@ -62,30 +57,6 @@ class BootstrapCommon(object):
         self.CONFIG   = import_class('parse', 'lense.common.config', args=[project.upper()])
         self.handlers = {}
 
-        # Internal feedback
-        self.fb       = Feedback()
-
-    def _shell_exec(self, cmd, show_stdout=True):
-        """
-        Private method for running an arbitrary shell command.
-        
-        :param cmd: The command list to run
-        :type  cmd: list
-        """
-        
-        # If showing stdout
-        if show_stdout:
-            proc = Popen(cmd, stderr=PIPE)
-            err = proc.communicate()
-            
-        # If supressing stdout
-        else:
-            proc = Popen(cmd, stderr=PIPE, stdout=PIPE)
-            out, err = proc.communicate()
-
-        # Return code, stderr
-        return proc.returncode, err
-
     def _chmod(self, file, mode, recursive=False):
         """
         Wrapper method for chmoding a file path.
@@ -103,11 +74,11 @@ class BootstrapCommon(object):
         chmod_cmd += [mode, file]
         
         # Change the permissions
-        code, err = self._shell_exec(chmod_cmd)
+        code, err = BOOTSTRAP.shell_exec(chmod_cmd)
     
         # If the command failed
         if not code == 0:
-            self.die('Failed to chmod file "{0}": {1}'.format(file, err))
+            BOOTSTRAP.die('Failed to chmod file "{0}": {1}'.format(file, err))
         BOOTSTRAP.FEEDBACK.success('Changed mode on file "{0}" -> "{1}"'.format(file, mode))
 
     def _chown(self, file, owner, recursive=False):
@@ -127,11 +98,11 @@ class BootstrapCommon(object):
         chown_cmd += [owner, file]
         
         # Change the owner
-        code, err = self._shell_exec(chown_cmd)
+        code, err = BOOTSTRAP.shell_exec(chown_cmd)
 
         # If the command failed
         if not code == 0:
-            self.die('Failed to chown file "{0}": {1}'.format(file, err))
+            BOOTSTRAP.die('Failed to chown file "{0}": {1}'.format(file, err))
         BOOTSTRAP.FEEDBACK.success('Changed owner on file "{0}" -> "{1}"'.format(file, owner))
 
     def _create_system_user(self):
@@ -145,11 +116,11 @@ class BootstrapCommon(object):
             pass
             
         # Create the user account
-        code, err = self._shell_exec(['/usr/sbin/useradd', '-M', '-s', '/usr/sbin/nologin', 'lense'])
+        code, err = BOOTSTRAP.shell_exec(['/usr/sbin/useradd', '-M', '-s', '/usr/sbin/nologin', 'lense'])
         
         # Make sure the command returned successfully
         if not code == 0:
-            self.die('Failed to create system account: {0}'.format(str(err)))
+            BOOTSTRAP.die('Failed to create system account: {0}'.format(str(err)))
         BOOTSTRAP.FEEDBACK.success('Created system account "lense"')
 
     def _get_password(self, prompt, min_length=8):
@@ -188,26 +159,6 @@ class BootstrapCommon(object):
             return self._get_input(prompt, default)
         return _input
 
-    def die(self, msg, log=True):
-        """
-        Quit the program.
-        
-        :param msg: The error message to display
-        :type  msg: str
-        :param log: Log the error or not
-        :type  log: bool
-        """
-        
-        # Log the message unless explicitly specified otherwise
-        if log:
-            #BOOTSTRAP.LOG.error(msg)
-            pass
-            
-        # Show the error and quit
-        self.fb.error(msg)
-        self.fb.info('Check the log file for more details: {0}'.format(BOOTSTRAP.PROJECT.LOG.file))
-        exit(1)
-
     def group_add_user(self, user):
         """
         Add a user account to the lense system group.
@@ -219,14 +170,14 @@ class BootstrapCommon(object):
             getpwnam(user)
             
             # Create the user account
-            code, err = self._shell_exec(['/usr/sbin/usermod', '-a', '-G', 'lense', user])
+            code, err = BOOTSTRAP.shell_exec(['/usr/sbin/usermod', '-a', '-G', 'lense', user])
             
             # Make sure the command returned successfully
             if not code == 0:
-                self.die('Failed to add user "{0}" to lense group: {1}'.format(user, str(err)))
+                BOOTSTRAP.die('Failed to add user "{0}" to lense group: {1}'.format(user, str(err)))
             BOOTSTRAP.FEEDBACK.success('Added user "{0}" to lense group'.format(user))
         except Exception as e:
-            self.die('Could not add user "{0}" to lense group: {1}'.format(user, str(e)))        
+            BOOTSTRAP.die('Could not add user "{0}" to lense group: {1}'.format(user, str(e)))        
             
     def dirname(self, file):
         """
@@ -244,11 +195,11 @@ class BootstrapCommon(object):
         if hasattr(WSGI_CONFIG, self.project.upper()):
             
             # Deploy the virtual host if the project has one
-            code, err = self._shell_exec(['a2ensite', getattr(WSGI_CONFIG, self.project.upper())[0]], show_stdout=False)
+            code, err = BOOTSTRAP.shell_exec(['a2ensite', getattr(WSGI_CONFIG, self.project.upper())[0]], show_stdout=False)
         
             # Make sure the command returned successfully
             if not code == 0:
-                self.die('Failed to enable virtual host: {0}'.format(str(err)))
+                BOOTSTRAP.die('Failed to enable virtual host: {0}'.format(str(err)))
             BOOTSTRAP.FEEDBACK.success('Enabled virtual host configuration for Lense API {0}'.format(self.project))
 
     def mkdir(self, d):
@@ -387,7 +338,7 @@ class BootstrapCommon(object):
         
         # Make sure the module/class was retrieved
         if not handler_mod or not handler_cls:
-            self.die('Could not find handler for: path={0}, method={1}'.format(path, method))
+            BOOTSTRAP.die('Could not find handler for: path={0}, method={1}'.format(path, method))
         
         # Load the request handler
         handler = import_class(handler_cls, handler_mod)
@@ -400,7 +351,7 @@ class BootstrapCommon(object):
         # Request or ensure error
         except (RequestError, EnsureError) as e:
             BOOTSTRAP.LOG.exception(str(e))
-            self.die('HTTP {0}: {1}'.format(e.code, e.message))
+            BOOTSTRAP.die('HTTP {0}: {1}'.format(e.code, e.message))
     
     def update_config(self):
         """

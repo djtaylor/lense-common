@@ -6,12 +6,8 @@ class BootstrapSocket(BootstrapCommon):
     """
     Class object for handling bootstrap of the Lense API Socket.IO proxy.
     """
-    def __init__(self, args, answers):
+    def __init__(self):
         super(BootstrapSocket, self).__init__('socket')
-
-        # Arguments / answers
-        self.args     = args
-        self.answers  = answers
 
         # Bootstrap parameters
         self.params   = SocketParams()
@@ -66,7 +62,7 @@ class BootstrapSocket(BootstrapCommon):
     def run(self):
         
         # Get user input
-        self.read_input(self.answers.get('socket', {}))
+        self.read_input(BOOTSTRAP.ANSWERS.get('socket', {}))
         
         # Create required directories
         self.mkdirs([self.dirname(self.CONFIG.socket.log), self.ATTRS.RUN])

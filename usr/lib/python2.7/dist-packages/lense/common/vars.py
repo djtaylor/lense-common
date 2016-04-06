@@ -77,30 +77,31 @@ PROJECTS = Collection({
 
 # API Groups
 GROUPS = Collection({
-    'SERVICE': {
-        'UUID': '99999999-9999-9999-9999-999999999999',
-        'NAME': 'service'
-    },
     'ADMIN': {
         'UUID': '00000000-0000-0000-0000-000000000000',
-        'NAME': 'admin'
+        'NAME': 'administrators'
     },
-    'DEFAULT': {
+    'USER': {
         'UUID': '11111111-1111-1111-1111-111111111111',
-        'NAME': 'default'
+        'NAME': 'users'
     }
 }).get()
 
 # API Users
 USERS = Collection({
-    'SERVICE': {
-        'GROUP': GROUPS.SERVICE.UUID,
-        'NAME': 'service',
-        'UUID': '99999999-9999-9999-9999-999999999999'
-    },
     'ADMIN': {
         'GROUP': GROUPS.ADMIN.UUID,
-        'NAME': 'lense',
+        'NAME': 'admin',
         'UUID': '00000000-0000-0000-0000-000000000000'
+    },
+    'USER': {
+        'GROUP': GROUPS.USERS.UUID,
+        'NAME': 'user',
+        'UUID': '11111111-1111-1111-1111-111111111111'
     }
+}).get()
+
+# Share directories
+SHARE = Collection({
+    'BOOTSTRAP': '/usr/share/lense/bootstrap'
 }).get()

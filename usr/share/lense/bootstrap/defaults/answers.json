@@ -17,8 +17,8 @@
         "db_root_password": "",
         "api_admin_password": "",
         "api_admin_email": "",
-        "api_service_email": "",
-        "api_service_password": "",
+        "api_user_email": "",
+        "api_user_password": "",
         "api_host": "localhost",
         "api_port": "10550",
         "portal_host": "localhost",
@@ -42,11 +42,11 @@
         "admin_group": "00000000-0000-0000-0000-000000000000"
     },
     "client": {
-        "admin_user": "lense",
+        "admin_user": "admin",
         "admin_group": "00000000-0000-0000-0000-000000000000"
     },
     "socket": {
-        "admin_user": "lense",
+        "admin_user": "admin",
         "admin_group": "00000000-0000-0000-0000-000000000000",
         "engine_host": "localhost",
         "engine_port": "10550",

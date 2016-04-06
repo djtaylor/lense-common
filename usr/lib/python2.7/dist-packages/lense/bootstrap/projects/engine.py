@@ -13,12 +13,8 @@ class BootstrapEngine(BootstrapCommon):
     """
     Class object for handling bootstrap of the Lense API engine.
     """
-    def __init__(self, args, answers):
+    def __init__(self):
         super(BootstrapEngine, self).__init__('engine')
-        
-        # Arguments / answers
-        self.args     = args
-        self.answers  = answers
         
         # Bootstrap parameters
         self.params   = EngineParams()
@@ -308,17 +304,28 @@ class BootstrapEngine(BootstrapCommon):
         # Test the database connection
         self._try_mysql_root()
             
+        # Check if flushing existing data
+        flushdb = BOOTSTRAP.ARGS.get('flushdb')
+            
         # Create the database and user account
         try:
             c = self._connection.cursor()
             
             # If the database already exists
             if self._database_exists():
-                self.die('Database "{0}" already exists'.format(self.params.db['attrs']['name']))
+                BOOTSTRAP.ensure(flushdb, isnot=False, error='Database "{0}" already exists'.format(self.params.db['attrs']['name']))
+            
+                # Flush database
+                c.execute(self.params.db['query']['delete_db'])
+                BOOTSTRAP.FEEDBACK.info('Removing previous database...')
             
             # If the database user already exists
             if self._database_user_exists():
-                self.die('Database user "{0}" already exists'.format(self.params.db['attrs']['user']))
+                BOOTSTRAP.ensure(flushdb, isnot=False, error='Database user "{0}" already exists'.format(self.params.db['attrs']['user']))
+            
+                # Flush database user
+                c.execute(self.params.db['query']['delete_user'])
+                BOOTSTRAP.FEEDBACK.info('Removing previous database user...')
             
             # Create the database    
             c.execute(self.params.db['query']['create_db'])
@@ -404,7 +411,7 @@ class BootstrapEngine(BootstrapCommon):
         """
             
         # Get user input
-        self.read_input(self.answers.get('engine', {}))
+        self.read_input(BOOTSTRAP.ANSWERS.get('engine', {}))
         
         # Update the configuration
         self.update_config()

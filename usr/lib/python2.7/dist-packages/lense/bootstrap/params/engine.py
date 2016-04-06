@@ -1,4 +1,3 @@
-from os import listdir
 from json import loads as json_loads
 
 # Lense Libraries
@@ -18,6 +17,10 @@ class _EngineACL(object):
     def _get_acl_key(self, name):
         """
         Return the UUID for an ACL key by name.
+        
+        :param name: The name of the ACL key
+        :type  name: str
+        :rtype: str
         """
         for k in self.keys:
             if k['name'] == name:
@@ -40,8 +43,8 @@ class _EngineACL(object):
         """
         Set ACL access keys for the administrator group.
         
-        @param acls: List of ACLs to grant the administrator group
-        @type  acls: list
+        :param acls: List of ACLs to grant the administrator group
+        :type  acls: list
         """
         self.access = [{
             'acl':      acl['uuid'],
@@ -126,8 +129,10 @@ class EngineParams(object):
             "query": {
                 "check_db": "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='{0}'".format(attrs['name']),
                 "create_db": "CREATE DATABASE IF NOT EXISTS {0}".format(attrs['name']),
+                "delete_db": "DROP SCHEMA {0}".format(attrs['name']),
                 "check_user": "SELECT User FROM mysql.user WHERE User='{0}'".format(attrs['user']),
                 "create_user": "CREATE USER '{0}'@'{1}' IDENTIFIED BY '{2}'".format(attrs['user'], attrs['host'], attrs['passwd']),
+                "delete_user": "DROP USER '{0}'@'{1}'".format(attrs['user'], attrs['host']),
                 "grant_user": "GRANT ALL PRIVILEGES ON {0}.* TO '{1}'@'{2}'".format(attrs['name'], attrs['user'], attrs['host']),
                 "flush_priv": "FLUSH PRIVILEGES"
             }
@@ -145,9 +150,9 @@ class EngineParams(object):
                 "protected": True
             },
             {
-                "name": GROUPS.SERVICE.NAME,
-                "uuid": GROUPS.SERVICE.UUID,
-                "desc": "Service accounts group",
+                "name": GROUPS.USER.NAME,
+                "uuid": GROUPS.USER.UUID,
+                "desc": "Default user group",
                 "protected": True
             }
         ]
@@ -187,15 +192,15 @@ class EngineParams(object):
                 }
             },
             {
-                "username": USERS.SERVICE.NAME,
-                "group": GROUPS.SERVICE.UUID,
-                "uuid": USERS.SERVICE.UUID,
+                "username": USERS.USER.NAME,
+                "group": GROUPS.USER.UUID,
+                "uuid": USERS.USER.UUID,
                 "email": None,
                 "password": None,
                 "key": None,
                 "_keys": {
-                    "email": "api_service_email",
-                    "password": "api_service_password"
+                    "email": "api_user_email",
+                    "password": "api_user_password"
                 }
             }
         ]

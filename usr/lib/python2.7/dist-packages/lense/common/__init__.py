@@ -4,6 +4,7 @@ __version__ = '0.1.1'
 import __builtin__
 import os
 from shutil import rmtree
+from subprocess import Popen, PIPE
 from sys import path, exit, stderr
 from shutil import move as move_file
 
@@ -104,6 +105,7 @@ class LenseCommon(object):
         self.MODULE      = import_class('LenseModules', 'lense.common.modules', init=False)
         self.JSON        = import_class('JSONObject', 'lense.common.objects')
         self.FEEDBACK    = import_class('Feedback', 'feedback')
+        self.FS          = import_class('LenseFS', 'lense.common.fs', init=False)
         self.HTTP        = import_class('LenseHTTP', 'lense.common.http', init=False)
         self.MAIL        = import_class('LenseAPIEmail', 'lense.common.mailer', init=False)
         self.SETUP       = import_class('LenseSetup', 'lense.common', init=False)
@@ -277,6 +279,27 @@ class LenseCommon(object):
         if not os.path.isdir(dir_path):
             os.makedirs(dir_path)
         return dir_path
+        
+    def shell_exec(self, cmd, show_stdout=True):
+        """
+        Run an arbitrary system command.
+        
+        :param cmd: The command list to run
+        :type  cmd: list
+        """
+        
+        # If showing stdout
+        if show_stdout:
+            proc = Popen(cmd, stderr=PIPE)
+            err = proc.communicate()
+            
+        # If supressing stdout
+        else:
+            proc = Popen(cmd, stderr=PIPE, stdout=PIPE)
+            out, err = proc.communicate()
+
+        # Return code, stderr
+        return proc.returncode, err
         
     def die(self, msg, code=1, pre=None, post=None):
         """

@@ -5,12 +5,8 @@ class BootstrapClient(BootstrapCommon):
     """
     Class object for handling bootstrap of the Lense API client.
     """
-    def __init__(self, args, answers):
+    def __init__(self):
         super(BootstrapClient, self).__init__('client')
-
-        # Arguments / answers
-        self.args     = args
-        self.answers  = answers
 
         # Bootstrap parameters
         self.params   = ClientParams()
@@ -31,7 +27,7 @@ class BootstrapClient(BootstrapCommon):
     def run(self):
         
         # Get user input
-        self.read_input(self.answers.get('client', {}))
+        self.read_input(BOOTSTRAP.ANSWERS.get('client', {}))
         
         # Update the configuration
         self.update_config()
