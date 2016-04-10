@@ -30,17 +30,17 @@
             "value": null
     	},
     	{
-    		"key": "api_service_email",
+    		"key": "api_user_email",
     		"type": "str",
             "default": null,
-            "prompt": "Please enter the email address for the default service account: ",
+            "prompt": "Please enter the email address for the default user account: ",
             "value": null
     	},
     	{
-    		"key": "api_service_password",
+    		"key": "api_user_password",
     		"type": "pass",
             "default": null,
-            "prompt": "Please enter a password for the default service account: ",
+            "prompt": "Please enter a password for the default user account: ",
             "value": null
     	}
     ]         

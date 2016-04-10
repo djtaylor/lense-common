@@ -1,16 +1,17 @@
+from os import listdir
 from json import loads as json_loads
 
 # Lense Libraries
 from lense.common.utils import rstring
-from lense.common.vars import GROUPS, USERS, DB_ENCRYPT_DIR
-from lense.bootstrap.common import BOOTSTRAP_DATA, BootstrapInput
+from lense.bootstrap.common import BootstrapInput
+from lense.common.vars import GROUPS, USERS, DB_ENCRYPT_DIR, SHARE
 
 class _EngineACL(object):
     """
     Handle bootstrapping ACL definitions.
     """
     def __init__(self):
-        self.keys    = json_loads(open('{0}/acl/keys.json'.format(BOOTSTRAP_DATA), 'r').read())
+        self.keys    = json_loads(open('{0}/acl/keys.json'.format(SHARE.BOOTSTRAP), 'r').read())
         self.objects = None
         self.access  = None
         
@@ -30,7 +31,7 @@ class _EngineACL(object):
         """
         Set attributes for ACL objects.
         """
-        acl_objects = json_loads(open('{0}/acl/objects.json'.format(BOOTSTRAP_DATA), 'r').read())
+        acl_objects = json_loads(open('{0}/acl/objects.json'.format(SHARE.BOOTSTRAP), 'r').read())
         
         # Map default ACLs to UUIDs
         for obj in acl_objects:
@@ -209,7 +210,7 @@ class EngineParams(object):
         """
         Load handler seed data.
         """
-        handler_manifests = '{0}/handlers'.format(BOOTSTRAP_DATA)
+        handler_manifests = '{0}/handlers'.format(SHARE.BOOTSTRAP)
         handlers = []
         
         # Start to load the handlers

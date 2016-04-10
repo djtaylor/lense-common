@@ -36,13 +36,13 @@ class BootstrapEngine(BootstrapCommon):
             )
             BOOTSTRAP.FEEDBACK.success('Connected to MySQL using root user')
         except Exception as e:
-            self.die(BOOTSTRAP.LOG.exception('Unable to connect to MySQL with root user: {0}'.format(str(e))))
+            BOOTSTRAP.die(BOOTSTRAP.LOG.exception('Unable to connect to MySQL with root user: {0}'.format(str(e))))
     
     def _keyczart_create(self, enc_attrs):
         """
         Create a new database encryption key.
         """
-        code, err = self._shell_exec(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
+        code, err = BOOTSTRAP.shell_exec(['keyczart', 'create', '--location={0}'.format(enc_attrs['dir']), '--purpose=crypt'])
         
         # Failed to generate key
         if not code == 0:
@@ -57,7 +57,7 @@ class BootstrapEngine(BootstrapCommon):
         """
         Add a new database encryption key.
         """
-        code, err = self._shell_exec(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
+        code, err = BOOTSTRAP.shell_exec(['keyczart', 'addkey', '--location={0}'.format(enc_attrs['dir']), '--status=primary', '--size=256'])
         
         # Failed to add key
         if not code == 0:
@@ -222,7 +222,7 @@ class BootstrapEngine(BootstrapCommon):
                     )
                     BOOTSTRAP.FEEDBACK.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
                 except Exception as e:
-                    self.die(BOOTSTRAP.LOG.exception('Failed to grant global access to handler "{0}" with ACL "{1}": {2}'.format(u, k['name'], str(e))))
+                    BOOTSTRAP.die(BOOTSTRAP.LOG.exception('Failed to grant global access to handler "{0}" with ACL "{1}": {2}'.format(u, k['name'], str(e))))
     
     def _create_acl_access(self):
         """
@@ -237,7 +237,7 @@ class BootstrapEngine(BootstrapCommon):
                 )
                 BOOTSTRAP.FEEDBACK.success('Granted global administrator access for ACL "{0}"'.format(a['acl_name']))
             except Exception as e:
-                self.die(BOOTSTRAP.LOG.exception('Failed to grant global access for ACL "{0}": {1}'.format(a['acl_name'], str(e))))
+                BOOTSTRAP.die(BOOTSTRAP.LOG.exception('Failed to grant global access for ACL "{0}": {1}'.format(a['acl_name'], str(e))))
     
     def _database_seed(self):
         """
@@ -313,7 +313,7 @@ class BootstrapEngine(BootstrapCommon):
             
             # If the database already exists
             if self._database_exists():
-                BOOTSTRAP.ensure(flushdb, isnot=False, error='Database "{0}" already exists'.format(self.params.db['attrs']['name']))
+                BOOTSTRAP.ensure(flushdb, value=True, error='Database "{0}" already exists'.format(self.params.db['attrs']['name']))
             
                 # Flush database
                 c.execute(self.params.db['query']['delete_db'])
@@ -321,7 +321,7 @@ class BootstrapEngine(BootstrapCommon):
             
             # If the database user already exists
             if self._database_user_exists():
-                BOOTSTRAP.ensure(flushdb, isnot=False, error='Database user "{0}" already exists'.format(self.params.db['attrs']['user']))
+                BOOTSTRAP.ensure(flushdb, value=True, error='Database user "{0}" already exists'.format(self.params.db['attrs']['user']))
             
                 # Flush database user
                 c.execute(self.params.db['query']['delete_user'])
@@ -341,7 +341,7 @@ class BootstrapEngine(BootstrapCommon):
             BOOTSTRAP.FEEDBACK.success('Granted database permissions to user "{0}"'.format(self.params.db['attrs']['user']))
             
         except Exception as e:
-            self.die(BOOTSTRAP.LOG.exception('Failed to bootstrap Lense database: {0}'.format(str(e))))
+            BOOTSTRAP.die(BOOTSTRAP.LOG.exception('Failed to bootstrap Lense database: {0}'.format(str(e))))
             
         # Close the connection
         c.close()
@@ -351,16 +351,16 @@ class BootstrapEngine(BootstrapCommon):
         
         # Run Django syncdb
         try:
-            code, err = self._shell_exec(['python', '/usr/lib/python2.7/dist-packages/lense/engine/api/manage.py', 'migrate'])
+            code, err = BOOTSTRAP.shell_exec(['python', '/usr/lib/python2.7/dist-packages/lense/engine/api/manage.py', 'migrate'])
             
             # Make sure the command ran successfully
             if not code == 0:
-                self.die('Failed to sync Django application database: \n{0}'.format('\n'.join(err[1].split('\n'))))
+                BOOTSTRAP.die('Failed to sync Django application database: \n{0}'.format('\n'.join(err[1].split('\n'))))
                 
             # Sync success
             BOOTSTRAP.FEEDBACK.success('Synced Django application database')
         except Exception as e:
-            self.die(BOOTSTRAP.LOG.exception('Failed to sync Django application database: {0}'.format(str(e))))
+            BOOTSTRAP.die(BOOTSTRAP.LOG.exception('Failed to sync Django application database: {0}'.format(str(e))))
             
         # Set up the database seed data
         self._database_seed()

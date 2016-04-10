@@ -159,6 +159,55 @@ class LenseAPILogger(object):
             return self._reset_client(JSONError(error=self._api_response(False, data), status=code).response())
         return self._reset_client(self.msg)
 
+class LogProxy(logging.Logger):
+    """
+    Proxy class for logging and returning messages.
+    """
+    def __init__(self, *args, **kwargs):
+        super(LogProxy, self).__init__(*args, **kwargs)
+        
+    def info(self, msg, *args, **kwargs):
+        """
+        Log and return the information messsage.
+        """
+        super(LogProxy, self).info(msg, *args, **kwargs)
+        return msg
+
+    def debug(self, msg, *args, **kwargs):
+        """
+        Log and return the debug message.
+        """
+        super(LogProxy, self).debug(msg, *args, **kwargs)
+        return msg
+    
+    def warning(self, msg, *args, **kwargs):
+        """
+        Log and return the warning message.
+        """
+        super(LogProxy, self).warning(msg, *args, **kwargs)
+        return msg
+    
+    def error(self, msg, *args, **kwargs):
+        """
+        Log and return the error message.
+        """
+        super(LogProxy, self).error(msg, *args, **kwargs)
+        return msg
+    
+    def critical(self, msg, *args, **kwargs):
+        """
+        Log and return the critical error message.
+        """
+        super(LogProxy, self).critical(msg, *args, **kwargs)
+        return msg
+    
+    def exception(self, msg, *args, **kwargs):
+        """
+        Log and return the exception message.
+        """
+        super(LogProxy, self).exception(msg, *args, **kwargs)
+        return msg
+
 class LogFormat(Formatter):
     """
     Custom log format object to use with the Python logging module. Used
@@ -202,20 +251,24 @@ class Logger:
         if not isdir(log_dir):
             makedirs(log_dir, 0755)
         
+        # Use a custom logging class
+        logging.setLoggerClass(LogProxy)
+        
         # Set the logger module name
         logger = getLogger(name)
         
-        # Don't create duplicate handlers
-        if not len(logger.handlers):
-            logger.setLevel(getattr(logging, log_level, 'INFO'))
-            
-            # Set the file handler
-            lfh = handlers.RotatingFileHandler(log_file, mode='a', maxBytes=10*1024*1024, backupCount=5)
-            logger.addHandler(lfh)
-            
-            # Set the format
-            lfm = LogFormat(fmt='%(asctime)s %(name)s - %(levelname)s: %(message)s', datefmt='%d-%m-%Y %I:%M:%S')
-            lfh.setFormatter(lfm)
+        # Set the log level
+        logger.setLevel(getattr(logging, log_level, 'INFO'))
+        
+        # Set the file handler
+        lfh = handlers.RotatingFileHandler(log_file, mode='a', maxBytes=10*1024*1024, backupCount=5)
+        logger.addHandler(lfh)
+        
+        # Set the format
+        lfm = LogFormat(fmt='%(asctime)s %(name)s - %(levelname)s: %(message)s', datefmt='%d-%m-%Y %I:%M:%S')
+        lfh.setFormatter(lfm)
+        
+        # Return the logger
         return getLogger(name)
     
 def create_project(project):

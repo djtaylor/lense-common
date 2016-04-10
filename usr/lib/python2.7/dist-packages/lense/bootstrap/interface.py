@@ -1,5 +1,5 @@
+from time import time
 from os import environ
-from collections import Mapping
 from collections import OrderedDict
 from json import loads as json_loads
 
@@ -10,9 +10,7 @@ from django import setup as django_setup
 from lense import import_class
 from lense.common.vars import SHARE
 from lense.common import init_project
-from lense.bootstrap.args import BootstrapArgs
 from lense.bootstrap.common import BootstrapCommon
-from lense.bootstrap.answers import BootstrapAnswers
 
 class Bootstrap(BootstrapCommon):
     """
@@ -22,6 +20,22 @@ class Bootstrap(BootstrapCommon):
     def __init__(self):
         super(Bootstrap, self).__init__('bootstrap')
             
+        # Internal feedback / arguments / answers objects
+        self._feedback = import_class('Feedback', 'feedback')
+        self._args     = import_class('BootstrapArgs', 'lense.bootstrap.args')
+        self._answers  = import_class('BootstrapAnswers', 'lense.bootstrap.answers', init=False).get(file=self._args.get('answers', None))
+            
+        # Initialization arguments
+        if 'init' in self._answers:
+            for key,method in {
+                'db': self._init_db
+            }.iteritems():
+                if key in self._answers['init']:
+                    method(self._answers['init'][key])
+            
+            # Delete init answers
+            del self._answers['init']
+            
     def _bootstrap_engine(self):
         """
         Helper method to see if we are bootstrapping the Lense Engine, which
@@ -29,13 +43,13 @@ class Bootstrap(BootstrapCommon):
         """
         
         # Explicity bootstrapping Engine
-        if BOOTSTRAP.ARGS.get('engine'):
+        if self._args.get('engine'):
             return True
             
         # Bootstrapping all
         bootstrap_all = True
         for k in ['engine', 'client', 'portal', 'socket']:
-            if BOOTSTRAP.ARGS.get(k, False):
+            if self._args.get(k, False):
                 bootstrap_all = False
         return bootstrap_all
             
@@ -56,7 +70,7 @@ class Bootstrap(BootstrapCommon):
             project_cls   = project_attrs if isinstance(project_attrs, str) else project_attrs[0]
             
             # Run the project bootstrap manager
-            BOOTSTRAP.FEEDBACK.info('Running bootstrap manager for Lense project: {0}'.format(project))
+            self._feedback.info('Running bootstrap manager for Lense project: {0}'.format(project))
             import_class(project_cls, 'lense.bootstrap.projects').run()
           
     def _init_db(self, answers):
@@ -68,7 +82,7 @@ class Bootstrap(BootstrapCommon):
         
         # Bootstrapping the engine requires a database connection
         if self._bootstrap_engine():
-            BOOTSTRAP.FEEDBACK.info('[init][db] Initializing database')
+            self._feedback.info('[init][db] Initializing database')
             prompts = json_loads(open('{0}/prompts/init/database.json'.format(SHARE.BOOTSTRAP), 'r').read())
             
             # Answers supplied
@@ -77,22 +91,25 @@ class Bootstrap(BootstrapCommon):
                     
                     # Unsupported key
                     if not k in default_keys:
-                        BOOTSTRAP.FEEDBACK.warn('[init][db] Unsupported environment variable: {0}'.format(k))
+                        self._feedback.warn('[init][db] Unsupported environment variable: {0}'.format(k))
                     
                     # Set the environment variable
                     environ[k] = v
-                    BOOTSTRAP.FEEDBACK.success('[init][db] Set environment variable: {0}'.format(k))
+                    self._feedback.success('[init][db] Set environment variable: {0}'.format(k))
             
             # Get connection attributes prior to bootstrapping
             for k,a in prompts.iteritems():
                 if not environ.get(k, None):
-                    BOOTSTRAP.FEEDBACK.input(a['prompt'], a['key'], **a.get('kwargs', {}))
-                    environ[var_key] == BOOTSTRAP.FEEDBACK.get_response(a['key'])
+                    self._feedback.input(a['prompt'], a['key'], **a.get('kwargs', {}))
+                    environ[var_key] == self._feedback.get_response(a['key'])
             
     def _run(self):
         """
         Private method for starting up the bootstrap process.
         """
+        
+        # Start time
+        start = time()
         
         # Set the Django settings module
         environ['DJANGO_SETTINGS_MODULE'] = 'lense.bootstrap.settings'
@@ -105,10 +122,8 @@ class Bootstrap(BootstrapCommon):
         init_project('ENGINE', 'LENSE')
         
         # Store arguments / answers
-        BOOTSTRAP.ARGS    = BootstrapArgs()
-        BOOTSTRAP.ANSWERS = BootstrapAnswers.get(mapper={
-            'db': self._init_db
-        })
+        BOOTSTRAP.ARGS    = self._args
+        BOOTSTRAP.ANSWERS = self._answers
         
         # Show bootstrap information
         self.bootstrap_info()
@@ -136,6 +151,9 @@ class Bootstrap(BootstrapCommon):
         else:
             for project, run in projects.iteritems():
                 if run: self._bootstrap_project(project)
+            
+        # Finished
+        BOOTSTRAP.FEEDBACK.info('Finished bootstrapping in: {0} seconds'.format(str(time() - start)))
             
     @classmethod
     def run(cls):

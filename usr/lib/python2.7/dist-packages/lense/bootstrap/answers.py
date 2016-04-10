@@ -1,8 +1,12 @@
 from json import loads
 from feedback import Feedback
+from collections import Mapping
 
 # Lense Libraries
 from lense.common.vars import SHARE
+
+# Feedback instance
+FEEDBACK = Feedback()
 
 class BootstrapAnswers(object):
     """
@@ -21,13 +25,13 @@ class BootstrapAnswers(object):
         if file:
             try:
                 answers = loads(open(file, 'r').read())
-                BOOTSTRAP.FEEDBACK.success('Loaded answers file: {0}'.format(file))
+                FEEDBACK.success('Loaded answers file: {0}'.format(file))
             except Exception as e:
-                BOOTSTRAP.FEEDBACK.warn('Could not read answer file: {0}'.format(str(e)))
+                FEEDBACK.warn('Could not read answer file: {0}'.format(str(e)))
         return answers
     
     @classmethod
-    def get(cls, file=BOOTSTRAP.ARGS.get('answers', None), default='{0}/defaults/answers.json'.format(SHARE.BOOTSTRAP), mapper=None):
+    def get(cls, file=None, default='{0}/defaults/answers.json'.format(SHARE.BOOTSTRAP)):
         """
         Return the structure of any supplied answer file.
         
@@ -55,11 +59,5 @@ class BootstrapAnswers(object):
         # If user defined file
         if user_answers:
             merge_dict(answers, user_answers)
-            
-            # Initialize
-            if 'init' in answers:
-                for k,m in mapper.iteritems():
-                    m(answers['init'][k])
-            del answers['init']
             return answers
         return {}

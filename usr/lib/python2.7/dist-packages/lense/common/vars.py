@@ -95,7 +95,7 @@ USERS = Collection({
         'UUID': '00000000-0000-0000-0000-000000000000'
     },
     'USER': {
-        'GROUP': GROUPS.USERS.UUID,
+        'GROUP': GROUPS.USER.UUID,
         'NAME': 'user',
         'UUID': '11111111-1111-1111-1111-111111111111'
     }
