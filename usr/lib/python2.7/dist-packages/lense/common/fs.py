@@ -1,6 +1,6 @@
 from shutil import rmtree
 from shutil import move as move_file
-from os import makedirs, symlink, unlink
+from os import makedirs, symlink, unlink, listdir
 from os.path import isfile, islink, isdir
 
 class LenseFS(object):
@@ -63,3 +63,7 @@ class LenseFS(object):
         if not isdir(dir_path):
             makedirs(dir_path)
         return dir_path
+    
+    @classmethod
+    def listdir(cls, *args, **kwargs):
+        return listdir(*args, **kwargs)

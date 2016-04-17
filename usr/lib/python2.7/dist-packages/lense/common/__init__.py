@@ -2,13 +2,7 @@ __version__ = '0.1.1'
 
 # Python Libraries
 import __builtin__
-import os
-import re
-from shutil import rmtree
-from threading import Thread
-from subprocess import Popen, PIPE
-from sys import path, exit, stderr
-from shutil import move as move_file
+from sys import path
 
 # Lense Libraries
 from lense import import_class
@@ -81,8 +75,7 @@ class LenseCommon(LenseBase):
         
         """
         Project Objects
-        """     
-        
+        """      
         self.REQUEST     = import_class('LenseRequestObject', 'lense.common.request', ensure=pattr('get_request'))
         self.OBJECTS     = import_class('LenseAPIObjects', 'lense.common.objects', ensure=pattr('get_objects'))
         self.API         = import_class('LenseAPIConstructor', 'lense.common.api', init=False)
@@ -111,13 +104,15 @@ class LenseCommon(LenseBase):
             for k,v in a.__dict__.iteritems():
                 self.LOG.debug('[config] -> {0}.{1} = {2}'.format(s,k,v))
         
+    def import_class(self, *args, **kwargs):
+        return import_class(*args, **kwargs)
+        
     def get_request(self):
         """
         Initialize the request object.
         """
         self.REQUEST = import_class('LenseRequestObject', 'lense.common.request')
         return self.REQUEST
-    
      
 def init_project(project, name='LENSE'):
     """

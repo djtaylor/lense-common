@@ -29,19 +29,7 @@ def merge_dict(a, b, path=None):
 
 class Collection(object):
     """
-    Class used to generate a named tuple collection from any number
-    of dictionaries. Returns an immutable collection oject.
-    
-    Initialize a collection::
-    
-        # Import the collection class
-        from lense.common.collection import Collection
-        
-        # Create an empty collection
-        c1 = Collection()
-        
-        # Create a collection with initial data
-        c2 = Collection({'one': 'value1', 'two': 'value2'})
+    Construct an immutable collection from a dictionary.
     """
     def __init__(self, init_data=None):
         """
@@ -186,3 +174,14 @@ class Collection(object):
         else:
             data = json.dumps(self.collection)
             return json.loads(data, object_hook=obj_mapper)
+    
+    @classmethod
+    def create(cls, data):
+        """
+        Create a new collection.
+        
+        :param data: The source dictionary
+        :type  data: dict
+        :rtype: namedtuple
+        """
+        return cls(data).get()

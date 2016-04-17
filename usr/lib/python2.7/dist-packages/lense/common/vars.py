@@ -103,5 +103,9 @@ USERS = Collection({
 
 # Share directories
 SHARE = Collection({
-    'BOOTSTRAP': '/usr/share/lense/bootstrap'
+    'BOOTSTRAP': '/usr/share/lense/bootstrap',
+    'PORTAL': '/usr/share/lense/portal',
+    'ENGINE': '/usr/share/lense/engine',
+    'CLIENT': '/usr/share/lense/client',
+    'SOCKET': '/usr/share/lense/socket'
 }).get()

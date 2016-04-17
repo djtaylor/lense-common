@@ -1,4 +1,11 @@
+import __builtin__
+from sys import stderr, exit
+from threading import Thread
+from subprocess import Popen, PIPE
+
+# Lense Objects
 from lense import import_class
+from lense.common.exceptions import EnsureError
 
 class LenseBase(object):
     def __init__(self, project):
@@ -103,58 +110,6 @@ class LenseBase(object):
         
         # Return the result
         return result
-        
-    def rmfile(self, file):
-        """
-        Remove a file/symlink if it exists.
-        
-        :param file: The target file
-        :type  file: str
-        """
-        if os.path.isfile(file) or os.path.islink(file):
-            unlink(file)
-        
-    def rmdir(self, path):
-        """
-        Recursively remove a directory.
-        
-        :param path: The directory to remove
-        :type  path: str
-        """
-        if os.path.isdir(path):
-            rmtree(path)
-        
-    def mvfile(self, src, dst):
-        """
-        Move a file from one place to another.
-        
-        :param src: The source file
-        :type  src: str
-        :param dst: The destination file
-        :type  dst: str
-        """
-        move_file(src, dst)
-        
-    def mklink(self, target, link):
-        """
-        Make a symbolic link.
-        
-        :param target: The target file
-        :type  target: str
-        :param   link: The target link
-        :type    link: str
-        """
-        os.symlink(target, link)
-        
-    def mkdir(self, dir_path):
-        """
-        Make a directory and return the path name.
-        
-        :rtype: str
-        """
-        if not os.path.isdir(dir_path):
-            os.makedirs(dir_path)
-        return dir_path
         
     def shell_exec(self, cmd, show_stdout=True):
         """

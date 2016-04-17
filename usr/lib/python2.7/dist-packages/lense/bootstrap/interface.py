@@ -25,15 +25,32 @@ class Bootstrap(BootstrapCommon):
         self._args     = import_class('BootstrapArgs', 'lense.bootstrap.args')
         self._answers  = import_class('BootstrapAnswers', 'lense.bootstrap.answers', init=False).get(file=self._args.get('answers', None))
             
-        # Initialization arguments
-        if 'init' in self._answers:
-            for key,method in {
-                'db': self._init_db
-            }.iteritems():
-                if key in self._answers['init']:
-                    method(self._answers['init'][key])
+        # Bootstrap initialization
+        self._bootstrap_init('db')
             
-            # Delete init answers
+    def _bootstrap_init(self, key):
+        """
+        Wrapper for bootstrap initialization methods.
+        
+        :param key: The initialization method to run
+        :type  key: str
+        """
+        if not 'init' in self._answers: return
+        
+        # Init keys
+        init_keys = {'db': self._bootstrap_db}
+        
+        # Init key not found
+        if not key in init_keys: return
+        
+        # Run the init method
+        init_keys[key](self._answers['init'][key])
+        
+        # Delete init answers
+        del self._answers['init'][key]
+            
+        # If last key
+        if not self._answers['init']:
             del self._answers['init']
             
     def _bootstrap_engine(self):
@@ -73,9 +90,9 @@ class Bootstrap(BootstrapCommon):
             self._feedback.info('Running bootstrap manager for Lense project: {0}'.format(project))
             import_class(project_cls, 'lense.bootstrap.projects').run()
           
-    def _init_db(self, answers):
+    def _bootstrap_db(self, answers):
         """
-        Initialize bootstrap Django settings.
+        Bootstrap database settings.
         """
         default_answers = json_loads(open('{0}/defaults/answers.json'.format(SHARE.BOOTSTRAP), 'r').read())
         default_keys = default_answers['init']['db']
