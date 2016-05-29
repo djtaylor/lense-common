@@ -109,15 +109,3 @@ SHARE = Collection({
     'CLIENT': '/usr/share/lense/client',
     'SOCKET': '/usr/share/lense/socket'
 }).get()
-
-# Object permissions
-PERMISSIONS = Collection.create({
-    'DEFAULT': {
-        'user_read': True,
-        'user_write': True,
-        'user_exec': True,
-        'group_read': True,
-        'group_write': True,
-        'group_execute': True
-    }
-})

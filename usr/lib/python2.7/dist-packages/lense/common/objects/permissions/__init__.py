@@ -1,5 +1,4 @@
-from lense.common.vars import PERMISSIONS
-from lense.common.collection import merge_dict
+from lense.common.vars import USERS, GROUPS
 from lense.common.objects.base import LenseBaseObject
 
 class ObjectInterface(LenseBaseObject):
@@ -10,10 +9,31 @@ class ObjectInterface(LenseBaseObject):
         """
         Create permissions for a new object.
         """
-        permissions = self.model(**merge_dict({
-            'object_uuid': LENSE.OBJECTS.getattr(obj, 'uuid'),
-            'owner': LENSE.OBJECTS.USER.get_uuid(LENSE.REQUEST.USER.name),
-            'group': LENSE.REQUEST.USER.group
-        }, PERMISSIONS))
+        object_uuid   = LENSE.OBJECTS.getattr(obj, 'uuid')
+        
+        # Request user/group
+        request_user  = LENSE.REQUEST.USER.name
+        request_group = LENSE.REQUEST.USER.group
+        
+        # Owner / group
+        owner         = USERS.ADMIN.UUID if not request_user else LENSE.OBJECTS.USER.get_uuid(request_user)
+        group         = USERS.ADMIN.GROUP if (request_group == 'anonymous' or not request_group) else request_group
+        
+        # Parameters
+        params        = {
+            'object_uuid': object_uuid,
+            'owner': owner,
+            'group': group,
+            'user_read': True,
+            'user_write': True,
+            'user_exec': True,
+            'group_read': True,
+            'group_write': True,
+            'group_execute': True
+        }
+        
+        # Set permissions
+        self.log('Setting permissions on object "{0}": owner={1}, group={2}'.format(object_uuid, owner, group))
+        permissions = self.model(**params)
         permissions.save()
         

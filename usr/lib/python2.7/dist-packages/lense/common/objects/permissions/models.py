@@ -1,6 +1,6 @@
-from django.db.models import BooleanField, CharField
+from django.db.models import Model, BooleanField, CharField
 
-class Permissions(object):
+class Permissions(Model):
     """
     Database model for storing object permissions.
     """
