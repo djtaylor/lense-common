@@ -8,24 +8,5 @@
     "protected": true,
     "enabled": true,
     "object": "group",
-    "object_key": "uuid",
-    "rmap": {
-        "_required": ["name", "desc", "protected"],
-        "_optional": [],
-        "_type": "dict",
-        "_children": {
-            "group": {
-                "_type": "uuid"
-            },
-            "name": {
-                "_type": "str"
-            },
-            "desc": {
-                "_type": "str"
-            },
-            "protected": {
-                "_type": "bool"
-            }
-        }
-    }
+    "object_key": "uuid"
 }

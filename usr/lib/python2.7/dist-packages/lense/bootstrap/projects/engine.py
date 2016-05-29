@@ -158,8 +158,7 @@ class BootstrapEngine(BootstrapCommon):
                 'enabled': _handler['enabled'],
                 'object': _handler['object'],
                 'object_key': _handler['object_key'],
-                'allow_anon': _handler.get('allow_anon', False),
-                'rmap': _handler['rmap']
+                'allow_anon': _handler.get('allow_anon', False)
             }
             
             # Create the request handler

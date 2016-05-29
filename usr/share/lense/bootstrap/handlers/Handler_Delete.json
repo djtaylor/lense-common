@@ -8,15 +8,5 @@
     "protected": true,
     "enabled": true,
     "object": "handler",
-    "object_key": "uuid",
-    "rmap": {
-        "_required": ["handler"],
-        "_optional": [],
-        "_type": "dict",
-        "_children": {
-            "handler": {
-                "_type": "uuid"
-            }
-        }
-    }
+    "object_key": "uuid"
 }

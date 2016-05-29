@@ -8,15 +8,5 @@
     "protected": true,
     "enabled": true,
     "object": null,
-    "object_key": null,
-    "rmap": {
-        "_required": [],
-        "_optional": ["acl"],
-        "_type": "dict",
-        "_children": {
-            "acl": {
-                "_type": "uuid"
-            }
-        }
-    }
+    "object_key": null
 }

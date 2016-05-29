@@ -8,27 +8,5 @@
     "protected": true,
     "enabled": true,
     "object": "user",
-    "object_key": "uuid",
-    "rmap": {
-        "_required": ["username", "group", "email", "password", "password_confirm"],
-        "_optional": [],
-        "_type": "dict",
-        "_children": {
-            "username": {
-                "_type": "str"
-            },
-            "group": {
-                "_type": "uuid"
-            },
-            "email": {
-                "_type": "str"
-            },
-            "password": {
-                "_type": "str"
-            },
-            "password_confirm": {
-                "_type": "str"    
-            }
-        }
-    }
+    "object_key": "uuid"
 }

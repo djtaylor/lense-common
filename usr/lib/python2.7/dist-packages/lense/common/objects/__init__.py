@@ -26,6 +26,9 @@ class LenseAPIObjects(object):
         :type  instance: object
         :rtype: dict
         """
+        if isinstance(instance, dict):
+            return instance
+        
         opts = instance._meta
         data = {}
         for f in opts.concrete_fields + opts.many_to_many:
@@ -96,6 +99,10 @@ class LenseAPIObjects(object):
         """
         acl  = kwargs.get('acl', False) if hasattr(LENSE.AUTH.ACL, 'ready') else False
         dump = kwargs.get('dump', False)
+        noop = kwargs.get('noop', False)
+        
+        # Bypass operation
+        if noop: return objects
         
         # ACL / object dump filters
         objects = objects if not acl else LENSE.AUTH.ACL.objects(objects)

@@ -17,7 +17,6 @@ class Handlers(Model):
     method     = CharField(max_length=6)
     mod        = CharField(max_length=128)
     cls        = CharField(max_length=64, unique=True)
-    rmap       = JSONField()
     object     = CharField(max_length=64, null=True, blank=True)
     object_key = CharField(max_length=32, null=True, blank=True)
     protected  = NullBooleanField()

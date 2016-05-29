@@ -8,53 +8,5 @@
     "protected": true,
     "enabled": true,
     "object": null,
-    "object_key": null,
-    "rmap": {
-        "_required": [],
-        "_optional": [
-            "path", "method", "client_ip", "client_user", "client_group", "endpoint", "user_agent", "retcode", "req_size", "rsp_size", "rsp_time_ms", "from", "to"
-        ],
-        "_type": "dict",
-        "_children": {
-            "path": {
-                "_type": "str"
-            },
-            "method": {
-                "_type": "str"
-            },
-            "client_ip": {
-                "_type": "str"
-            },
-            "client_user": {
-                "_type": "str"
-            },
-            "client_group": {
-                "_type": "str"
-            },
-            "endpoint": {
-                "_type": "str"
-            },
-            "user_agent": {
-                "_type": "str"
-            },
-            "retcode": {
-                "_type": "str"
-            },
-            "req_size": {
-                "_type": "str"
-            },
-            "rsp_size": {
-                "_type": "str"
-            },
-            "rsp_time_ms": {
-                "_type": "str"
-            },
-            "from": {
-                "_type": "str"
-            },
-            "to": {
-                "_type": "str"
-            }
-        }
-    }
+    "object_key": null
 }

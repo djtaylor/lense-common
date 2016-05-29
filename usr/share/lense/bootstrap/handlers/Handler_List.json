@@ -9,11 +9,5 @@
     "enabled": true,
     "object": "handler",
     "object_key": "uuid",
-    "allow_anon": true,
-    "rmap": {
-        "_required": [],
-        "_optional": [],
-        "_type": "dict",
-        "_children": { }
-    }
+    "allow_anon": true
 }
