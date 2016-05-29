@@ -87,4 +87,4 @@ class ACLPermissions_Global(Model):
     
     # Custom table metadata
     class Meta:
-        db_table = 'acl_global_permssions'
+        db_table = 'acl_global_permissions'
