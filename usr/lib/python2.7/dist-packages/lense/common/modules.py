@@ -78,6 +78,8 @@ class LenseModules(object):
             handler_file = '{0}/{1}{2}'.format(handler_attrs.DIR, handler, ('.py' if not ext else '/{0}.py'.format(ext)))
             handler_mod  = '{0}.{1}{2}'.format(handler_attrs.MOD, handler, ('' if not ext else '.{0}'.format(ext)))
             
+            LENSE.LOG.info('handler_mod: {0}'.format(handler_mod))
+            
             # If loading the handler objects
             if load:
                 mod_obj = import_module(handler_mod)

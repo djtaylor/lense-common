@@ -26,9 +26,10 @@ class LenseBaseObject(object):
         self.model    = import_class(cls, mod, init=False)
         self.uidf     = getattr(self.model, 'UID_FIELD', self.cls)
 
-        # ACL authorization flag / object dump
+        # ACL authorization flag / object dump / object counter
         self.use_acl  = False
         self.use_dump = False
+        self.count    = False
 
         # Debug log prefix
         self.logpre   = 'OBJECTS:{0}'.format(self.cls)
@@ -119,11 +120,17 @@ class LenseBaseObject(object):
         except:
             return False
 
+    def _count(self, **kwargs):
+        """
+        Find out how many objects would be returned by a query.
+        """
+        return self.model.objects.filter(**kwargs).count()
+
     def exists(self, **kwargs):
         """
         Check if an object exists.
         """
-        count = self.model.objects.filter(**kwargs).count()
+        count = self._count(**kwargs)
         self.log('Found {0} object(s) -> filter={1}'.format(str(count), str(kwargs)), level='debug', method='exists')
         return count
     
@@ -216,6 +223,9 @@ class LenseBaseObject(object):
         # Process and return the object(s)
         return self._process(list(objects))
     
+    def _filter(self, **kwargs):
+        return self.filter(**kwargs)
+    
     def select(self, **kwargs):
         """
         Select an object before running an update.
@@ -249,6 +259,11 @@ class LenseBaseObject(object):
             
             # Process and return the objects
             return self._process(list(objects))
+        
+        # Redirect to filter method if multiple objects found
+        if self._count(**kwargs) > 1:
+            self.log('Multiple objects found, redirect -> filter()', level='debug', method='get')
+            return self._filter(**kwargs)
     
         # Object doesn't exist
         if not self.exists(**kwargs):

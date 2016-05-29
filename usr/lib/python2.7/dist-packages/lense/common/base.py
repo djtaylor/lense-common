@@ -34,38 +34,41 @@ class LenseBase(object):
         """
         Ensure a result is equal to 'value' or is not equal to 'isnot'. Raise a RequestError otherwise.
         
-        :param result: The result to check
-        :type  result: mixed
-        :param  value: The value to ensure (equal to)
-        :type   value: mixed
-        :param  isnot: The value to ensure (not equal to)
-        :type   isnot: mixed
-        :param  error: The error message to raise
-        :type   error: str
-        :param   code: The HTTP status code to return if error
-        :type    code: int
-        :param   call: Call the result object as a method
-        :type    call: mixed
-        :param   args: Arguments to pass to the object method
-        :type    args: list
-        :param kwargs: Keyword arguments to pass to the object method
-        :type  kwargs: dict
-        :param    log: Log a success message
-        :type     log: str
-        :param  debug: Log a debug message
-        :type   debug: str
-        :param    exc: The type of exception to raise
-        :type     exc: object
+        :param  result: The result to check
+        :type   result: mixed
+        :param   value: The value to ensure (equal to)
+        :type    value: mixed
+        :param   isnot: The value to ensure (not equal to)
+        :type    isnot: mixed
+        :param   error: The error message to raise
+        :type    error: str
+        :param    code: The HTTP status code to return if error
+        :type     code: int
+        :param    call: Call the result object as a method
+        :type     call: mixed
+        :param    args: Arguments to pass to the object method
+        :type     args: list
+        :param  kwargs: Keyword arguments to pass to the object method
+        :type   kwargs: dict
+        :param     log: Log a success message
+        :type      log: str
+        :param   debug: Log a debug message
+        :type    debug: str
+        :param     exc: The type of exception to raise
+        :type      exc: object
+        :param default: If ensure fails, return a default value and log the exception
+        :type  default: mixed
         :rtype: result
         """
         
         # Code / error / call / log / debug
-        code  = kwargs.get('code', 400)
-        error = kwargs.get('error', 'An unknown request error has occurred')
-        call  = kwargs.get('call', False)
-        log   = kwargs.get('log', None)
-        debug = kwargs.get('debug', None)
-        exc   = kwargs.get('exc', EnsureError)
+        code    = kwargs.get('code', 400)
+        error   = kwargs.get('error', 'An unknown request error has occurred')
+        call    = kwargs.get('call', False)
+        log     = kwargs.get('log', None)
+        debug   = kwargs.get('debug', None)
+        default = kwargs.get('default', None)
+        exc     = kwargs.get('exc', EnsureError)
         
         # Cannot specify both value/isnot at the same time
         if ('value'in kwargs) and ('isnot' in kwargs):
@@ -95,12 +98,26 @@ class LenseBase(object):
         # Negative check (not equal to)
         if 'isnot' in kwargs:
             if result == isnot:
-                raise exc(error, code)
+                
+                # Default provided
+                if not default == None:
+                    return default
+                
+                # No default, raise the exception
+                else:
+                    raise exc(error, code)
         
         # Positive check (equal to)
         if 'value' in kwargs:
             if result != value:
-                raise exc(error, code)
+                
+                # Default provided
+                if not default == None:
+                    return default
+                
+                # No default, raise the exception
+                else:
+                    raise exc(error, code)
         
         # Log info/debug
         if log:

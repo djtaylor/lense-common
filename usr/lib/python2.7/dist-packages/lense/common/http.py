@@ -32,12 +32,18 @@ PATH = Collection({
     'GET_TOKEN':    'token'
 }).get()
 
+# Format Lense header
+def HEADER_FORMAT(header):
+    return 'HTTP_{0}'.format(header.upper().replace('-', '_'))
+
 # HTTP Headers
 HEADER = Collection({
     'API_USER':     'Lense-API-User',
     'API_KEY':      'Lense-API-Key',
     'API_TOKEN':    'Lense-API-Token',
     'API_GROUP':    'Lense-API-Group',
+    'API_ROOM':     'Lense-API-Room',
+    'API_CALLBACK': 'Lense-API-Callback',
     'CONTENT_TYPE': 'Content-Type',
     'ACCEPT':       'Accept' 
 }).get()
@@ -78,11 +84,14 @@ class JSONSuccess(object):
     Base class for successfull request responses.
     """
     def __init__(self, msg, data):
-        self.msg  = msg
-        self.data = data
+        response = { 'message': msg, 'data': data }
+
+        # If a callback is specified
+        if LENSE.REQUEST.callback:
+            response['callback'] = LENSE.REQUEST.callback
 
         # Response body
-        self.body = json.dumps({'message': self.msg, 'data': self.data}, cls=DjangoJSONEncoder)
+        self.body = json.dumps(response, cls=DjangoJSONEncoder)
 
     def response(self):
         """

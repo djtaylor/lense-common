@@ -55,7 +55,7 @@ def get_applications(defaults=[], by_name=False):
     # Return available applications
     return tuple(defaults)
 
-def import_class(cls, mod, init=True, ensure=True, args=[], kwargs={}):
+def import_class(cls, mod, init=True, exit_on_fail=True, ensure=True, args=[], kwargs={}):
     """
     Import a module, create an instance of a class, and pass optional arguments.
     
@@ -83,11 +83,17 @@ def import_class(cls, mod, init=True, ensure=True, args=[], kwargs={}):
                 
         # Class creation failed
         except Exception as e:
-            stderr.write('Failed to create <{0}>: {1}\n'.format(cls, str(e)))
-            print_exc()
-            exit(1)
+            if exit_on_fail:    
+                stderr.write('Failed to create <{0}>: {1}\n'.format(cls, str(e)))
+                print_exc()
+                exit(1)
+            else:
+                raise e
         
     except Exception as e:
-        stderr.write('Failed to import <{0}> from <{1}>: {2}\n'.format(cls, mod, str(e)))
-        print_exc()
-        exit(1)
+        if exit_on_fail:
+            stderr.write('Failed to import <{0}> from <{1}>: {2}\n'.format(cls, mod, str(e)))
+            print_exc()
+            exit(1)
+        else:
+            raise e

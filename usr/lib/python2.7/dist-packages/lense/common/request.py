@@ -1,6 +1,9 @@
 import json
+from copy import copy
 from re import compile
 from sys import getsizeof
+from urllib import unquote
+from six import string_types
 
 # Django Libraries
 from django.test.client import RequestFactory
@@ -11,7 +14,7 @@ from lense.common import logger
 from lense.common.utils import truncate
 from lense.common.collection import Collection, merge_dict
 from lense.common.exceptions import RequestError
-from lense.common.http import HTTP_GET, HTTP_POST, HTTP_PUT, HEADER, PATH
+from lense.common.http import HTTP_GET, HTTP_POST, HTTP_PUT, HEADER, PATH, HEADER_FORMAT
 from django.template.defaultfilters import default
 
 class LenseRequestBase(object):
@@ -94,7 +97,7 @@ class LenseRequestSession(LenseRequestBase):
         self._session = session
         
         # Session ID
-        self.id       = getattr(session, 'session_id', None)  
+        self.id       = getattr(session, 'session_key', None)  
         
         # Log the session attributes
         self.log('Loading session "{0}" data: {1}'.format(self.id, dict(session)), level='debug', method='__init__')
@@ -113,7 +116,7 @@ class LenseRequestSession(LenseRequestBase):
         key_value = getattr(self._session, key, default)
         self.log('Retrieving session key: {0}={1}'.format(key, key_value), level='debug', method='get')
         return key_value
-
+    
 class LenseRequestUser(LenseRequestBase):
     """
     Helper class for extracting and storing user attributes.
@@ -135,6 +138,7 @@ class LenseRequestUser(LenseRequestBase):
         self.admin      = self._getattr('is_admin', default=False, session='is_admin', model=True)
         self.active     = self._getattr('is_active', default=False, model=True)
         self.passwd     = self._getattr('password', default=None, post=True)
+        self.room       = self._getattr('room', header=HEADER.API_ROOM,)
     
         # Log user details
         self.log('Constructed request user object: name={0}, group={1}, authorized={2}, admin={3}, active={4}'.format(
@@ -144,12 +148,6 @@ class LenseRequestUser(LenseRequestBase):
             self.admin,
             self.active
         ), level='debug', method='__init__')
-    
-    def _format_header(self, header):
-        """
-        Format a header into a Django recognizable string.
-        """
-        return 'HTTP_{0}'.format(header.upper().replace('-', '_'))
     
     def _getmodel(self):
         """
@@ -172,8 +170,8 @@ class LenseRequestUser(LenseRequestBase):
             return self._request.session.get(session, default)
         
         # Attempt header retrieval
-        if header and self._format_header(header) in self._request.META:
-            return self._request.META.get(self._format_header(header), default)
+        if header and HEADER_FORMAT(header) in self._request.META:
+            return self._request.META.get(HEADER_FORMAT(header), default)
         
         # Attempt model retrieval
         if model and self.model:
@@ -252,6 +250,14 @@ class LenseRequestObject(LenseRequestBase):
                 self._parse_data(request_body),
                 self._parse_data(request_query)
             )
+            
+            # Decode any HTML entities and bool strings
+            self.log('Decoding HTML/boolean entities', level='debug', method='_load_data')
+            for k,v in merged_data.iteritems():
+                if isinstance(v, string_types):
+                    merged_data[k] = unquote(v).decode('utf8')
+                if (v in ['True', 'False']):
+                    merged_data[k] = True if (v == 'True') else False
             
         # Failed to merge data, key conflict
         except Exception as e:
@@ -362,6 +368,10 @@ class LenseRequestObject(LenseRequestBase):
         self._GET         = Collection(request.GET).get()
         self._POST        = Collection(request.POST).get()
         self.body         = request.body
+    
+        # Portal request attributes
+        self.view         = self.GET('view', None)
+        self.callback     = self._get_header_value(HEADER_FORMAT(HEADER.API_CALLBACK))
     
         # Setup authentication
         LENSE.SETUP.auth()

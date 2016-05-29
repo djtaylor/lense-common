@@ -82,7 +82,7 @@ class ObjectInterface(LenseBaseObject):
                 error = 'User not found for email {0}'.format(user),
                 debug = 'Mapped user email {0} to UUID'.format(user),
                 code  = 404)
-            return user_obj.uuid
+            return LENSE.OBJECTS.getattr(user_obj, 'uuid')
         
         # Else try username
         user_obj = LENSE.ensure(LENSE.OBJECTS.USER.get(username=user),
@@ -90,7 +90,7 @@ class ObjectInterface(LenseBaseObject):
             error = 'User not found for username {0}'.format(user),
             debug = 'Mapped username {0} to UUID'.format(user),
             code  = 404)
-        return user_obj.uuid
+        return LENSE.OBJECTS.getattr(user_obj, 'uuid')
         
     def map_uuid(self, user):
         """

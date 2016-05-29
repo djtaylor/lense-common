@@ -90,6 +90,20 @@ class LenseAPIObjects(object):
             return obj.get(key, None)
         return getattr(obj, key, None)
 
+    def process(self, objects, **kwargs):
+        """
+        Process returned objects.
+        """
+        acl  = kwargs.get('acl', False) if hasattr(LENSE.AUTH.ACL, 'ready') else False
+        dump = kwargs.get('dump', False)
+        
+        # ACL / object dump filters
+        objects = objects if not acl else LENSE.AUTH.ACL.objects(objects)
+        objects = objects if not dump else LENSE.OBJECTS.dump(objects)
+    
+        # Return the processed object(s)
+        return objects
+
 class JSONObject(object):
     """
     Class for loading and abstracting access to a JSON object.
