@@ -153,6 +153,6 @@ class ObjectInterface(LenseBaseObject):
         Construct ACLs for a group.
         """
         return {
-            'object': LENSE.OBJECTS.ACL.PERMISSIONS('object').get(**{'owner': group}),
-            'global': LENSE.OBJECTS.ACL.PERMISSIONS('global').get(**{'owner': group})
+            'object': LENSE.OBJECTS.dump(LENSE.OBJECTS.ACL.PERMISSIONS('object').get(**{'owner': group})),
+            'global': LENSE.OBJECTS.dump(LENSE.OBJECTS.ACL.PERMISSIONS('global').get(**{'owner': group}))
         }

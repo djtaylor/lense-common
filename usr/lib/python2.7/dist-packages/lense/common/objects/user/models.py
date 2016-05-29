@@ -71,8 +71,9 @@ class APIUser(AbstractBaseUser):
         help_text = _('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.')
     )
 
-    # Unique ID field
+    # Unique ID field / extended fields
     UID_FIELD       = 'uuid'
+    EX_FIELDS       = ['api_key', 'api_token', 'groups']
 
     # Username field and required fields
     USERNAME_FIELD  = 'username'

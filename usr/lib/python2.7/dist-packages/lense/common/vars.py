@@ -92,12 +92,12 @@ USERS = Collection({
     'ADMIN': {
         'GROUP': GROUPS.ADMIN.UUID,
         'NAME': 'admin',
-        'UUID': '00000000-0000-0000-0000-000000000000'
+        'UUID': '00000000-0000-0000-0000-111111111111'
     },
     'USER': {
         'GROUP': GROUPS.USER.UUID,
         'NAME': 'user',
-        'UUID': '11111111-1111-1111-1111-111111111111'
+        'UUID': '11111111-1111-1111-1111-222222222222'
     }
 }).get()
 
@@ -109,3 +109,15 @@ SHARE = Collection({
     'CLIENT': '/usr/share/lense/client',
     'SOCKET': '/usr/share/lense/socket'
 }).get()
+
+# Object permissions
+PERMISSIONS = Collection.create({
+    'DEFAULT': {
+        'user_read': True,
+        'user_write': True,
+        'user_exec': True,
+        'group_read': True,
+        'group_write': True,
+        'group_execute': True
+    }
+})

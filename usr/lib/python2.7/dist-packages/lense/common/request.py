@@ -130,8 +130,6 @@ class LenseRequestUser(LenseRequestBase):
         self.name       = self._getattr('username', header=HEADER.API_USER, default='anonymous')
         self.model      = self._getmodel()
  
-        self.log('Request user: {0}'.format(request.user), level='debug', method='__init__')
- 
         # User attributes
         self.group      = self._getattr('group', header=HEADER.API_GROUP, session='active_group', default='anonymous')
         self.authorized = self._getattr('is_authenticated', default=False)

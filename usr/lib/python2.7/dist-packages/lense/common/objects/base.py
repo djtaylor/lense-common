@@ -175,6 +175,9 @@ class LenseBaseObject(object):
             uid = '{0}={1}'.format(self.uidf, getattr(obj, self.uidf, None))
             self.log('Created object -> {0}'.format(uid), level='debug', method='create')
             
+            # Create object permissions
+            LENSE.OBJECTS.PERMISSIONS.create(obj)
+            
             # Return the new object
             return obj
         

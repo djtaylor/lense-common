@@ -32,8 +32,9 @@ class APIGroups(Model):
     desc      = CharField(max_length=128)
     protected = NullBooleanField()
     
-    # Unique ID field
+    # Unique ID field / extended fields
     UID_FIELD = 'uuid'
+    EX_FIELDS = ['members', 'acls']
     
     def members_list(self):
         """
@@ -64,4 +65,4 @@ class APIGroups(Model):
     
     # Custom model metadata
     class Meta:
-        db_table = 'api_groups'
+        db_table  = 'api_groups'

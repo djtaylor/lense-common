@@ -29,8 +29,16 @@ class LenseAPIObjects(object):
         if isinstance(instance, dict):
             return instance
         
+        # Return object
         opts = instance._meta
         data = {}
+        
+        # Extended attributes
+        if hasattr(instance, 'EX_FIELDS'):
+            for ex in instance.EX_FIELDS:
+                data[ex] = getattr(instance, ex)
+        
+        # Model attributes
         for f in opts.concrete_fields + opts.many_to_many:
             if isinstance(f, ManyToManyField):
                 if instance.pk is None:
@@ -41,7 +49,7 @@ class LenseAPIObjects(object):
                 data[f.name] = f.value_from_object(instance)
         return data
         
-    def dump(self, instance):
+    def dump(self, instance, default=[]):
         """
         Dump either a single object instance or a list of objects.
         
@@ -49,6 +57,8 @@ class LenseAPIObjects(object):
         :type  instance: object|list
         :rtype: list|dict
         """
+        if not instance:
+            return []
         
         # Single object
         if not isinstance(instance, list):
