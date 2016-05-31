@@ -29,7 +29,7 @@ class ObjectInterface(LenseBaseObject):
             'user_exec': True,
             'group_read': True,
             'group_write': True,
-            'group_execute': True
+            'group_exec': True
         }
         
         # Set permissions

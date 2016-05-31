@@ -4,9 +4,9 @@ class Permissions(Model):
     """
     Database model for storing object permissions.
     """
-    object_uuid  = CharField(max_length=64, unique=True)
-    owner        = CharField(max_length=64, unique=True)
-    group        = CharField(max_length=64, unique=True)
+    object_uuid  = CharField(max_length=64)
+    owner        = CharField(max_length=64)
+    group        = CharField(max_length=64)
     share        = BooleanField(default=False)
     user_read    = BooleanField(default=False)
     user_write   = BooleanField(default=False)

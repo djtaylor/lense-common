@@ -19,7 +19,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Extend the user object
         for k,v in {
-            'members': [x.group.uuid for x in self.MEMBERS.filter(group=uuid)],
+            'members': [x.group.uuid for x in self.MEMBERS.get(group=uuid)],
             'acls': self.get_acls(group=uuid)
         }.iteritems():
             self.log('Extending group {0} attributes -> {1}={2}'.format(uuid,k,v), level='debug', method='extend')
@@ -58,8 +58,8 @@ class ObjectInterface(LenseBaseObject):
         
         # Global / object level permissions
         return {
-            'global': LENSE.OBJECTS.ACL.PERMISSIONS('global').filter(owner=group),
-            'object': LENSE.OBJECTS.ACL.PERMISSIONS('object').filter(owner=group)
+            'global': LENSE.OBJECTS.ACL.PERMISSIONS('global').get(owner=group),
+            'object': LENSE.OBJECTS.ACL.PERMISSIONS('object').get(owner=group)
         }
         
     def add_member(self, group, member):
