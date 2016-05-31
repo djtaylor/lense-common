@@ -19,8 +19,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Extend the user object
         for k,v in {
-            'members': [x.group.uuid for x in self.MEMBERS.get(group=uuid)],
-            'acls': self.get_acls(group=uuid)
+            'members': [x.group.uuid for x in LENSE.OBJECTS.as_list(self.MEMBERS.get(group=uuid))]
         }.iteritems():
             self.log('Extending group {0} attributes -> {1}={2}'.format(uuid,k,v), level='debug', method='extend')
             LENSE.OBJECTS.setattr(group, k, v)
@@ -147,12 +146,3 @@ class ObjectInterface(LenseBaseObject):
         
         # Return any members
         return group.members_list()
-    
-    def get_acls(self, group):
-        """
-        Construct ACLs for a group.
-        """
-        return {
-            'object': LENSE.OBJECTS.dump(LENSE.OBJECTS.ACL.PERMISSIONS('object').get(**{'owner': group})),
-            'global': LENSE.OBJECTS.dump(LENSE.OBJECTS.ACL.PERMISSIONS('global').get(**{'owner': group}))
-        }

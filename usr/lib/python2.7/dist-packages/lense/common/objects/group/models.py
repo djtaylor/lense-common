@@ -34,7 +34,7 @@ class APIGroups(Model):
     
     # Unique ID field / extended fields
     UID_FIELD = 'uuid'
-    EX_FIELDS = ['members', 'acls']
+    EX_FIELDS = ['members']
     
     def members_list(self):
         """

@@ -103,24 +103,6 @@ class LenseAPIObjects(object):
             return obj.get(key, None)
         return getattr(obj, key, None)
 
-    def process(self, objects, **kwargs):
-        """
-        Process returned objects.
-        """
-        acl  = kwargs.get('acl', False) if hasattr(LENSE.AUTH.ACL, 'ready') else False
-        dump = kwargs.get('dump', False)
-        noop = kwargs.get('noop', False)
-        
-        # Bypass operation
-        if noop: return objects
-        
-        # ACL / object dump filters
-        objects = objects if not acl else LENSE.AUTH.ACL.objects(objects)
-        objects = objects if not dump else LENSE.OBJECTS.dump(objects)
-    
-        # Return the processed object(s)
-        return objects
-
     def as_list(self, objects):
         """
         Map any returned objects to a list.
