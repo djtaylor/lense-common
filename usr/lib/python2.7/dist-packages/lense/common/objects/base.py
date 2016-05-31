@@ -1,3 +1,4 @@
+from copy import copy
 from uuid import UUID
 
 # Django Libraries
@@ -72,13 +73,24 @@ class LenseBaseObject(object):
             self.log(get_permissions, level='debug', method='_process_single')
             
         # Confirm access
-        api_user   = LENSE.REQUEST.USER.uuid
+        api_user   = LENSE.OBJECTS.USER.get_internal(uuid=LENSE.REQUEST.USER.uuid)
         api_group  = LENSE.REQUEST.USER.group    
-        access_str = 'User({0}::{1}) -> Object({2})'.format(api_user, api_group, object_uuid)
+        access_str = 'User({0}::{1}) -> Object({2})'.format(api_user.uuid, api_group, object_uuid)
+            
+        # Allow a user to retrieve their own entry
+        if api_user.uuid == object_uuid:
+            self.log('Access granted to self {0}'.format(access_str))
+            return ref.append(obj)
+            
+        # Allow a user to retrieve their own groups
+        for group in api_user.groups:
+            if group['uuid'] == object_uuid:
+                self.log('Access granted to self {0}'.format(access_str))
+                return ref.append(obj)
             
         # Object has no permissions, must be administrator
         if not obj._permissions:
-            if api_group == GORUPS.ADMIN.UUID:
+            if api_group == GROUPS.ADMIN.UUID:
                 return ref.append(obj)
             return None
             
@@ -86,7 +98,7 @@ class LenseBaseObject(object):
         for pr in obj._permissions:
             
             # Owner access
-            if pr['owner'] == api_user:
+            if pr['owner'] == api_user.uuid:
                 if pr['user_read']:
                     self.log('User read access granted {0}'.format(access_str), level='debug', method='_process_single')
                     
@@ -225,6 +237,12 @@ class LenseBaseObject(object):
         """
         try:
             
+            # Override permissions
+            permissions = {}
+            if 'permissions' in kwargs:
+                permissions = copy(kwargs['permissions'])
+                del kwargs['permissions']
+            
             # Create/save the object
             obj = self.model(**kwargs)
             obj.save()
@@ -232,7 +250,7 @@ class LenseBaseObject(object):
             self.log('Created object -> {0}'.format(uid), level='debug', method='create')
             
             # Create object permissions
-            LENSE.OBJECTS.PERMISSIONS.create(obj)
+            LENSE.OBJECTS.PERMISSIONS.create(obj, permissions)
             
             # Return the new object
             return obj
@@ -254,8 +272,12 @@ class LenseBaseObject(object):
             self.log('Cannot delete object -> {0}: Does not exist'.format(uid), level='debug', method='delete')
             return False
         
-        # Delete the object
         try:
+            
+            # Flush permissions
+            LENSE.OBJECTS.PERMISSIONS.flush(obj)
+            
+            # Delete the object
             obj.delete()
             self.log('Deleted object -> {0}'.format(uid), level='debug', method='delete')
             return True

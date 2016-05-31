@@ -84,7 +84,10 @@ class JSONSuccess(object):
     Base class for successfull request responses.
     """
     def __init__(self, msg, data):
-        response = { 'message': msg, 'data': LENSE.OBJECTS.dump(data) }
+        try:
+            response = { 'message': msg, 'data': LENSE.OBJECTS.dump(data) }
+        except:
+            response = { 'message': msg, 'data': data }
 
         # If a callback is specified
         if LENSE.REQUEST.callback:

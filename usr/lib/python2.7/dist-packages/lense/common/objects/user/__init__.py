@@ -64,6 +64,25 @@ class ObjectInterface(LenseBaseObject):
         # Single user object
         return self.extend(user)
         
+    def get_internal(self, **kwargs):
+        """
+        Retrieve an object definition internally.
+        """
+        user = super(ObjectInterface, self).get_internal(**kwargs)
+        
+        # No user found
+        if not user:
+            return None
+        
+        # Multiple user objects
+        if isinstance(user, list):
+            for u in user:
+                self.extend(u)
+            return user
+        
+        # Single user object
+        return self.extend(user)
+        
     def get_uuid(self, user):
         """
         Retrieve a user's UUID from various attributes.

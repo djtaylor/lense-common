@@ -10,12 +10,15 @@ class Permissions(Model):
     share        = BooleanField(default=False)
     user_read    = BooleanField(default=False)
     user_write   = BooleanField(default=False)
+    user_delete  = BooleanField(default=False)
     user_exec    = BooleanField(default=False)
     group_read   = BooleanField(default=False)
     group_write  = BooleanField(default=False)
+    group_delete = BooleanField(default=False)
     group_exec   = BooleanField(default=False)
     all_read     = BooleanField(default=False)
     all_write    = BooleanField(default=False)
+    all_delete   = BooleanField(default=False)
     all_exec     = BooleanField(default=False)
     
     # Custom model metadata

@@ -107,7 +107,7 @@ class LenseAPIObjects(object):
         """
         Map any returned objects to a list.
         """
-        return objects if isinstance(objects, list) else [objects]
+        return [] if not objects else (objects if isinstance(objects, list) else [objects])
 
 class JSONObject(object):
     """
