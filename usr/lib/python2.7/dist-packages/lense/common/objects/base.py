@@ -280,6 +280,33 @@ class LenseBaseObject(object):
         # Return the base object handler
         return self
         
+    def get_internal(self, **kwargs):
+        """
+        Retrieve objects internally, bypassing the processing step.
+        """
+        
+        # Total objects that would be retrieved
+        object_count = self._count(**kwargs)
+        
+        # No objects found
+        if object_count == 0:
+            self.log('No objects found: filter={0}'.format(str(kwargs)), level='debug', method='get_internal')
+            return None
+        
+        # Retrieve all objects
+        if not kwargs:
+            self.log('Retrieving all objects: count={0}, filter={1}'.format(str(object_count), str(kwargs)), level='debug', method='get_internal')
+            return list(self.model.objects.all())
+        
+        # Multiple objects found
+        if object_count > 1:
+            self.log('Retrieving multiple objects: count={0}, filter={1}'.format(str(object_count), str(kwargs)), level='debug', method='get_internal')
+            return list(self.model.objects.filter(**kwargs))
+    
+        # Single object found
+        self.log('Retrieving single object: filter={0}'.format(str(kwargs)), level='debug', method='get_internal')
+        return self.model.objects.get(**kwargs)
+        
     def get(self, **kwargs):
         """
         Retrieve a single/multiple/all object models.

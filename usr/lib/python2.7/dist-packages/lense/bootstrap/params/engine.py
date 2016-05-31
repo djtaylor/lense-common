@@ -6,57 +6,6 @@ from lense.common.utils import rstring
 from lense.bootstrap.common import BootstrapInput
 from lense.common.vars import GROUPS, USERS, DB_ENCRYPT_DIR, SHARE
 
-class _EngineACL(object):
-    """
-    Handle bootstrapping ACL definitions.
-    """
-    def __init__(self):
-        self.keys    = json_loads(open('{0}/acl/keys.json'.format(SHARE.BOOTSTRAP), 'r').read())
-        self.objects = None
-        self.access  = None
-        
-    def _get_acl_key(self, name):
-        """
-        Return the UUID for an ACL key by name.
-        
-        :param name: The name of the ACL key
-        :type  name: str
-        :rtype: str
-        """
-        for k in self.keys:
-            if k['name'] == name:
-                return k['uuid']
-        
-    def set_objects(self):
-        """
-        Set attributes for ACL objects.
-        """
-        acl_objects = json_loads(open('{0}/acl/objects.json'.format(SHARE.BOOTSTRAP), 'r').read())
-        
-        # Map default ACLs to UUIDs
-        for obj in acl_objects:
-            obj['def_acl'] = self._get_acl_key(obj['def_acl'])
-        
-        # Set mapped ACL objects
-        self.objects = acl_objects
-    
-    def set_access(self, acls):
-        """
-        Set ACL access keys for the administrator group.
-        
-        :param acls: List of ACLs to grant the administrator group
-        :type  acls: list
-        """
-        self.access = [{
-            'acl':      acl['uuid'],
-            'acl_name': acl['name'],
-            'owner':    GROUPS.ADMIN.UUID,
-            'allowed':  True
-        } for acl in acls]
-        
-        # Return a copy of the access object
-        return self.access
-
 class EngineParams(object):
     """
     Bootstrap parameters class object used to store and set the attributes
@@ -66,7 +15,6 @@ class EngineParams(object):
         
         # User input / ACL objects
         self.input    = BootstrapInput('engine')
-        self.acl      = _EngineACL()
         
         # Groups/users/database/file parameters
         self.groups   = self._set_groups()

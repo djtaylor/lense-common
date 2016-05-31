@@ -167,77 +167,7 @@ class BootstrapEngine(BootstrapCommon):
     
             # Store the handler UUID
             _handler['uuid'] = handler['uuid']
-    
-    def _create_acl_keys(self):
-        """
-        Create ACL key definitions.
-        """
-        for _acl_key in self.params.acl.keys:
-            data = {
-                "name": _acl_key['name'],
-                "desc": _acl_key['desc'],
-                "type_object": _acl_key['type_object'],
-                "type_global": _acl_key['type_global']
-            }
-            
-            # Create the ACL key
-            acl_key = self.launch_handler(path='acl/keys', data=data, method=HTTP_POST)
-            BOOTSTRAP.FEEDBACK.success('Created database entry for ACL key "{0}"'.format(_acl_key['name']))
-            
-            # Store the new ACL key UUID
-            _acl_key['uuid'] = acl_key['uuid']
-            
-        # Setup ACL objects
-        self.params.acl.set_objects()
-    
-    def _create_acl_objects(self):
-        """
-        Create ACL object definitions.
-        """
-        for acl_object in self.params.acl.objects:
-            self.launch_handler(path='acl/objects', data=acl_object, method=HTTP_POST)
-            BOOTSTRAP.FEEDBACK.success('Created database entry for ACL object "{0}->{1}"'.format(acl_object['object_type'], acl_object['name']))
-    
-    def _create_handlers_access(self):
-        """
-        Permit access to handlers by ACL key.
-        
-        @param g_access: Global ACL access model
-        @type  g_access: ACLGlobalAccess
-        @param key:      ACL key database model
-        @type  key:      ACLKeys
-        @param handler:  Handler database model
-        @type  handler:  Handlers
-        """
-        
-        # Process ACL keys
-        for k in self.params.acl.keys:
-            if not k['type_global']: continue
-            for u in k['handler_classes']:
-                try:
-                    BOOTSTRAP.OBJECTS.ACL.ACCESS('global').create(
-                        acl = BOOTSTRAP.OBJECTS.ACL.KEYS.get(uuid=k['uuid']),
-                        handler = BOOTSTRAP.OBJECTS.HANDLER.get(cls=u)
-                    )
-                    BOOTSTRAP.FEEDBACK.success('Granted global access to handler "{0}" with ACL "{1}"'.format(u, k['name']))
-                except Exception as e:
-                    BOOTSTRAP.die(BOOTSTRAP.LOG.exception('Failed to grant global access to handler "{0}" with ACL "{1}": {2}'.format(u, k['name'], str(e))))
-    
-    def _create_acl_access(self):
-        """
-        Setup ACL group access definitions.
-        """
-        for a in self.params.acl.set_access(self.params.acl.keys):
-            try:
-                BOOTSTRAP.OBJECTS.ACL.PERMISSIONS('global').create(
-                    acl = BOOTSTRAP.OBJECTS.ACL.KEYS.get(uuid=a['acl']),
-                    owner = BOOTSTRAP.OBJECTS.GROUP.get(uuid=a['owner']),
-                    allowed = a['allowed']                                               
-                )
-                BOOTSTRAP.FEEDBACK.success('Granted global administrator access for ACL "{0}"'.format(a['acl_name']))
-            except Exception as e:
-                BOOTSTRAP.die(BOOTSTRAP.LOG.exception('Failed to grant global access for ACL "{0}": {1}'.format(a['acl_name'], str(e))))
-    
+         
     def _database_seed(self):
         """
         Seed the database with the base information needed to run Lense.
@@ -267,12 +197,8 @@ class BootstrapEngine(BootstrapCommon):
             lce.save()
             BOOTSTRAP.FEEDBACK.success('[{0}] Set API administrator values'.format(self.ATTRS.CONF))
     
-        # Create API handlers / ACL objects / ACL keys / access entries
+        # Create API handlers
         self._create_handlers()
-        self._create_acl_keys()
-        self._create_handlers_access()
-        self._create_acl_objects()
-        self._create_acl_access()
      
     def _database_user_exists(self):
         """

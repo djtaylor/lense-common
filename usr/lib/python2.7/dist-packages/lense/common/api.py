@@ -17,7 +17,7 @@ class LenseAPIRequestMapper(object):
         method  = LENSE.REQUEST.method
         
         # Get the handler
-        handler = LENSE.ensure(LENSE.OBJECTS.HANDLER.get(path=path, method=method),
+        handler = LENSE.ensure(LENSE.OBJECTS.HANDLER.get_internal(path=path, method=method),
             isnot = None,
             error = 'Could not find handler for: path={0}, method={1}'.format(path, method),
             debug = 'Retrieved handler object for: path={0}, method={1}'.format(path, method),

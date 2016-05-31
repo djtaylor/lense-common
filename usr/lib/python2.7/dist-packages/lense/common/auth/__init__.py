@@ -41,16 +41,6 @@ class AuthInterface(AuthBase):
         self._token  = import_class('AuthAPIToken', 'lense.common.auth.token')
         self._portal = import_class('AuthPortal', 'lense.common.auth.portal')
         
-        # ACL gateway
-        self.ACL     = self.bootstrap_acl()
-        
-    def bootstrap_acl(self):
-        """
-        Bootstrap the ACL backend depending only for the API engine.
-        """
-        if LENSE.PROJECT.name == 'ENGINE':
-            return import_class('AuthACLGateway', 'lense.common.auth.acl', init=False)
-        
     def check_pw_strength(self, passwd):
         """
         Make sure a password meets strength requirements.

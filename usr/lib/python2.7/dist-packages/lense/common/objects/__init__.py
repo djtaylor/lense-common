@@ -121,6 +121,12 @@ class LenseAPIObjects(object):
         # Return the processed object(s)
         return objects
 
+    def as_list(self, objects):
+        """
+        Map any returned objects to a list.
+        """
+        return objects if isinstance(objects, list) else [objects]
+
 class JSONObject(object):
     """
     Class for loading and abstracting access to a JSON object.
