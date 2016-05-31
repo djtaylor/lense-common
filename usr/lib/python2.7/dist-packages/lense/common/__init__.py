@@ -25,7 +25,6 @@ class LenseSetup(object):
         """
         LENSE.REQUEST.set(request)
         LENSE.API.create_logger()
-        LENSE.AUTH.ACL.enable()
         cls.socket()
 
     @classmethod
