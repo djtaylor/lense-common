@@ -27,11 +27,6 @@ class LenseBaseObject(object):
         self.model    = import_class(cls, mod, init=False)
         self.uidf     = getattr(self.model, 'UID_FIELD', self.cls)
 
-        # ACL authorization flag / object dump / object counter
-        self.use_acl  = False
-        self.use_dump = False
-        self.count    = False
-
         # Debug log prefix
         self.logpre   = 'OBJECTS:{0}'.format(self.cls)
 
@@ -40,6 +35,99 @@ class LenseBaseObject(object):
 
         # Permissions model
         self.permissions = import_class('Permissions', 'lense.common.objects.permissions.models', init=False)
+
+    def _count(self, **kwargs):
+        """
+        Find out how many objects would be returned by a query.
+        """
+        return self.model.objects.filter(**kwargs).count()
+    
+    def _process_object(self, obj, ref):
+        """
+        Process a single object appending to the reference object if accessible.
+        
+        :param obj: The object to process
+        :type  obj: object
+        :param ref: The reference object
+        :type  ref: list
+        """
+        object_uuid = LENSE.OBJECTS.getattr(obj, 'uuid')
+        
+        # No UUID
+        if not object_uuid:
+            return ref.append(obj)
+        
+        # Get/set object permissions
+        permissions = [LENSE.OBJECTS.dump(x) for x in list(self.permissions.objects.filter(object_uuid=object_uuid))]
+        setattr(obj, '_permissions', permissions)
+        
+        # Log permissions
+        get_permissions = 'Retrieved permissions: {0}({1}): {2}'.format(self.permissions.__name__, object_uuid, obj._permissions)
+        if object_uuid:
+            self.log(get_permissions, level='debug', method='_process_single')
+            
+        # Confirm access
+        api_user   = LENSE.REQUEST.USER.uuid
+        api_group  = LENSE.REQUEST.USER.group    
+        access_str = 'User({0}::{1}) -> Object({2})'.format(api_user, api_group, object_uuid)
+            
+        # Object has no permissions, must be administrator
+        if not obj._permissions:
+            if api_group == GORUPS.ADMIN.UUID:
+                return ref.append(obj)
+            return None
+            
+        # Scan permissions
+        for pr in obj._permissions:
+            
+            # Owner access
+            if pr['owner'] == api_user:
+                if pr['user_read']:
+                    self.log('User read access granted {0}'.format(access_str), level='debug', method='_process_single')
+                    
+                    # User read access granted
+                    return ref.append(obj)
+                
+            # Group access
+            if pr['group'] == api_group:
+                if pr['group_read']:
+                    self.log('Group read access granted {0}'.format(access_str), level='debug', method='_process_single')
+                    
+                    # Group read access granted 
+                    return ref.append(obj)
+                
+            # Read all access
+            if pr['all_read']:
+                self.log('Read all access granted {0}'.format(access_str), level='debug', method='_process_single')
+                return ref.append(obj)
+            
+        # Access denied
+        self.log('Access denied {0}'.format(access_str), level='debug', method='_process_single')
+        return None
+    
+    def _process(self, objects):
+        """
+        Run a single or list of objects through internal filters.
+        
+        :param objects: A single or list of objects to process
+        :type  objects: list|object
+        :rtype: None|object|list
+        """
+        
+        # Objects references
+        objects_ref = []
+        
+        # Multiple objects
+        if isinstance(objects, list):
+            for obj in objects:
+                self._process_object(obj, objects_ref)
+            
+        # Single object
+        else:
+            self._process_object(objects, objects_ref)
+    
+        # Return an objects
+        return None if not objects_ref else (objects_ref if (len(objects_ref) > 1) else objects_ref[0])
 
     def log(self, msg, level='info', method=None):
         """
@@ -88,12 +176,6 @@ class LenseBaseObject(object):
             return idstr
         except:
             return False
-
-    def _count(self, **kwargs):
-        """
-        Find out how many objects would be returned by a query.
-        """
-        return self.model.objects.filter(**kwargs).count()
 
     def exists(self, **kwargs):
         """
@@ -197,94 +279,7 @@ class LenseBaseObject(object):
         
         # Return the base object handler
         return self
-    
-    def _process_object(self, obj, ref):
-        """
-        Process a single object appending to the reference object if accessible.
         
-        :param obj: The object to process
-        :type  obj: object
-        :param ref: The reference object
-        :type  ref: list
-        """
-        object_uuid = LENSE.OBJECTS.getattr(obj, 'uuid')
-        
-        # No UUID
-        if not object_uuid:
-            return ref.append(obj)
-        
-        # Get/set object permissions
-        permissions = [LENSE.OBJECTS.dump(x) for x in list(self.permissions.objects.filter(object_uuid=object_uuid))]
-        setattr(obj, '_permissions', permissions)
-        
-        # Log permissions
-        get_permissions = 'Retrieved permissions: {0}({1}): {2}'.format(self.permissions.__name__, object_uuid, obj._permissions)
-        if object_uuid:
-            self.log(get_permissions, level='debug', method='_process_single')
-            
-        # Confirm access
-        api_user   = LENSE.REQUEST.USER.uuid
-        api_group  = LENSE.REQUEST.USER.group    
-        access_str = 'User({0}::{1}) -> Object({2})'.format(api_user, api_group, object_uuid)
-            
-        # Object has no permissions, must be administrator
-        if not obj._permissions:
-            if api_group == GORUPS.ADMIN.UUID:
-                return ref.append(obj)
-            return None
-            
-        # Scan permissions
-        for pr in obj._permissions:
-            
-            # Owner access
-            if pr['owner'] == api_user:
-                if pr['user_read']:
-                    self.log('User read access granted {0}'.format(access_str), level='debug', method='_process_single')
-                    
-                    # User read access granted
-                    return ref.append(obj)
-                
-            # Group access
-            if pr['group'] == api_group:
-                if pr['group_read']:
-                    self.log('Group read access granted {0}'.format(access_str), level='debug', method='_process_single')
-                    
-                    # Group read access granted 
-                    return ref.append(obj)
-                
-            # Read all access
-            if pr['all_read']:
-                self.log('Read all access granted {0}'.format(access_str), level='debug', method='_process_single')
-                return ref.append(obj)
-            
-        # Access denied
-        self.log('Access denied {0}'.format(access_str), level='debug', method='_process_single')
-        return None
-    
-    def _process(self, objects):
-        """
-        Run a single or list of objects through internal filters.
-        
-        :param objects: A single or list of objects to process
-        :type  objects: list|object
-        :rtype: None|object|list
-        """
-        
-        # Objects references
-        objects_ref = []
-        
-        # Multiple objects
-        if isinstance(objects, list):
-            for obj in objects:
-                self._process_object(obj, objects_ref)
-            
-        # Single object
-        else:
-            self._process_object(objects, objects_ref)
-    
-        # Return an objects
-        return None if not objects_ref else (objects_ref if (len(objects_ref) > 1) else objects_ref[0])
-    
     def get(self, **kwargs):
         """
         Retrieve a single/multiple/all object models.
