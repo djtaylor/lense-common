@@ -3,6 +3,7 @@ __version__ = '0.1.1'
 # Python Libraries
 import __builtin__
 from sys import path
+from os import environ
 
 # Lense Libraries
 from lense import import_class
@@ -66,7 +67,10 @@ class LenseCommon(LenseBase):
         super(LenseCommon, self).__init__(project)
         
         # Get the project attributes
-        self.PROJECT  = import_class('LenseProject', 'lense.common.project', args=[project])
+        self.PROJECT     = import_class('LenseProject', 'lense.common.project', args=[project])
+        
+        # Are we boostrapping
+        self.bootstrap   = False if not ('BOOTSTRAP' in environ) else True
         
         # Get project attribute
         def pattr(a):

@@ -57,6 +57,11 @@ class LenseBaseObject(object):
         if not object_uuid:
             return ref.append(obj)
         
+        # Disable permissions if bootstrapping
+        if LENSE.bootstrap:
+            self.log('Project is bootstrapping: return all objects', level='debug', method='_process_object')
+            return ref.append(obj)
+        
         # Get/set object permissions
         permissions = [LENSE.OBJECTS.dump(x) for x in list(self.permissions.objects.filter(object_uuid=object_uuid))]
         setattr(obj, '_permissions', permissions)

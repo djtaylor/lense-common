@@ -11,6 +11,11 @@ class ObjectInterface(LenseBaseObject):
         """
         object_uuid   = LENSE.OBJECTS.getattr(obj, 'uuid')
         
+        # Object has no UUID attributes
+        if not object_uuid:
+            self.log('Object has no UUID, skipping permissions...', level='debug', method='create')
+            return
+        
         # Request user/group
         request_user  = LENSE.REQUEST.USER.name
         request_group = LENSE.REQUEST.USER.group
@@ -33,7 +38,7 @@ class ObjectInterface(LenseBaseObject):
         }
         
         # Set permissions
-        self.log('Setting permissions on object "{0}": owner={1}, group={2}'.format(object_uuid, owner, group))
+        self.log('Setting permissions on object "{0}": owner={1}, group={2}'.format(object_uuid, owner, group), level='debug', method='create')
         permissions = self.model(**params)
         permissions.save()
         

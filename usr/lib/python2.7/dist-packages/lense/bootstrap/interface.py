@@ -177,4 +177,9 @@ class Bootstrap(BootstrapCommon):
         """
         Public class method for invoking the bootstrap manager.
         """
+        
+        # Set the bootstrap environment variable
+        environ['BOOTSTRAP'] = '0'
+        
+        # Run the bootstrap manager
         return cls()._run()
