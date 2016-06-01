@@ -22,6 +22,9 @@ class RequestError(EnsureError):
 class ClientError(EnsureError):
     pass
 
+class PermissionsError(Exception):
+    pass
+
 class JSONException(Exception):
     """
     Custom exceptions when encountering JSON object errors.

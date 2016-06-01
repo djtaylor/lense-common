@@ -34,97 +34,15 @@ class LenseBaseObject(object):
         # Selected object
         self.selected = None
 
-        # Permissions model
-        self.permissions = import_class('Permissions', 'lense.common.objects.permissions.models', init=False)
-
     def _count(self, **kwargs):
         """
         Find out how many objects would be returned by a query.
         """
         return self.model.objects.filter(**kwargs).count()
-    
-    def _process_object(self, obj, ref):
+        
+    def _process_read(self, objects):
         """
-        Process a single object appending to the reference object if accessible.
-        
-        :param obj: The object to process
-        :type  obj: object
-        :param ref: The reference object
-        :type  ref: list
-        """
-        object_uuid = LENSE.OBJECTS.getattr(obj, 'uuid')
-        
-        # No UUID
-        if not object_uuid:
-            return ref.append(obj)
-        
-        # Disable permissions if bootstrapping
-        if LENSE.bootstrap:
-            self.log('Project is bootstrapping: return all objects', level='debug', method='_process_object')
-            return ref.append(obj)
-        
-        # Get/set object permissions
-        permissions = [LENSE.OBJECTS.dump(x) for x in list(self.permissions.objects.filter(object_uuid=object_uuid))]
-        setattr(obj, '_permissions', permissions)
-        
-        # Log permissions
-        get_permissions = 'Retrieved permissions: {0}({1}): {2}'.format(self.permissions.__name__, object_uuid, obj._permissions)
-        if object_uuid:
-            self.log(get_permissions, level='debug', method='_process_single')
-            
-        # Confirm access
-        api_user   = LENSE.OBJECTS.USER.get_internal(uuid=LENSE.REQUEST.USER.uuid)
-        api_group  = LENSE.REQUEST.USER.group    
-        access_str = 'User({0}::{1}) -> Object({2})'.format(api_user.uuid, api_group, object_uuid)
-            
-        # Allow a user to retrieve their own entry
-        if api_user.uuid == object_uuid:
-            self.log('Access granted to self {0}'.format(access_str))
-            return ref.append(obj)
-            
-        # Allow a user to retrieve their own groups
-        for group in api_user.groups:
-            if group['uuid'] == object_uuid:
-                self.log('Access granted to self {0}'.format(access_str))
-                return ref.append(obj)
-            
-        # Object has no permissions, must be administrator
-        if not obj._permissions:
-            if api_group == GROUPS.ADMIN.UUID:
-                return ref.append(obj)
-            return None
-            
-        # Scan permissions
-        for pr in obj._permissions:
-            
-            # Owner access
-            if pr['owner'] == api_user.uuid:
-                if pr['user_read']:
-                    self.log('User read access granted {0}'.format(access_str), level='debug', method='_process_single')
-                    
-                    # User read access granted
-                    return ref.append(obj)
-                
-            # Group access
-            if pr['group'] == api_group:
-                if pr['group_read']:
-                    self.log('Group read access granted {0}'.format(access_str), level='debug', method='_process_single')
-                    
-                    # Group read access granted 
-                    return ref.append(obj)
-                
-            # Read all access
-            if pr['all_read']:
-                self.log('Read all access granted {0}'.format(access_str), level='debug', method='_process_single')
-                return ref.append(obj)
-            
-        # Access denied
-        self.log('Access denied {0}'.format(access_str), level='debug', method='_process_single')
-        return None
-    
-    def _process(self, objects):
-        """
-        Run a single or list of objects through internal filters.
+        Process read requests for objects.
         
         :param objects: A single or list of objects to process
         :type  objects: list|object
@@ -137,14 +55,44 @@ class LenseBaseObject(object):
         # Multiple objects
         if isinstance(objects, list):
             for obj in objects:
-                self._process_object(obj, objects_ref)
+                if LENSE.PERMISSIONS.can_read(obj):
+                    objects_ref.append(obj)
             
         # Single object
         else:
-            self._process_object(objects, objects_ref)
+            if LENSE.PERMISSIONS.can_read(objects):
+                objects_ref.append(objects)
     
         # Return an objects
         return None if not objects_ref else (objects_ref if (len(objects_ref) > 1) else objects_ref[0])
+
+    def _process_delete(self, objects):
+        """
+        
+        """
+        
+        # Multiple objects
+        if isinstance(objects, list):
+            for obj in objects:
+                if LENSE.PERMISSIONS.can_delete(obj):
+                    
+                    # Flush permissions
+                    LENSE.OBJECTS.PERMISSIONS.flush(obj)
+                    
+                    # Delete the object
+                    obj.delete()
+                    self.log('Deleted object -> {0}'.format(repr(obj)), level='debug', method='_process_delete')
+            
+        # Single object
+        else:
+            if LENSE.PERMISSIONS.can_delete(objects):
+                
+                # Flush permissions
+                LENSE.OBJECTS.PERMISSIONS.flush(objects)
+                
+                # Delete the object
+                obj.delete()
+                self.log('Deleted object -> {0}'.format(repr(objects)), level='debug', method='_process_delete')
 
     def log(self, msg, level='info', method=None):
         """
@@ -206,7 +154,6 @@ class LenseBaseObject(object):
         """
         Update a selected object object.
         """
-        uid = '{0}={1}'.format(self.uidf, kwargs.get(self.uidf, None))
         
         # No object selected
         if not self.selected:
@@ -217,7 +164,7 @@ class LenseBaseObject(object):
             for k,v in kwargs.iteritems():
                 setattr(self.selected, k, v)
             self.selected.save()
-            self.log('Updated object -> {0}'.format(uid), level='debug', method='update')
+            self.log('Updated object -> {0}'.format(repr(self.selected)), level='debug', method='update')
             
             # Deselect the object
             self.selected = None
@@ -225,7 +172,7 @@ class LenseBaseObject(object):
         
         # Failed to update object
         except Exception as e:
-            self.log('Failed to update object -> {0}: {1}'.format(uid, str(e)), level='exception', method='update')
+            self.log('Failed to update object -> {0}: {1}'.format(repr(self.selected), str(e)), level='exception', method='update')
             
             # Deselect the object
             self.selected = None
@@ -246,8 +193,7 @@ class LenseBaseObject(object):
             # Create/save the object
             obj = self.model(**kwargs)
             obj.save()
-            uid = '{0}={1}'.format(self.uidf, getattr(obj, self.uidf, None))
-            self.log('Created object -> {0}'.format(uid), level='debug', method='create')
+            self.log('Created object -> {0}'.format(repr(obj)), level='debug', method='create')
             
             # Create object permissions
             LENSE.OBJECTS.PERMISSIONS.create(obj, permissions)
@@ -259,34 +205,7 @@ class LenseBaseObject(object):
         except Exception as e:
             self.log('Failed to create object -> {0}'.format(str(e)), level='exception', method='create')
             return False
-    
-    def delete(self, **kwargs):
-        """
-        Delete an object definition.
-        """
-        obj = self.get(**kwargs)
-        uid = '{0}={1}'.format(self.uidf, kwargs.get(self.uidf, None))
-        
-        # Object doesn't exist, cannot delete
-        if not obj:
-            self.log('Cannot delete object -> {0}: Does not exist'.format(uid), level='debug', method='delete')
-            return False
-        
-        try:
-            
-            # Flush permissions
-            LENSE.OBJECTS.PERMISSIONS.flush(obj)
-            
-            # Delete the object
-            obj.delete()
-            self.log('Deleted object -> {0}'.format(uid), level='debug', method='delete')
-            return True
-
-        # Failed to delete the object
-        except Exception as e:
-            self.log('Failed to delete object -> {0}: {1}'.format(uid, str(e)), level='exception', method='delete')
-            return False
-        
+          
     def select(self, **kwargs):
         """
         Select an object before running an update.
@@ -307,56 +226,111 @@ class LenseBaseObject(object):
         # Return the base object handler
         return self
         
-    def get_internal(self, **kwargs):
+    def _get(self, process, **kwargs):
         """
-        Retrieve objects internally, bypassing the processing step.
+        Internal method for retrieving objects from the database.
+        
+        :param process: Whether to process the objects through permissions filters
+        :type  process: bool
         """
         
-        # Total objects that would be retrieved
-        object_count = self._count(**kwargs)
+        # Total objects that would be retrieved / objects retrieved
+        count   = self._count(**kwargs)
+        objects = None
         
         # No objects found
         if object_count == 0:
-            self.log('No objects found: filter={0}'.format(str(kwargs)), level='debug', method='get_internal')
+            self.log('No objects found: filter={0}'.format(str(kwargs)), level='debug', method='_get')
             return None
         
         # Retrieve all objects
         if not kwargs:
-            self.log('Retrieving all objects: count={0}, filter={1}'.format(str(object_count), str(kwargs)), level='debug', method='get_internal')
-            return list(self.model.objects.all())
+            self.log('Retrieving all objects: count={0}, filter={1}'.format(str(count), str(kwargs)), level='debug', method='_get')
+            objects = list(self.model.objects.all())
         
         # Multiple objects found
         if object_count > 1:
-            self.log('Retrieving multiple objects: count={0}, filter={1}'.format(str(object_count), str(kwargs)), level='debug', method='get_internal')
-            return list(self.model.objects.filter(**kwargs))
+            self.log('Retrieving multiple objects: count={0}, filter={1}'.format(str(count), str(kwargs)), level='debug', method='_get')
+            objects = list(self.model.objects.filter(**kwargs))
     
-        # Single object found
-        self.log('Retrieving single object: filter={0}'.format(str(kwargs)), level='debug', method='get_internal')
-        return self.model.objects.get(**kwargs)
+        # Single object
+        if object_count == 1:
+            self.log('Retrieving single object: filter={0}'.format(str(kwargs)), level='debug', method='_get')
+            objects = self.model.objects.get(**kwargs)
+    
+        # Return and optionally process objects
+        return objects if not process else self._process_read(objects)
+
+    def _delete(self, process, **kwargs):
+        """
+        Internal method for deleting objects from the database.
+        
+        :param process: Whether to process the objects through permissions filters
+        :type  process: bool
+        """
+        
+        # Get any available objects
+        objects = self.get(**kwargs) if process else self.get_internal(**kwargs)
+        
+        # No objects retrieved
+        if not objects:
+            self.log('Cannot delete, no objects found: filter={0}'.format(**kwargs), level='_debug', method='_delete')
+            return False
+        
+        # Process delete operation
+        if process:
+            return self._process_delete(objects)
+        
+        # Delete internal
+        else:
+            try:
+                
+                # List of objects
+                if isinstance(objects, list):
+                    for obj in objects:
+                        
+                        # Flush permissions
+                        LENSE.OBJECTS.PERMISSIONS.flush(obj)
+                        
+                        # Delete the object
+                        self.log('Deleting object -> {0}'.format(repr(obj)), level='debug', method='_delete')
+                        obj.delete()
+                    
+                # Single object
+                else:
+                    
+                    # Flush permissions
+                    LENSE.OBJECTS.PERMISSIONS.flush(obj)
+                    
+                    # Delete the object
+                    self.log('Deleting object -> {0}'.format(repr(obj)), level='debug', method='_delete')
+                    obj.delete()
+                
+            # Delete operation(s) failed
+            except Exception as e:
+                self.log('Failed to delete object(s): filter={0}: {1}'.format(str(kwargs), str(e)), level='exception', method='_delete')
+                return False
+        
+    def get_internal(self, **kwargs):
+        """
+        Retrieve objects internally, bypassing the processing step.
+        """
+        return self._get(False, **kwargs)
         
     def get(self, **kwargs):
         """
         Retrieve a single/multiple/all object models.
         """
-        
-        # Total objects that would be retrieved
-        object_count = self._count(**kwargs)
-        
-        # No objects found
-        if object_count == 0:
-            self.log('No objects found: filter={0}'.format(str(kwargs)), level='debug', method='get')
-            return None
-        
-        # Retrieve all objects
-        if not kwargs:
-            self.log('Retrieving all objects: count={0}, filter={1}'.format(str(object_count), str(kwargs)), level='debug', method='get')
-            return self._process(list(self.model.objects.all()))
-        
-        # Multiple objects found
-        if object_count > 1:
-            self.log('Retrieving multiple objects: count={0}, filter={1}'.format(str(object_count), str(kwargs)), level='debug', method='get')
-            return self._process(list(self.model.objects.filter(**kwargs)))
+        return self._get(True, **kwargs)
     
-        # Single object found
-        self.log('Retrieving single object: filter={0}'.format(str(kwargs)), level='debug', method='get')
-        return self._process(self.model.objects.get(**kwargs))
+    def delete_internal(self, **kwargs):
+        """
+        Delete objects and bypass permissions.
+        """
+        return self._delete(False, **kwargs)
+        
+    def delete(self, **kwargs):
+        """
+        Delete objects after performing permissions checks.
+        """
+        return self._delete(True, **kwargs)

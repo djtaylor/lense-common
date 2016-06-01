@@ -25,8 +25,8 @@ class Handlers(Model):
     locked     = NullBooleanField()
     locked_by  = CharField(max_length=64, null=True, blank=True)
     
-    # Unique ID field
-    UID_FIELD = 'uuid'
+    def __repr__(self):
+        return '<{0}({1})>'.format(self.__class__.__name__, self.uuid)
     
     # Custom table metadata
     class Meta:

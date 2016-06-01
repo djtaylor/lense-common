@@ -13,11 +13,12 @@ class APIGroupMembers(Model):
     """
     Database model that stores group membership.
     """
+    uuid      = CharField(max_length=36, unique=True, default=str(uuid4()))
     group     = ForeignKey('group.APIGroups', to_field='uuid', db_column='group')
     member    = ForeignKey('user.APIUser', to_field='uuid', db_column='member')
     
-    # Unique ID field
-    UID_FIELD = 'group'
+    def __repr__(self):
+        return '<{0}({1})>'.format(self.__class__.__name__, self.uuid)
     
     # Custom model metadata
     class Meta:
@@ -32,9 +33,11 @@ class APIGroups(Model):
     desc      = CharField(max_length=128)
     protected = NullBooleanField()
     
-    # Unique ID field / extended fields
-    UID_FIELD = 'uuid'
+    # Extended fields
     EX_FIELDS = ['members']
+    
+    def __repr__(self):
+        return '<{0}({1})>'.format(self.__class__.__name__, self.uuid)
     
     def members_list(self):
         """

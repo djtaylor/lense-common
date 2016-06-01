@@ -21,6 +21,9 @@ class Permissions(Model):
     all_delete   = BooleanField(default=False)
     all_exec     = BooleanField(default=False)
     
+    def __repr__(self):
+        return '<{0}({1})>'.format(self.__class__.__name__, self.object_uuid)
+    
     # Custom model metadata
     class Meta:
         db_table = 'permissions'

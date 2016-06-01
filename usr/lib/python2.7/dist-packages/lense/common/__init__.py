@@ -81,6 +81,7 @@ class LenseCommon(LenseBase):
         """      
         self.REQUEST     = import_class('LenseRequestObject', 'lense.common.request', ensure=pattr('get_request'))
         self.OBJECTS     = import_class('LenseAPIObjects', 'lense.common.objects', ensure=pattr('get_objects'))
+        self.PERMISSIONS = import_class('LensePermissions', 'lense.common.permissions', init=False)
         self.API         = import_class('LenseAPIConstructor', 'lense.common.api', init=False)
         self.URL         = import_class('LenseURLConstructor', 'lense.common.url', init=False)
         self.MODULE      = import_class('LenseModules', 'lense.common.modules', init=False)

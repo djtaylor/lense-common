@@ -11,13 +11,12 @@ class APIUserKeys(Model):
     """
     Main database model for storing user API keys.
     """
-    
-    # User API key table columns
+    uuid = CharField(max_length=36, unique=True, default=str(uuid4()))
     user = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
     key  = CharField(max_length=64, unique=True)
     
-    # Unique ID field
-    UID_FIELD = 'user'
+    def __repr__(self):
+        return '<{0}({1})>'.format(self.__class__.__name__, self.uuid)
     
     # Custom model metadata
     class Meta:
@@ -27,14 +26,13 @@ class APIUserTokens(Model):
     """
     Main database model for storing user API tokens.
     """
-    
-    # User API token table columns
+    uuid    = CharField(max_length=36, unique=True, default=str(uuid4()))
     user    = ForeignKey('user.APIUser', to_field='uuid', db_column='user')
     token   = CharField(max_length=255, unique=True)
     expires = DateTimeField()
     
-    # Unique ID field
-    UID_FIELD = 'user'
+    def __repr__(self):
+        return '<{0}({1})>'.format(self.__class__.__name__, self.uuid)
     
     # Custom model metadata
     class Meta:
@@ -71,8 +69,7 @@ class APIUser(AbstractBaseUser):
         help_text = _('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.')
     )
 
-    # Unique ID field / extended fields
-    UID_FIELD       = 'uuid'
+    # Extended fields
     EX_FIELDS       = ['api_key', 'api_token', 'groups']
 
     # Username field and required fields
@@ -81,6 +78,9 @@ class APIUser(AbstractBaseUser):
 
     # Manager instance
     objects         = UserManager()
+
+    def __repr__(self):
+        return '<{0}({1})>'.format(self.__class__.__name__, self.uuid)
 
     def get_full_name(self):
         """

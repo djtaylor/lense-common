@@ -62,4 +62,3 @@ class ObjectInterface(LenseBaseObject):
         self.log('Setting permissions on object "{0}": owner={1}, group={2}'.format(object_uuid, owner, group), level='debug', method='create')
         permissions = self.model(**params)
         permissions.save()
-        
