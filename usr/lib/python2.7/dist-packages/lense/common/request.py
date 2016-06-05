@@ -136,7 +136,7 @@ class LenseRequestUser(LenseRequestBase):
         self.admin      = self._getattr('is_admin', default=False, session='is_admin', model=True)
         self.active     = self._getattr('is_active', default=False, model=True)
         self.passwd     = self._getattr('password', default=None, post=True)
-        self.room       = self._getattr('room', header=HEADER.API_ROOM,)
+        self.room       = self._getattr('room', header=HEADER.API_ROOM)
         self.uuid       = self._getattr('uuid', default=None, model=True)
     
         # Log user details

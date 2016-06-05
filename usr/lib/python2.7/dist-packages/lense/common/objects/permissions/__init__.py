@@ -18,7 +18,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Delete permissinos
         self.model.objects.filter(object_uuid=object_uuid).delete()
-        self.log('Flushing permissions for <{0}>'.format(object_uuid), level='debug', method='flush')
+        self.log('Flushing permissions for {0}'.format(repr(obj)), level='debug', method='flush')
         
     def create(self, obj, permissions={}):
         """
@@ -59,6 +59,6 @@ class ObjectInterface(LenseBaseObject):
             params[k] = v
         
         # Set permissions
-        self.log('Setting permissions on object "{0}": owner={1}, group={2}'.format(object_uuid, owner, group), level='debug', method='create')
+        self.log('Setting permissions on {0}: owner={1}, group={2}'.format(repr(obj), owner, group), level='debug', method='create')
         permissions = self.model(**params)
         permissions.save()

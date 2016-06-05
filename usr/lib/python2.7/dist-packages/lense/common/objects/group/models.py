@@ -58,7 +58,7 @@ class APIGroups(Model):
         """
         Add a member to the group.
         """
-        APIGroupMembers(group=self, member=m).save()
+        APIGroupMembers(group=self, member=m, uuid=LENSE.uuid4()).save()
     
     def members_unset(self, m):
         """

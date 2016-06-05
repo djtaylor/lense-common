@@ -1,4 +1,5 @@
 import __builtin__
+from uuid import uuid4
 from sys import stderr, exit
 from threading import Thread
 from subprocess import Popen, PIPE
@@ -231,3 +232,9 @@ class LenseBase(object):
         if LENSE and hasattr(LENSE, 'LOG'):
             self.LOG.error(msg)
         exit(code)
+        
+    def uuid4(self):
+        """
+        Generate a UUID4 string.
+        """
+        return str(uuid4())

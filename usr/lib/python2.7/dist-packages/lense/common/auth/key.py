@@ -71,7 +71,7 @@ class AuthAPIKey(AuthBase):
         """
         
         # Get the user object
-        user = self.ensure(LENSE.OBJECTS.USER.get(**LENSE.OBJECTS.USER.map_uuid(user)),
+        user = self.ensure(LENSE.OBJECTS.USER.get_internal(**LENSE.OBJECTS.USER.map_uuid(user)),
             error = 'Could not find user {0}'.format(user),
             debug = 'Found user {0} object'.format(user),
             code  = 404)

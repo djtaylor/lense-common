@@ -96,7 +96,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Email address
         if self.is_email(user):
-            user_obj = LENSE.ensure(LENSE.OBJECTS.USER.get(email=user),
+            user_obj = LENSE.ensure(LENSE.OBJECTS.USER.get_internal(email=user),
                 isnot = None,
                 error = 'User not found for email {0}'.format(user),
                 debug = 'Mapped user email {0} to UUID'.format(user),
@@ -104,7 +104,7 @@ class ObjectInterface(LenseBaseObject):
             return LENSE.OBJECTS.getattr(user_obj, 'uuid')
         
         # Else try username
-        user_obj = LENSE.ensure(LENSE.OBJECTS.USER.get(username=user),
+        user_obj = LENSE.ensure(LENSE.OBJECTS.USER.get_internal(username=user),
             isnot = None,
             error = 'User not found for username {0}'.format(user),
             debug = 'Mapped username {0} to UUID'.format(user),
@@ -133,7 +133,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Does the user have a key entry
         if self.KEY.exists(user=uuid):
-            user = LENSE.ensure(self.KEY.get(user=uuid),
+            user = LENSE.ensure(self.KEY.get_internal(user=uuid),
                 error = 'Could not find user {0} API key'.format(uuid),
                 debug = 'Retrieved user {0} API key object'.format(uuid),
                 code  = 404)
@@ -154,7 +154,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Does the user have a token entry
         if self.TOKEN.exists(user=uuid):
-            user = LENSE.ensure(self.TOKEN.get(user=uuid),
+            user = LENSE.ensure(self.TOKEN.get_internal(user=uuid),
                 error = 'Could not find user {0} API token'.format(uuid),
                 debug = 'Retrieved user {0} API token object'.format(uuid),
                 code  = 404)
@@ -194,7 +194,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Grant a new key
         else:
-            LENSE.ensure(self.KEY.create(user=user, key=key),
+            LENSE.ensure(self.KEY.create(user=user, key=key, uuid=LENSE.uuid4()),
                 error = 'Failed to create user {0} API key'.format(user.uuid),
                 debug = 'Created user {0} API key -> {1}'.format(user.uuid, key),
                 code  = 500)
@@ -231,7 +231,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Grant a new token
         else:
-            LENSE.ensure(self.TOKEN.create(user=user, token=token, expires=expires),
+            LENSE.ensure(self.TOKEN.create(user=user, token=token, expires=expires, uuid=LENSE.uuid4()),
                 error = 'Failed to create user {0} API token'.format(user.uuid),
                 debug = 'Created user {0} API token -> {1}'.format(user.uuid, token),
                 code  = 500)
@@ -250,7 +250,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Is the user a member of any groups
         if LENSE.OBJECTS.GROUP.MEMBERS.exists(member=uuid):
-            for user_group in LENSE.OBJECTS.as_list(LENSE.OBJECTS.GROUP.MEMBERS.get(member=uuid)):
+            for user_group in LENSE.OBJECTS.as_list(LENSE.OBJECTS.GROUP.MEMBERS.get_internal(member=uuid)):
                 groups.append({'uuid': user_group.group.uuid, 'name': user_group.group.name})
         return groups
     
@@ -277,7 +277,7 @@ class ObjectInterface(LenseBaseObject):
         :type  user: str
         :rtype: bool
         """
-        return getattr(self.get(**kwargs), 'is_active', False)
+        return getattr(self.get_internal(**kwargs), 'is_active', False)
     
     def login(self, username, password, redirect='home'):
         """
@@ -295,7 +295,7 @@ class ObjectInterface(LenseBaseObject):
             LENSE.LOG.info('Logged in user: {0}'.format(username))
             
             # Get the user object
-            user = self.get(username=username)
+            user = self.get_internal(username=username)
             
             # Set session variables
             LENSE.REQUEST.SESSION.set('user', username)

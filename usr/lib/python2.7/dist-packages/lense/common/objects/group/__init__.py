@@ -43,24 +43,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Single group object
         return self.extend(group)    
-    
-    def get_permissions(self, group):
-        """
-        Construct an object of a group's permissions.
-        
-        :param  group: The group UUID
-        :type   group: str
-        :rtype: dict|None
-        """
-        if not self.exists(uuid=group):
-            return None
-        
-        # Global / object level permissions
-        return {
-            'global': LENSE.OBJECTS.ACL.PERMISSIONS('global').get(owner=group),
-            'object': LENSE.OBJECTS.ACL.PERMISSIONS('object').get(owner=group)
-        }
-        
+            
     def add_member(self, group, member):
         """
         Add a member to a group.
@@ -76,7 +59,7 @@ class ObjectInterface(LenseBaseObject):
             return False
         
         # Get the group and user objects
-        group = self.get(uuid=group)
+        group = self.get_internal(uuid=group)
         user  = LENSE.OBJECTS.USER.get(uuid=member)
         
         # Add the user to the group
@@ -84,7 +67,7 @@ class ObjectInterface(LenseBaseObject):
             group.members_set(user)
             return True
         except Exception as e:
-            LENSE.LOG.exception('Failed to add user "{0}" to group "{1}": {2}'.format(user.username, group.name))
+            LENSE.LOG.exception('Failed to add user "{0}" to group "{1}": {2}'.format(user.username, group.name, str(e)))
             return False
     
     def remove_member(self, group, member):
@@ -102,7 +85,7 @@ class ObjectInterface(LenseBaseObject):
             return False
     
         # Get the group and user
-        group = self.get(uuid=group)
+        group = self.get_internal(uuid=group)
         user  = LENSE.OBJECTS.USER.get(uuid=member)
     
         # Remove the user from the group
@@ -142,7 +125,7 @@ class ObjectInterface(LenseBaseObject):
             return None
         
         # Get the group
-        group = self.get(uuid=group)
+        group = self.get_internal(uuid=group)
         
         # Return any members
         return group.members_list()

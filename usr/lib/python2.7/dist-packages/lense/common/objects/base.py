@@ -237,25 +237,26 @@ class LenseBaseObject(object):
         # Total objects that would be retrieved / objects retrieved
         count   = self._count(**kwargs)
         objects = None
+        logobj  = 'process={0}, count={1}, filter={2}'.format(str(process), str(count), str(kwargs))
         
         # No objects found
-        if object_count == 0:
+        if count == 0:
             self.log('No objects found: filter={0}'.format(str(kwargs)), level='debug', method='_get')
             return None
         
         # Retrieve all objects
         if not kwargs:
-            self.log('Retrieving all objects: count={0}, filter={1}'.format(str(count), str(kwargs)), level='debug', method='_get')
+            self.log('Retrieving all objects: {0}'.format(logobj), level='debug', method='_get')
             objects = list(self.model.objects.all())
         
         # Multiple objects found
-        if object_count > 1:
-            self.log('Retrieving multiple objects: count={0}, filter={1}'.format(str(count), str(kwargs)), level='debug', method='_get')
+        if count > 1:
+            self.log('Retrieving multiple objects: {0}'.format(logobj), level='debug', method='_get')
             objects = list(self.model.objects.filter(**kwargs))
     
         # Single object
-        if object_count == 1:
-            self.log('Retrieving single object: filter={0}'.format(str(kwargs)), level='debug', method='_get')
+        if count == 1:
+            self.log('Retrieving single object: {0}'.format(logobj), level='debug', method='_get')
             objects = self.model.objects.get(**kwargs)
     
         # Return and optionally process objects

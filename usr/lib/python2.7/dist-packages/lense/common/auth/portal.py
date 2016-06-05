@@ -11,7 +11,7 @@ class AuthPortal(object):
         auth = import_class('authenticate', 'django.contrib.auth', init=False)
  
         # Get the user object
-        user_object = LENSE.AUTH.ensure(LENSE.OBJECTS.USER.get(username=user),
+        user_object = LENSE.AUTH.ensure(LENSE.OBJECTS.USER.get_internal(username=user),
             isnot = None,
             error = 'Could authenticate user "{0}": not found'.format(user),
             debug = 'User "{0}" discovered, proceeded with authentication'.format(user),

@@ -31,7 +31,7 @@ class LensePermissions(object):
         
         # Validate access type
         if not access_type in FLAGS:
-            cls.log('Invalid access type: {0}'.format(access_type), level='error', method='_check_access')
+            cls.log('Invalid access type: {0}'.format(access_type), level='error', method=log_method)
             return False
         
         # Object UUID
@@ -57,16 +57,17 @@ class LensePermissions(object):
                 MODEL.__name__, 
                 object_uuid, 
                 obj._permissions
-            ), level='debug', method='_check_access')
+            ), level='debug', method=log_method)
             
         # Confirm access
         api_user   = LENSE.OBJECTS.USER.get_internal(uuid=LENSE.REQUEST.USER.uuid)
-        api_group  = LENSE.REQUEST.USER.group    
-        access_str = 'User({0}::{1}):{2}:Object({3})'.format(api_user.uuid, api_group, access_type, object_uuid)
+        api_group  = LENSE.REQUEST.USER.group
+        access_str = 'User({0}::{1}):{2}:Object({3})'.format(getattr(api_user, 'uuid', 'anonymous'), api_group, access_type, object_uuid)
         
         # Administrative access
         if GROUPS.ADMIN.UUID in [x['uuid'] for x in api_user.groups]:
-            
+            cls.log('Administrative access granted {0}'.format(access_str), level='debug', method=log_method)
+            return True
         
         # Read/write access to self (user)
         if object_uuid == api_user.uuid:
