@@ -1,6 +1,7 @@
 from importlib import import_module
 
 # Lense Libraries
+from lense import import_class
 from lense.common.objects.base import LenseBaseObject
 
 class ObjectInterface(LenseBaseObject):
@@ -27,3 +28,18 @@ class ObjectInterface(LenseBaseObject):
             return False
         except Exception as e:
             return False
+        
+    def createManifest(self, handler, manifest):
+        """
+        Create the handler manifest.
+        """
+        if not self.exists(uuid=handler):
+            self.log('Cannot create manifest for handler {0}, not found'.format(handler))
+            return False
+        
+        # Get the handler
+        handler = LENSE.OBJECTS.HANDLER.get_internal(uuid=handler)
+        
+        # Save the manifest
+        model   = import_class('HandlerManifests', 'lense.common.objects.handler.models', init=False)
+        model(handler=handler, manifest=manifest).save()

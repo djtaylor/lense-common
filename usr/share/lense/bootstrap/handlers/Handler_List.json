@@ -7,7 +7,5 @@
     "mod": "lense.engine.api.handlers.handler",
     "protected": true,
     "enabled": true,
-    "object": "handler",
-    "object_key": "uuid",
     "allow_anon": true
 }

@@ -7,6 +7,4 @@
     "mod": "lense.engine.api.handlers.stats",
     "protected": true,
     "enabled": true,
-    "object": null,
-    "object_key": null
 }

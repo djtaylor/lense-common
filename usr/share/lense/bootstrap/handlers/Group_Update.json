@@ -7,6 +7,4 @@
     "mod": "lense.engine.api.handlers.group",
     "protected": true,
     "enabled": true,
-    "object": "group",
-    "object_key": "uuid"
 }

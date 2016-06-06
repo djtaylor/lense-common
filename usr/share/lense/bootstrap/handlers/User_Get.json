@@ -7,6 +7,5 @@
     "mod": "lense.engine.api.handlers.user",
     "protected": true,
     "enabled": true,
-    "object": "user",
-    "object_key": "uuid"
+    "use_manifest": true
 }
