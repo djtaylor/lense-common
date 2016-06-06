@@ -1,4 +1,4 @@
-from os import listdir
+from os import listdir, path
 from json import loads as json_loads
 
 # Lense Libraries
@@ -166,11 +166,13 @@ class EngineParams(object):
         
         # Start to load the handlers
         for h in listdir(handler_core):
-            handler = json_loads(open('{0}/{1}'.format(handler_core, h), 'r').read())
+            handler  = json_loads(open('{0}/{1}'.format(handler_core, h), 'r').read())
+            manifest = '{0}/{1}'.format(handler_manifest, h) 
             
             # If using new style manifests
-            if handler.get('use_manifest', False):
-                handler['manifest'] = json_loads(open('{0}/{1}'.format(handler_manifest, h), 'r').read())
+            if path.isfile(manifest):
+                handler['use_manifest'] = True
+                handler['manifest']     = json_loads(open(manifest, 'r').read())
                             
             # Store the handler
             handlers.append(handler)

@@ -25,12 +25,14 @@ class LenseAPIRequestMapper(object):
     
         # Construct the request map object
         return {
-            'module': handler.mod,
-            'class':  handler.cls,
-            'path':   handler.path,
-            'desc':   handler.desc,
-            'method': handler.method,
-            'anon':   handler.allow_anon
+            'module':       handler.mod,
+            'class':        handler.cls,
+            'path':         handler.path,
+            'desc':         handler.desc,
+            'method':       handler.method,
+            'anon':         handler.allow_anon,
+            'use_manifest': handler.use_manifest,
+            'uuid':         handler.uuid
         }
 
 class LenseAPIConstructor(object):

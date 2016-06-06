@@ -6,6 +6,5 @@
     "desc": "Get API user details",
     "mod": "lense.engine.api.handlers.user",
     "protected": true,
-    "enabled": true,
-    "use_manifest": true
+    "enabled": true
 }

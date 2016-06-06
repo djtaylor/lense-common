@@ -1,3 +1,4 @@
+from json import loads
 from importlib import import_module
 
 # Lense Libraries
@@ -7,6 +8,9 @@ from lense.common.objects.base import LenseBaseObject
 class ObjectInterface(LenseBaseObject):
     def __init__(self):
         super(ObjectInterface, self).__init__('lense.common.objects.handler.models', 'Handlers')
+    
+        # Manifests model
+        self.manifest = import_class('HandlerManifests', 'lense.common.objects.handler.models', init=False)
     
     def check_object(self, mod, cls):
         """
@@ -29,6 +33,12 @@ class ObjectInterface(LenseBaseObject):
         except Exception as e:
             return False
         
+    def getManifest(self, handler):
+        """
+        Return a handler's manifest contents.
+        """
+        return loads(self.manifest.objects.get(handler=handler).json)
+    
     def createManifest(self, handler, manifest):
         """
         Create the handler manifest.
@@ -41,5 +51,4 @@ class ObjectInterface(LenseBaseObject):
         handler = LENSE.OBJECTS.HANDLER.get_internal(uuid=handler)
         
         # Save the manifest
-        model   = import_class('HandlerManifests', 'lense.common.objects.handler.models', init=False)
-        model(handler=handler, manifest=manifest).save()
+        self.manifest(handler=handler, json=manifest).save()

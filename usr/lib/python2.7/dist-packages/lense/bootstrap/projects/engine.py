@@ -154,6 +154,10 @@ class BootstrapEngine(BootstrapCommon):
                 'use_manifest': _handler.get('use_manifest', False)
             }
             
+            # If using a manifest
+            if 'manifest' in _handler:
+                data['manifest'] = _handler['manifest']
+            
             # Create the request handler
             handler = self.launch_handler(path='handler', data=data, method=HTTP_POST)
             BOOTSTRAP.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(_handler['name'], _handler['path'], _handler['method']))
