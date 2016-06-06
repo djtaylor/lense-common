@@ -1,0 +1,12 @@
+{
+    "cls": "User_Get_Manifest",
+    "name": "user_get_manifest",
+    "path": "user_manifest",
+    "method": "GET",
+    "desc": "Get API user details via manifest",
+    "mod": "lense.engine.api.handlers.user",
+    "protected": true,
+    "enabled": true,
+    "object": "user",
+    "object_key": "uuid"
+}
