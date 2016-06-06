@@ -6,5 +6,5 @@
     "desc": "Get API request statistics",
     "mod": "lense.engine.api.handlers.stats",
     "protected": true,
-    "enabled": true,
+    "enabled": true
 }

@@ -6,5 +6,5 @@
     "desc": "Get a listing of API handlers",
     "mod": "lense.engine.api.handlers.handler",
     "protected": true,
-    "enabled": true,
+    "enabled": true
 }

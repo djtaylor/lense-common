@@ -6,5 +6,5 @@
     "desc": "Delete an existing API user",
     "mod": "lense.engine.api.handlers.user",
     "protected": true,
-    "enabled": true,
+    "enabled": true
 }

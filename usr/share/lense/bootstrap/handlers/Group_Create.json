@@ -6,5 +6,5 @@
     "desc": "Create a new API group",
     "mod": "lense.engine.api.handlers.group",
     "protected": true,
-    "enabled": true,
+    "enabled": true
 }

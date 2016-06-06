@@ -6,5 +6,5 @@
     "desc": "Enable a user account",
     "mod": "lense.engine.api.handlers.user",
     "protected": true,
-    "enabled": true,
+    "enabled": true
 }

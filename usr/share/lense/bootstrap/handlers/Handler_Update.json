@@ -6,5 +6,5 @@
     "desc": "Save changes to an API handler",
     "mod": "lense.engine.api.handlers.handler",
     "protected": true,
-    "enabled": true,
+    "enabled": true
 }

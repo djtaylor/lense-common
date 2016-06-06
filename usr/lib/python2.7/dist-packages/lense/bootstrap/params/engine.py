@@ -158,19 +158,19 @@ class EngineParams(object):
         """
         Load handler seed data.
         """
-        paths = {
-            'base':     '{0}/handlers'.format(SHARE.BOOTSTRAP),
-            'manifest': '{0}/manifests'.format(SHARE.BOOTSTRAP)
-        }
+        handler_core = '{0}/handlers'.format(SHARE.BOOTSTRAP)
+        handler_manifest = '{0}/manifests'.format(SHARE.BOOTSTRAP)
+        
+        # Store handlers
         handlers = []
         
         # Start to load the handlers
-        for h in listdir(paths['base']):
-            handler = json_loads(open('{0}/{1}'.format(paths['base'], h), 'r').read())
+        for h in listdir(handler_core):
+            handler = json_loads(open('{0}/{1}'.format(handler_core, h), 'r').read())
             
             # If using new style manifests
             if handler.get('use_manifest', False):
-                handler['manifest'] = json_loads(open('{0}/{1}'.format(paths['manifest'], h), 'r').read())
+                handler['manifest'] = json_loads(open('{0}/{1}'.format(handler_manifest, h), 'r').read())
                             
             # Store the handler
             handlers.append()

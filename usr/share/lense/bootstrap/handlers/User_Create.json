@@ -6,5 +6,5 @@
     "desc": "Create a new API user",
     "mod": "lense.engine.api.handlers.user",
     "protected": true,
-    "enabled": true,
+    "enabled": true
 }

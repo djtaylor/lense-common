@@ -1,4 +1,3 @@
-from json import loads
 from os import path, makedirs
 from MySQLdb import connect as mysql_connect
 
@@ -68,13 +67,7 @@ class BootstrapEngine(BootstrapCommon):
         # Added key
         BOOTSTRAP.FEEDBACK.success('Added database encryption key')
         return True
-    
-    def _get_handler_manifest(self, cls):
-        """
-        Load a local handler manifest file.
-        """
         
-    
     def _database_encryption(self):
         """
         Bootstrap the database encryption keys.
@@ -160,10 +153,6 @@ class BootstrapEngine(BootstrapCommon):
                 'allow_anon': _handler.get('allow_anon', False),
                 'use_manifest': _handler.get('use_manifest', False)
             }
-            
-            # If using a manifest
-            if data['use_manifest']:
-                data['manifest'] = self._get_handler_manifest(_handler['cls'])
             
             # Create the request handler
             handler = self.launch_handler(path='handler', data=data, method=HTTP_POST)
