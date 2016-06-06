@@ -173,5 +173,5 @@ class EngineParams(object):
                 handler['manifest'] = json_loads(open('{0}/{1}'.format(handler_manifest, h), 'r').read())
                             
             # Store the handler
-            handlers.append()
+            handlers.append(handler)
         return handlers
