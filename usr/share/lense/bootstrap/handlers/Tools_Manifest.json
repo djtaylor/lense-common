@@ -1,0 +1,10 @@
+{
+    "cls": "Tools_Manifest",
+    "name": "tools_manifest",
+    "path": "tools/manifest",
+    "method": "PUT",
+    "desc": "Tools for managing request handler manifests.",
+    "mod": "tools",
+    "protected": true,
+    "enabled": true
+}
