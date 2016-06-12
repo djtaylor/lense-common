@@ -103,6 +103,25 @@ class LenseAPIObjects(object):
             return obj.get(key, None)
         return getattr(obj, key, None)
 
+    def walkattr(self, obj, keys):
+        """
+        Recursively walk through and object to retrieve a nested attribute.
+        
+        :param  obj: The object to walk through
+        :type   obj: mixed
+        :param keys: A list of keys to use
+        :type  keys:
+        """
+        refval = obj
+        for k in keys:
+            refval = self.getattr(obj, key)
+        return refval
+
+    def hasattr(self, obj, key):
+        if isinstance(obj, dict):
+            return True if key in obj else False
+        return True if hasattr(obj, key) else False
+
     def as_list(self, objects):
         """
         Map any returned objects to a list.
