@@ -1,0 +1,16 @@
+[
+    {
+        "__PARAMS__": {
+            "uuid": [true, null]
+        }
+    },
+    {
+        "do#enableUser": {
+            "call": "LENSE.OBJECTS.USER.enable",
+            "args": ["#__DATA__.uuid"]
+        }   
+    },
+    {
+        "response": "#__DATA__"
+    }
+]

@@ -22,6 +22,13 @@ class RequestError(EnsureError):
 class ClientError(EnsureError):
     pass
 
+class ManifestError(EnsureError):
+    def __init__(self, msg):
+        super(ManifestError, self).__init__(msg, code=400)
+
+class SecurityError(EnsureError):
+    pass
+
 class PermissionsError(Exception):
     pass
 

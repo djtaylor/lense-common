@@ -102,6 +102,9 @@ class LenseRequestSession(LenseRequestBase):
         # Log the session attributes
         self.log('Loading session "{0}" data: {1}'.format(self.id, dict(session)), level='debug', method='__init__')
         
+    def __repr__(self):
+        return '<LenseRequestSession({0})>'.format(self.id)
+        
     def set(self, key, value):
         """
         Set a new session value or update an existing one
@@ -147,6 +150,9 @@ class LenseRequestUser(LenseRequestBase):
             self.admin,
             self.active
         ), level='debug', method='__init__')
+    
+    def __repr__(self):
+        return '<LenseRequestUser({0})>'.format(self.uuid)
     
     def _getmodel(self):
         """

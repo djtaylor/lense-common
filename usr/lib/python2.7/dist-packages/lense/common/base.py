@@ -1,4 +1,6 @@
 import __builtin__
+import string
+import random
 from uuid import uuid4
 from sys import stderr, exit
 from threading import Thread
@@ -15,6 +17,8 @@ class LenseBase(object):
         self.CONF        = import_class('parse', 'lense.common.config', args=[project])
         self.JSON        = import_class('JSONObject', 'lense.common.objects')
         self.FEEDBACK    = import_class('Feedback', 'feedback')
+        self.USERS       = import_class('USERS', 'lense.common.vars', init=False)
+        self.GROUPS      = import_class('GROUPS', 'lense.common.vars', init=False)
         
         # Generic storage
         self._storage = {}
@@ -238,3 +242,15 @@ class LenseBase(object):
         Generate a UUID4 string.
         """
         return str(uuid4())
+    
+    def rstring(self, length=12):
+        """
+        Helper method used to generate a random string.
+        """
+        return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(length)])
+    
+    def truncate(string, length=75):
+        """
+        Return a truncated string.
+        """
+        return (string[:int(length)] + '...') if len(string) > int(length) else string

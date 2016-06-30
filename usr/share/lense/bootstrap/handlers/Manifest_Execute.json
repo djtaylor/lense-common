@@ -1,0 +1,10 @@
+{
+    "cls": "Manifest_Execute",
+    "name": "manifest_execute",
+    "path": "manifest/execute",
+    "method": "PUT",
+    "desc": "Execute a request handler manifest.",
+    "mod": "lense.engine.api.handlers.manifest",
+    "protected": true,
+    "enabled": true
+}

@@ -1,0 +1,11 @@
+[
+    {
+        "var#retrievedUsers": {
+            "call": "LENSE.OBJECTS.USER.get",
+            "kwargs": "#__DATA__"
+        }  
+    },
+    {
+        "response": "#retrievedUsers"
+    }
+]

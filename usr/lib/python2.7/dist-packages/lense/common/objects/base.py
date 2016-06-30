@@ -91,7 +91,7 @@ class LenseBaseObject(object):
                 LENSE.OBJECTS.PERMISSIONS.flush(objects)
                 
                 # Delete the object
-                obj.delete()
+                objects.delete()
                 self.log('Deleted object -> {0}'.format(repr(objects)), level='debug', method='_process_delete')
 
     def log(self, msg, level='info', method=None):

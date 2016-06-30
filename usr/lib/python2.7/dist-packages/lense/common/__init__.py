@@ -81,6 +81,7 @@ class LenseCommon(LenseBase):
         """      
         self.REQUEST     = import_class('LenseRequestObject', 'lense.common.request', ensure=pattr('get_request'))
         self.OBJECTS     = import_class('LenseAPIObjects', 'lense.common.objects', ensure=pattr('get_objects'))
+        self.SECURITY    = import_class('LenseSecurity', 'lense.common.security')
         self.PERMISSIONS = import_class('LensePermissions', 'lense.common.permissions', init=False)
         self.API         = import_class('LenseAPIConstructor', 'lense.common.api', init=False)
         self.URL         = import_class('LenseURLConstructor', 'lense.common.url', init=False)
@@ -89,9 +90,11 @@ class LenseCommon(LenseBase):
         self.HTTP        = import_class('LenseHTTP', 'lense.common.http', init=False)
         self.MAIL        = import_class('LenseAPIEmail', 'lense.common.mailer', init=False)
         self.SETUP       = import_class('LenseSetup', 'lense.common', init=False)
+        self.MANIFEST    = import_class('LenseManifest', 'lense.common.manifest', init=False)
         self.CLIENT      = None
         self.SOCKET      = None
         self.PORTAL      = None
+        self.ENGINE      = None
         self.AUTH        = None
         
         # Initialize logs

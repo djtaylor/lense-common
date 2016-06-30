@@ -1,0 +1,42 @@
+[
+    {
+        "__PARAMS__": {
+            "uuid": [true, null]
+        }
+    },
+    {
+        "do#ensureNotAdmin": {
+            "call": "LENSE.REQUEST.ensure",
+            "args": ["#__DATA__.uuid"],
+            "kwargs": {
+                "isnot": "LENSE.USERS.ADMIN.UUID",
+                "code": 400,
+                "error": "Cannot delete the default administrator account!"
+            }
+        }  
+    },
+    {
+        "do#ensureUser": {
+            "call": "LENSE.OBJECTS.USER.exists",
+            "kwargs": {
+                "uuid": "#__DATA__.uuid"
+            },
+            "ensure": {
+                "value": 1,
+                "code": 400,
+                "error": "Cannot delete user, not found!"
+            }
+        }  
+    },
+    {
+        "do#deleteUser": {
+            "call": "LENSE.OBJECTS.USER.delete",
+            "kwargs": {
+                "uuid": "#__DATA__.uuid"
+            }
+        }  
+    },
+    {
+        "response": "#__DATA__"
+    }
+]

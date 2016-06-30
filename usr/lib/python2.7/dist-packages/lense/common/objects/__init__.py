@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import json
+from six import string_types, integer_types
 
 # Django Libraries
 from django.db.models.fields.related import ManyToManyField
@@ -28,6 +29,18 @@ class LenseAPIObjects(object):
         """
         if isinstance(instance, dict):
             return instance
+        
+        # Not a Django model
+        if not hasattr(instance, '_meta'):
+            ref = instance.__dict__
+            for k,v in ref.iteritems():
+                try:
+                    ref[k] = json.loads(json.dumps(v))
+                
+                # Serialize top level then store the representation if not JSON friendly
+                except:
+                    ref[k] = repr(v)
+            return ref
         
         # Return object
         opts = instance._meta
@@ -114,7 +127,7 @@ class LenseAPIObjects(object):
         """
         refval = obj
         for k in keys:
-            refval = self.getattr(obj, key)
+            refval = self.getattr(obj, k)
         return refval
 
     def hasattr(self, obj, key):

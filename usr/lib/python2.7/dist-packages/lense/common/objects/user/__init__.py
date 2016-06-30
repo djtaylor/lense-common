@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import timedelta
 
 # Django Libraries
@@ -414,4 +415,134 @@ class ObjectInterface(LenseBaseObject):
                 
         # User authenticated
         self.authenticated = True
+        return True
+    
+    def create(self, **kwargs):
+        """
+        Wrapper for creating a new user object and setting required secondary objects.
+        """
+        
+        # Unique attributes
+        for key in ['username', 'uuid']:
+            LENSE.ensure(self.exists(**{key: kwargs[key]}),
+                value = False,
+                code  = 400,
+                error = 'Cannot create user, duplicate entry for key {0}'.format(key))
+            
+        # Password strength
+        LENSE.ensure(LENSE.AUTH.check_pw_strength(kwargs['password']),
+            error = 'Password does not meet strength requirements',
+            debug = 'Password strength for user "{0}" OK'.format(kwargs['username']),
+            code  = 400)
+        
+        # Target group
+        group = LENSE.ensure(LENSE.OBJECTS.GROUP.get(uuid=kwargs['group']),
+            isnot = None,
+            error = 'Could not locate group object {0}'.format(kwargs['group']),
+            debug = 'Group object {0} exists, retrieved object'.format(kwargs['group']),
+            code  = 404)
+        
+        # New user parameters
+        params = copy(kwargs)
+        
+        # Remove extra attributes
+        for attr in ['group']:
+            del params[attr]
+            
+        # Create the user account
+        user = LENSE.ensure(super(ObjectInterface, self).create(**params),
+            isnot = False,
+            error = 'Failed to create user account: username={0}, email={1}'.format(params['username'], params['email']),
+            log   = 'Created user account: username={0}, email={1}'.format(params['username'], params['email']),
+            code  = 500)
+        
+        # Store the user password hash
+        user.set_password(params['password'])
+        user.save()
+        
+        # Grant the user an API key
+        LENSE.ensure(self.grant_key(user),
+            isnot = False,
+            error = 'Failed to grant API key to new user "{0}"'.format(user.username),
+            code  = 500)
+        
+        # Grant the user an API token
+        LENSE.ensure(self.grant_token(user),
+            isnot = False,
+            error = 'Failed to grant API token to new user "{0}"'.format(user.username),
+            code  = 500)
+        
+        # Add the user to the group
+        LENSE.ensure(LENSE.OBJECTS.GROUP.add_member(group.uuid, user.uuid),
+            error = 'Failed to add user {0} to group {1}'.format(user.uuid, group.uuid),
+            log   = 'Added user {0} to group {1}'.format(user.uuid, group.uuid),
+            code  = 500)
+        
+        # Return the new user object
+        return self.get(uuid=user.uuid)
+    
+    def enable(self, uuid):
+        """
+        Enable a user account.
+        """
+        
+        # User must exist
+        user = LENSE.ensure(LENSE.OBJECTS.USER.get(uuid=uuid), 
+            isnot = None, 
+            error = 'Could not find user: {0}'.format(uuid),
+            debug = 'User {0} exists, retrieved object'.format(uuid),
+            code  = 404)
+        
+        # User already enabled
+        LENSE.ensure(user.is_active,
+            isnot = True,
+            code  = 400,
+            error = 'User account {0} already enabled'.format(uuid))
+        
+        # Cannot enable/disable the default administrator
+        LENSE.ensure(uuid,
+            isnot = LENSE.USERS.ADMIN.UUID,
+            error = 'Cannot enable/disable the default administrator account',
+            code  = 400)
+        
+        # Enable the user account
+        LENSE.ensure(LENSE.OBJECTS.USER.select(**{'uuid': uuid}).update(uuid=uuid, is_active=True), 
+            error = 'Failed to enable user account {0}'.format(uuid),
+            log   = 'Enabled user account {0}'.format(uuid),
+            code  = 500)
+        
+        # OK
+        return True
+    
+    def disable(self, uuid):
+        """
+        Disable a user account.
+        """
+        
+        # User must exist
+        user = LENSE.ensure(LENSE.OBJECTS.USER.get(uuid=uuid), 
+            isnot = None, 
+            error = 'Could not find user: {0}'.format(uuid),
+            debug = 'User {0} exists, retrieved object'.format(uuid),
+            code  = 404)
+        
+        # User already disabled
+        LENSE.ensure(user.is_active,
+            isnot = False,
+            code  = 400,
+            error = 'User account {0} already disabled'.format(uuid))
+        
+        # Cannot enable/disable the default administrator
+        LENSE.ensure(uuid,
+            isnot = LENSE.USERS.ADMIN.UUID,
+            error = 'Cannot enable/disable the default administrator account',
+            code  = 400)
+        
+        # Enable the user account
+        LENSE.ensure(LENSE.OBJECTS.USER.select(**{'uuid': uuid}).update(uuid=uuid, is_active=False), 
+            error = 'Failed to disable user account {0}'.format(uuid),
+            log   = 'Disabled user account {0}'.format(uuid),
+            code  = 500)
+        
+        # OK
         return True

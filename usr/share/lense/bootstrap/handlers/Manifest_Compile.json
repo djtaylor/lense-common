@@ -1,0 +1,10 @@
+{
+    "cls": "Manifest_Compile",
+    "name": "manifest_compile",
+    "path": "manifest/compile",
+    "method": "PUT",
+    "desc": "Compile a request handler manifest.",
+    "mod": "lense.engine.api.handlers.manifest",
+    "protected": true,
+    "enabled": true
+}

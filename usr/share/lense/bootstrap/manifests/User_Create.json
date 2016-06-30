@@ -1,0 +1,23 @@
+[
+    {
+        "__PARAMS__": {
+            "username": [true, null],
+            "email": [true, null],
+            "group": [true, null],
+            "password": [false, "LENSE.rstring"],
+            "uuid": [false, "LENSE.uuid4"],
+            "first_name": [false, null],
+            "last_name": [false, null],
+            "from_ldap": [false, false]
+        }
+    },
+    {
+        "var#user": {
+            "call": "LENSE.OBJECTS.USER.create",
+            "kwargs": "#__DATA__"
+        }  
+    },
+    {
+        "response": "#user"
+    }
+]
