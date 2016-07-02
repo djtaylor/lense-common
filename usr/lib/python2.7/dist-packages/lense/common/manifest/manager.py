@@ -1,4 +1,5 @@
 import re
+import json
 from inspect import isclass
 from six import string_types, integer_types
 
@@ -131,9 +132,9 @@ class ManifestManager(object):
             if attrs[1] == None:
                 continue
     
-            # Second attribute can be either a string or a dictionary
-            if not isinstance(attrs[1], (string_types, dict)):
-                raise ManifestError('Second list attribute for parameter {0} must be a string or dictionary value, or null for no default'.format(param))
+            # Second attribute validation
+            if not isinstance(attrs[1], (string_types, dict, integer_types, bool)):
+                raise ManifestError('Second list attribute for parameter {0} must be a string/integer/bool/dictionary, or null for no default'.format(param))
     
         # Store parameter customization as a variable
         LENSE.MANIFEST.COMPILED.define_params(params)
@@ -201,6 +202,12 @@ class ManifestManager(object):
         :type  dump: bool
         :rtype: dict
         """
+        
+        try:
+            LENSE.NAMESPACE.generate()
+            LENSE.LOG.info('GENERATED_NAMESPACE: {0}'.format(json.dumps(LENSE.NAMESPACE)))
+        except Exception as e:
+            LENSE.LOG.exception('Failed to generate namespace: {0}'.format(str(e)))
         
         # Must be a list of definitions
         if not isinstance(LENSE.MANIFEST.json, list):

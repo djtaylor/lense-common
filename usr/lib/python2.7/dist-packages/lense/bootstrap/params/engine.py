@@ -171,8 +171,8 @@ class EngineParams(object):
             
             # If using new style manifests
             if path.isfile(manifest):
-                handler['use_manifest'] = True
-                handler['manifest']     = json_loads(open(manifest, 'r').read())
+                handler['backend']  = 'manifest'
+                handler['manifest'] = json_loads(open(manifest, 'r').read())
                             
             # Store the handler
             handlers.append(handler)

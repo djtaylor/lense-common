@@ -1,0 +1,19 @@
+[
+    {
+        "__PARAMS__": {
+            "name": [true, null],
+            "uuid": [false, "LENSE.uuid4"],
+            "protected": [false, false],
+            "desc": [false, null]
+        }
+    },
+    {
+        "var#group": {
+            "call": "LENSE.OBJECTS.GROUP.create",
+            "kwargs": "#__DATA__"
+        }
+    },
+    {
+        "response": "#group"
+    }
+]

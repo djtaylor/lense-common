@@ -129,3 +129,25 @@ class ObjectInterface(LenseBaseObject):
         
         # Return any members
         return group.members_list()
+    
+    def create(self, **kwargs):
+        """
+        Create a new user group.
+        """
+        
+        # Unique attributes
+        for key in ['name', 'uuid']:
+            LENSE.ensure(self.exists(**{key: kwargs[key]}),
+                value = False,
+                code  = 400,
+                error = 'Cannot create group, duplicate entry for key {0}'.format(key))
+            
+        # Create the group
+        group = LENSE.ensure(super(ObjectInterface, self).create(**kwargs),
+            isnot = False,
+            error = 'Failed to create group: {0}'.format(kwargs['uuid']),
+            log   = 'Created group: {0}'.format(kwargs['uuid']),
+            code  = 500)
+        
+        # Return the new group object
+        return self.get(uuid=group.uuid)

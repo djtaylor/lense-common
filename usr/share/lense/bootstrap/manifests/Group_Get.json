@@ -1,0 +1,11 @@
+[
+    {
+        "var#groups": {
+            "call": "LENSE.OBJECTS.GROUP.get",
+            "kwargs": "#__DATA__"
+        }
+    },
+    {
+        "response": "#groups"
+    }
+]

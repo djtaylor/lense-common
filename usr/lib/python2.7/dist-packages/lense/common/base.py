@@ -19,6 +19,7 @@ class LenseBase(object):
         self.FEEDBACK    = import_class('Feedback', 'feedback')
         self.USERS       = import_class('USERS', 'lense.common.vars', init=False)
         self.GROUPS      = import_class('GROUPS', 'lense.common.vars', init=False)
+        self.NAMESPACE   = import_class('LenseNamespace', 'lense.common.namespace', init=False)
         
         # Generic storage
         self._storage = {}

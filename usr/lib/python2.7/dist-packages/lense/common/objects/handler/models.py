@@ -22,7 +22,7 @@ class Handlers(Model):
     allow_anon   = NullBooleanField()
     locked       = NullBooleanField()
     locked_by    = CharField(max_length=64, null=True, blank=True)
-    use_manifest = BooleanField(default=False)
+    backend      = CharField(max_length=16, default='python')
     
     def __repr__(self):
         return '<{0}({1})>'.format(self.__class__.__name__, self.uuid)

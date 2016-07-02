@@ -34,12 +34,6 @@ class LenseManifest(object):
         # Return the mapped path
         return mapped
 
-    def execCommon(self, path, args=[], kwargs={}):
-        """
-        Execute a Lense commons mapping.
-        """
-        return self.mapCommon(path)(*args, **kwargs)
-
     def mapReference(self, key):
         """
         Map a variable reference.
@@ -78,61 +72,90 @@ class LenseManifest(object):
         # Return the value
         return refval
 
+    def execCommon(self, path, args=[], kwargs={}):
+        """
+        Execute a Lense commons mapping.
+        """
+        return self.mapCommon(path)(*args, **kwargs)
+
+    def execReference(self, path, args=[], kwargs={}):
+        """
+        Execute an internal reference mapping.
+        """
+        return self.mapReference(path[1:])(*args, **kwargs)
+
+    def mapInner(self, walk):
+        """
+        Abstract method for mapping both args and kwargs objects.
+        """
+        
+        # Mapping is iterable
+        if isinstance(walk, (list, dict)):
+            for k,v in (enumerate(walk) if isinstance(walk, list) else walk.iteritems()):
+                
+                # Boolean value
+                if isinstance(v, bool) or v is None:
+                    walk[k] = v
+                    
+                # Number value
+                elif isinstance(v, integer_types):
+                    walk[k] = v
+                    
+                # Nested keyword arguments
+                elif isinstance(v, dict):
+                    
+                    # Method mapping
+                    if 'call' in v:
+                        exec_method = self.execCommon if v['call'].startswith('LENSE') else self.execReference
+                        exec_method(v['call'], v.get('args', []), v.get('kwargs', {}))
+                    else:
+                        walk[k] = self.mapInner(v)
+                        
+                # Nested arguments
+                elif isinstance(v, list):
+                    walk[k] = self.mapInner(v)
+                
+                # Reference
+                else:
+                    
+                    # Internal reference
+                    if v.startswith('#'):
+                        walk[k] = self.mapReference(v[1:])
+                        
+                    # Commons reference
+                    if v.startswith('LENSE'):
+                        walk[k] = self.mapCommon(v)
+            
+            # Return mapped arguments
+            return walk
+        
+        # Map reference
+        elif walk.startswith('#'):
+            return self.mapReference(walk[1:])
+        
+        # Map arguments
+        elif walk.startswith('*'):
+            return self.mapCommon(walk[1:])
+        
+        # Map keyword arguments
+        elif walk.startswith('**'):
+            return self.mapCommon(walk[2:])
+        
+        # Unsupported mapping
+        else:
+            raise ManifestError('Cannot parse arguments: {0}'.format(str(walk)))
+
     def mapArgs(self, args):
         """
         Map required arguments for compiled variables.
         """
-        if isinstance(args, list):
-            for k,v in enumerate(args):
-                if isinstance(v, bool) or v is None:
-                    args[k] = v
-                elif isinstance(v, integer_types):
-                    args[k] = v
-                elif isinstance(v, dict):
-                    if 'call' in v:
-                        args[k] = self.execCommon(v['call'], v.get('args', []), v.get('kwargs', {}))
-                    else:
-                        args[k] = self.mapKwargs(v)
-                elif isinstance(v, list):
-                    args[k] = self.mapArgs(v)
-                else:
-                    if v.startswith('#'):
-                        args[k] = self.mapReference(v[1:])
-                    if v.startswith('LENSE'):
-                        args[k] = self.mapCommon(v)
-            return args
-        elif args.startswith('#'):
-            return self.mapReference(args[1:])
-        elif args.startswith('*'):
-            return self.mapCommon(args[1:])
+        return self.mapInner(args)
 
     def mapKwargs(self, kwargs):
         """
         Map keyword arguments for compiled variables.
         """
-        if isinstance(kwargs, dict):
-            for k,v in kwargs.iteritems():
-                if isinstance(v, bool) or v is None:
-                    kwargs[k] = v
-                elif isinstance(v, integer_types):
-                    kwargs[k] = v
-                elif isinstance(v, dict):
-                    if 'call' in v:
-                        kwargs[k] = self.execCommon(v['call'], v.get('args', []), v.get('kwargs', {}))
-                    else:
-                        kwargs[k] = self.mapKwargs(v)
-                elif isinstance(v, list):
-                    kwargs[k] = self.mapArgs(v)    
-                else:
-                    if v.startswith('#'):
-                        kwargs[k] = self.mapReference(v[1:])
-                    if v.startswith('LENSE'):
-                        kwargs[k] = self.mapCommon(v)
-            return kwargs
-        elif kwargs.startswith('#'):
-            return self.mapReference(kwargs[1:])
-        elif kwargs.startswith('**'):
-            return self.mapCommon(kwargs[2:])
+        return self.mapInner(kwargs)
         
     @classmethod
     def setup(cls, manifest):

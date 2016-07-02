@@ -74,7 +74,10 @@ class _CompiledObject(object):
             
             # Call a method
             if self.attrs.get('call', False):
-                self.value = LENSE.MANIFEST.execCommon(self.attrs['call'], LENSE.MANIFEST.mapArgs(self.attrs.get('args', [])), LENSE.MANIFEST.mapKwargs(self.attrs.get('kwargs', {})))
+                exec_method = 'execCommon' if self.attrs['call'].startswith('LENSE') else 'execReference'
+            
+                # Run the action
+                self.value  = getattr(LENSE.MANIFEST, exec_method)(self.attrs['call'], LENSE.MANIFEST.mapArgs(self.attrs.get('args', [])), LENSE.MANIFEST.mapKwargs(self.attrs.get('kwargs', {})))
         
                 # Ensure a value
                 if self.attrs.get('ensure', False):
@@ -86,7 +89,10 @@ class _CompiledObject(object):
         
         # Action
         if self.type == 'action':
-            self.value = LENSE.MANIFEST.execCommon(self.attrs['call'], LENSE.MANIFEST.mapArgs(self.attrs.get('args', [])), LENSE.MANIFEST.mapKwargs(self.attrs.get('kwargs', {})))
+            exec_method = 'execCommon' if self.attrs['call'].startswith('LENSE') else 'execReference'
+            
+            # Run the action
+            self.value  = getattr(LENSE.MANIFEST, exec_method)(self.attrs['call'], LENSE.MANIFEST.mapArgs(self.attrs.get('args', [])), LENSE.MANIFEST.mapKwargs(self.attrs.get('kwargs', {})))
         
             # Ensure a value
             if self.attrs.get('ensure', False):
