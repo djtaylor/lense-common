@@ -1,3 +1,4 @@
+from copy import copy
 from json import loads
 from importlib import import_module
 
@@ -32,23 +33,95 @@ class ObjectInterface(LenseBaseObject):
             return False
         except Exception as e:
             return False
+    
+    def extend(self, handler):
+        """
+        Construct extended handler attributes.
         
-    def getManifest(self, handler):
+        :param user: The handler object to extend
+        :type  user: APIHandler
+        :rtype: APIHandler
+        """
+        uuid = LENSE.OBJECTS.getattr(handler, 'uuid')
+        
+        # Extend the handler object
+        for k,v in {
+            'manifest': self.get_manifest(uuid)
+        }.iteritems():
+            self.log('Extending handler {0} attributes -> {1}={2}'.format(uuid,k,v), level='debug', method='extend')
+            LENSE.OBJECTS.setattr(handler, k, v)
+        return handler
+    
+    def get_manifest(self, handler):
         """
         Return a handler's manifest contents.
         """
-        return loads(self.manifest.objects.get(handler=handler).json)
+        try:
+            return loads(self.manifest.objects.get(handler=handler).json)
+        except:
+            return None
     
-    def createManifest(self, handler, manifest):
+    def create_manifest(self, handler, manifest):
         """
         Create the handler manifest.
         """
-        if not self.exists(uuid=handler):
-            self.log('Cannot create manifest for handler {0}, not found'.format(handler))
-            return False
-        
-        # Get the handler
-        handler = LENSE.OBJECTS.HANDLER.get_internal(uuid=handler)
+        LENSE.ensure(isinstance(handler, self.model),
+            value = True,
+            code  = 400,
+            error = 'Must be an instance of Handlers, not: {0}'.format(type(handler)))
         
         # Save the manifest
         self.manifest(handler=handler, json=manifest).save()
+    
+    def get(self, **kwargs):
+        """
+        Retrieve handler object(s)
+        """
+        handler = super(ObjectInterface, self).get(**kwargs)
+        
+        # No handler found
+        if not handler:
+            return None
+        
+        # Multiple handler objects
+        if isinstance(handler, list):
+            for h in handler:
+                self.extend(h)
+            return handler
+        
+        # Single handler object
+        return self.extend(handler)
+    
+    def create(self, **kwargs):
+        """
+        Create a new handler object.
+        """
+        
+        # Generate a UUID
+        uuid = kwargs.get('uuid', LENSE.uuid4())
+        kwargs['uuid'] = uuid
+        
+        # Store the manifest
+        manifest = copy(kwargs.get('manifest', None))
+        del kwargs['manifest']
+
+        # Multiple handlers cannot use the same path/method
+        LENSE.ensure(self.exists(path=kwargs['path'], method=kwargs['method']),
+            value = False,
+            code  = 400,
+            error = 'Cannot create duplication handler for: {0}@{1}'.format(kwargs['method'], kwargs['path']))
+        
+        # Cannot duplicate UUID
+        LENSE.ensure(self.exists(uuid=uuid),
+            value = False,
+            code  = 400,
+            error = 'Cannot create duplicate handler for: {0}'.format(uuid))
+        
+        # Create the handler
+        handler = super(ObjectInterface, self).create(**kwargs)
+        
+        # Create an associated manifest
+        self.create_manifest(handler, manifest)
+        
+        # Get and return the new handler object
+        return self.get(uuid=uuid)

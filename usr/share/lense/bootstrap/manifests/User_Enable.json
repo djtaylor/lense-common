@@ -11,6 +11,9 @@
         }   
     },
     {
-        "response": "#__DATA__"
+        "response": {
+            "data": "#__DATA__",
+            "message": "Enabled user"
+        }
     }
 ]

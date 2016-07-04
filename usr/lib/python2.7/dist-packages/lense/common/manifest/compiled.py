@@ -64,8 +64,8 @@ class _CompiledObject(object):
         # Variable
         if self.type == 'var':
             
-            # Static value
-            if self.attrs.get('static', False):
+            # Static value (allow empty lists and dictionaries)
+            if self.attrs.get('static', False) != False:
                 self.value = self.attrs['static']
             
             # Reference another variable

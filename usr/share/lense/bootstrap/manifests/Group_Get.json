@@ -6,6 +6,9 @@
         }
     },
     {
-        "response": "#groups"
+        "response": {
+            "data": "#groups",
+            "message": "Retrieved group(s)"
+        }
     }
 ]

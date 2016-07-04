@@ -18,6 +18,9 @@
         }  
     },
     {
-        "response": "#user"
+        "response": {
+            "data": "#user",
+            "message": "Created user"
+        }
     }
 ]

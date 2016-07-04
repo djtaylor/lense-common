@@ -14,6 +14,9 @@
         }
     },
     {
-        "response": "#group"
+        "response": {
+            "data": "#group",
+            "message": "Created group"
+        }
     }
 ]

@@ -6,6 +6,9 @@
         }  
     },
     {
-        "response": "#retrievedUsers"
+        "response": {
+            "data": "#retrievedUsers",
+            "message": "Retrieved user(s)"
+        }
     }
 ]

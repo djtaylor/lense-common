@@ -3,11 +3,12 @@ from MySQLdb import connect as mysql_connect
 
 # Lense Libraries
 from lense.common.utils import rstring
-from lense.common.http import HTTP_POST
+from lense.common.http import HTTP_POST, HTTP_GET
 from lense.common.vars import USERS, GROUPS
 from lense.bootstrap.params import EngineParams
 from lense.common.config import LenseConfigEditor
 from lense.bootstrap.common import BootstrapCommon
+from lense.common.request import LenseWSGIRequest
 
 class BootstrapEngine(BootstrapCommon):
     """
@@ -22,6 +23,9 @@ class BootstrapEngine(BootstrapCommon):
         
         # Database connection
         self._connection = None
+        
+        # Setup the request data
+        LENSE.REQUEST.set(LenseWSGIRequest.get(path='bootstrap', data={}, method=HTTP_GET))
         
     def _try_mysql_root(self):
         """
@@ -93,77 +97,65 @@ class BootstrapEngine(BootstrapCommon):
         """
         Create the default administrator group.
         """
-        for _group in self.params.groups:
-            data = {
-                'uuid': _group['uuid'],
-                'name': _group['name'],
-                'desc': _group['desc'],
-                'protected': _group['protected']
-            }
-    
-            # Launch the request handler
-            self.launch_handler(path='group', data=data, method=HTTP_POST)
-            BOOTSTRAP.FEEDBACK.success('Created Lense group: {0}'.format(data['name']))
+        for group in self.params.groups:
+            group_object = LENSE.OBJECTS.GROUP.create(**{
+                'uuid': group['uuid'],
+                'name': group['name'],
+                'desc': group['desc'],
+                'protected': group['protected']                                          
+            })
+            BOOTSTRAP.FEEDBACK.success('Created Lense group: {0}'.format(group_object.name))
     
     def _create_users(self):
         """
         Create the default administrator user account.
         """
-        _users = []
+        users = []
         for user in self.params.users:
-            _keys = user.get('_keys')
+            keys = user.get('_keys')
             
-            # User password
-            password = self.params.input.response.get(_keys['password'], rstring(12))
-            
-            # User data
-            data = {
-                'uuid': user['uuid'],
-                'username': user['username'],
-                'email': self.params.input.response.get(_keys['email'], user['email']),
-                'password': password,
-                'password_confirm': password,
-                'group': user['group']
-            }
+            # User password / email
+            password = self.params.input.response.get(keys['password'], rstring(12))
+            email    = self.params.input.response.get(keys['email'], user['email'])
             
             # Create a new user object
-            user_rsp = self.launch_handler(path='user', data=data, method=HTTP_POST)
-            BOOTSTRAP.FEEDBACK.success('Created Lense account: {0}'.format(data['username']))
+            user_object = LENSE.OBJECTS.USER.create(**{
+                'uuid': user['uuid'],
+                'username': user['username'],
+                'email': email,
+                'password': password,
+                'group': user['group']
+            })
+            BOOTSTRAP.FEEDBACK.success('Created Lense account: {0}'.format(user_object.username))
     
             # Append to the users object
-            _users.append(user_rsp)
+            users.append(LENSE.OBJECTS.dump(user_object))
             
         # Return the users object
-        return _users
+        return users
     
     def _create_handlers(self):
         """
         Create API handler entries.
         """
-        for _handler in self.params.handlers:
-            data = {
-                'path': _handler['path'],
-                'name': _handler['name'],
-                'desc': _handler['desc'],
-                'method': _handler['method'],
-                'mod': _handler['mod'],
-                'cls': _handler['cls'],
-                'protected': _handler['protected'],
-                'enabled': _handler['enabled'],
-                'allow_anon': _handler.get('allow_anon', False),
-                'use_manifest': _handler.get('use_manifest', False)
-            }
-            
-            # If using a manifest
-            if 'manifest' in _handler:
-                data['manifest'] = _handler['manifest']
-            
-            # Create the request handler
-            handler = self.launch_handler(path='handler', data=data, method=HTTP_POST)
-            BOOTSTRAP.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(_handler['name'], _handler['path'], _handler['method']))
+        for handler in self.params.handlers:
+            handler_object = LENSE.OBJECTS.HANDLER.create(**{
+                'path': handler['path'],
+                'name': handler['name'],
+                'desc': handler['desc'],
+                'method': handler['method'],
+                'mod': handler['mod'],
+                'cls': handler['cls'],
+                'protected': handler['protected'],
+                'enabled': handler['enabled'],
+                'allow_anon': handler.get('allow_anon', False),
+                'backend': 'manifest' if handler.get('manifest', False) else 'python',
+                'manifest': handler.get('manifest', None)                                         
+            })
+            BOOTSTRAP.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(handler['name'], handler['path'], handler['method']))
     
             # Store the handler UUID
-            _handler['uuid'] = handler['uuid']
+            handler['uuid'] = handler_object.uuid
          
     def _database_seed(self):
         """

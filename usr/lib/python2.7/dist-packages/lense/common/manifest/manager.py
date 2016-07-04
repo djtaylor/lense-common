@@ -29,20 +29,25 @@ class ManifestManager(object):
             msg
         ))
     
-    def _compileResponse(self, data={}):
+    def _compileResponse(self, response={}):
         """
         Compile a response object.
         
-        :param data: Any response data
-        :type  data: dict
+        :param response: Any response data
+        :type  response: dict
         """
+        
+        # Data key required
+        if not 'data' in response:
+            raise ManifestError('Response object must have a "data" key')
         
         # Log the response compile process
         self.log('Compiling response', level='info', method='_compileResponse')
 
         # Store the compiled response
         LENSE.MANIFEST.COMPILED.appendResponse({
-            'data': data
+            'data': response['data'],
+            'message': response.get('message', 'OK')
         })
         
     def _compileAction(self, key, mapping):
@@ -202,12 +207,6 @@ class ManifestManager(object):
         :type  dump: bool
         :rtype: dict
         """
-        
-        try:
-            LENSE.NAMESPACE.generate()
-            LENSE.LOG.info('GENERATED_NAMESPACE: {0}'.format(json.dumps(LENSE.NAMESPACE)))
-        except Exception as e:
-            LENSE.LOG.exception('Failed to generate namespace: {0}'.format(str(e)))
         
         # Must be a list of definitions
         if not isinstance(LENSE.MANIFEST.json, list):
