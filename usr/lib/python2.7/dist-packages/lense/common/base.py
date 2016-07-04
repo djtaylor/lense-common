@@ -1,6 +1,7 @@
 import __builtin__
 import string
 import random
+from copy import copy
 from uuid import uuid4
 from sys import stderr, exit
 from threading import Thread
@@ -243,6 +244,40 @@ class LenseBase(object):
         Generate a UUID4 string.
         """
         return str(uuid4())
+    
+    def copy(self, item):
+        """
+        Copy an item.
+        """
+        return copy(item)
+    
+    def extract(self, item, key, **kwargs):
+        """
+        Extract a key from an item and delete the original.
+        """
+        if key in item:
+            
+            # Copy the item key
+            retrieved = copy(item[key])
+            
+            # Delete the key from the source object
+            if kwargs.get('delete', True):
+                del item[key]
+            
+            # Return the retrieved value
+            return retrieved
+        
+        # Key not found
+        else:
+            
+            # Default must be provided if key is not present
+            self.ensure(kwargs.get('default', False),
+                isnot = False,
+                error = 'Cannot extract key "{0}", not found and no default provided'.format(key),
+                code  = 500)
+            
+            # Return the default value
+            return kwargs['default']
     
     def rstring(self, length=12):
         """

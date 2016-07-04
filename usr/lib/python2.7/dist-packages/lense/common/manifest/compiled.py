@@ -104,7 +104,7 @@ class _CompiledObject(object):
         
         # Response
         if self.type == 'response':
-            self.value = LENSE.MANIFEST.mapKwargs(self.attrs.get('data', {}))
+            self.value = LENSE.MANIFEST.mapKwargs(self.attrs)
 
         # Update the execution state flag
         self.state = 'executed'

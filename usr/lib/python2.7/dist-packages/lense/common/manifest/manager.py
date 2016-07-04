@@ -42,7 +42,7 @@ class ManifestManager(object):
             raise ManifestError('Response object must have a "data" key')
         
         # Log the response compile process
-        self.log('Compiling response', level='info', method='_compileResponse')
+        self.log('Compiling response: {0}'.format(response), level='info', method='_compileResponse')
 
         # Store the compiled response
         LENSE.MANIFEST.COMPILED.appendResponse({

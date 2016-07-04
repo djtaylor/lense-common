@@ -1,0 +1,19 @@
+[
+    {
+        "__PARAMS__": {
+            "uuid": [true, null]
+        }
+    },
+    {
+        "var#updateUser": {
+            "call": "LENSE.OBJECTS.USER.update",
+            "kwargs": "#__DATA__"
+        }  
+    },
+    {
+        "response": {
+            "data": "#updateUser",
+            "message": "Updated user"
+        }
+    }
+]

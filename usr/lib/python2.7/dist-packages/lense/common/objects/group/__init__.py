@@ -151,3 +151,50 @@ class ObjectInterface(LenseBaseObject):
         
         # Return the new group object
         return self.get(uuid=group.uuid)
+    
+    def delete(self, **kwargs):
+        """
+        Delete an existing user group.
+        """
+
+        # Get the group
+        group = LENSE.ensure(self.get(uuid=kwargs['uuid']),
+            error = 'Could not locate group object {0}'.format(kwargs['uuid']),
+            debug = 'Group object {0} exists, retrieved object'.format(kwargs['uuid']),
+            code  = 404)
+
+        # Make sure the group isn't protected
+        LENSE.ensure(group.protected, 
+            value = False,
+            error = 'Cannot deleted protected group {0}'.format(group.uuid),
+            code  = 400)
+
+        # Make sure the group has no members
+        LENSE.ensure(self.get_members(group.uuid),
+            value = [],
+            error = 'Cannot delete group {0}, still has members'.format(group.uuid),
+            code  = 400)
+
+        # Delete the group
+        LENSE.ensure(super(ObjectInterface, self).delete(uuid=group.uuid),
+            error = 'Failed to delete group {0}'.format(group.uuid),
+            log   = 'Deleted group {0}'.format(group.uuid),      
+            code  = 500)
+    
+    def update(self, **kwargs):
+        """
+        Update a group object.
+        """
+        uuid = LENSE.extract(kwargs, 'uuid')
+        
+        # Get the group
+        group = LENSE.ensure(super(ObjectInterface, self).get(uuid=uuid),
+            isnot = None,
+            error = 'Could not find group',
+            code  = 404)
+        
+        # Update the group
+        super(ObjectInterface, self).update(group, **kwargs)
+        
+        # Get and return the updated group
+        return self.get(uuid=uuid)

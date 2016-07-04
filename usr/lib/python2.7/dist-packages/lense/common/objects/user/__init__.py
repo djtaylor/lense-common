@@ -546,3 +546,46 @@ class ObjectInterface(LenseBaseObject):
         
         # OK
         return True
+    
+    def delete(self, **kwargs):
+        """
+        Delete a user object.
+        """
+        uuid = LENSE.extract(kwargs, 'uuid')
+        
+        # Look for the user
+        user = LENSE.ensure(self.get(uuid=uuid), 
+            isnot = None, 
+            error = 'Could not find user: {0}'.format(uuid),
+            debug = 'User {0} exists, retrieved object'.format(uuid),
+            code  = 404)
+        
+        # Cannot delete the default administrator
+        LENSE.ensure(user.uuid,
+            isnot = LENSE.USERS.ADMIN.UUID,
+            error = 'Cannot delete the default administrator account',
+            code  = 400)
+        
+        # Delete the account
+        LENSE.ensure(super(ObjectInterface, self).delete(uuid=user.uuid),
+            error = 'Failed to delete user {0}'.format(user.uuid),
+            log   = 'Deleted user account {0}'.format(user.uuid),
+            code  = 500)
+    
+    def update(self, **kwargs):
+        """
+        Update a user object.
+        """
+        uuid = LENSE.extract(kwargs, 'uuid')
+        
+        # Get the user
+        user = LENSE.ensure(super(ObjectInterface, self).get(uuid=uuid),
+            isnot = None,
+            error = 'Could not find user',
+            code  = 404)
+        
+        # Update the user
+        super(ObjectInterface, self).update(user, **kwargs)
+        
+        # Get and return the updated user
+        return self.get(uuid=uuid)

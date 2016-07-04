@@ -1,0 +1,38 @@
+[
+    {
+        "__PARAMS__": {
+            "uuid": [true, null]
+        }
+    },
+    {
+        "var#user": {
+            "call": "LENSE.OBJECTS.USER.get",
+            "kwargs": {
+                "uuid": "#__DATA__.uuid"
+            },
+            "ensure": {
+                "isnot": null,
+                "code": 400,
+                "error": "Cannot find user account!"
+            }
+        }
+    },
+    {
+        "var#resetKey": {
+            "call": "LENSE.OBJECTS.USER.grant_key",
+            "args": ["#user"],
+            "kwargs": {
+                "overwrite": true
+            }
+        }
+    },
+    {
+        "response": {
+            "data": {
+                "uuid": "#__DATA__.uuid",
+                "key": "#resetKey"
+            },
+            "message": "Reset user key"
+        }
+    }
+]

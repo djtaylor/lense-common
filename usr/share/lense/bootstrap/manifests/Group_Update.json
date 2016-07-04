@@ -1,0 +1,22 @@
+[
+    {
+        "__PARAMS__": {
+            "uuid": [true, null],
+            "name": [false, null],
+            "protected": [false, false],
+            "desc": [false, null]
+        }
+    },
+    {
+        "var#updateGroup": {
+            "call": "LENSE.OBJECTS.GROUP.update",
+            "kwargs": "#__DATA__"
+        }
+    },
+    {
+        "response": {
+            "data": "#updateGroup",
+            "message": "Updated group"
+        }
+    }
+]

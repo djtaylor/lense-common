@@ -1,4 +1,3 @@
-from copy import copy
 from json import loads
 from importlib import import_module
 
@@ -97,13 +96,9 @@ class ObjectInterface(LenseBaseObject):
         Create a new handler object.
         """
         
-        # Generate a UUID
-        uuid = kwargs.get('uuid', LENSE.uuid4())
-        kwargs['uuid'] = uuid
-        
-        # Store the manifest
-        manifest = copy(kwargs.get('manifest', None))
-        del kwargs['manifest']
+        # UUID / manifest
+        uuid     = LENSE.extract(kwargs, 'uuid', delete=False, default=LENSE.uuid4())
+        manifest = LENSE.extract(kwargs, 'manifest', default=None)
 
         # Multiple handlers cannot use the same path/method
         LENSE.ensure(self.exists(path=kwargs['path'], method=kwargs['method']),

@@ -1,0 +1,10 @@
+{
+    "cls": "User_ResetKey",
+    "name": "user_resetkey",
+    "path": "user/keyreset",
+    "method": "PUT",
+    "desc": "Reset a user's API key",
+    "mod": "lense.engine.api.handlers.user",
+    "protected": true,
+    "enabled": true
+}

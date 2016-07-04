@@ -150,32 +150,22 @@ class LenseBaseObject(object):
         self.log('Found {0} object(s) -> filter={1}'.format(str(count), str(kwargs)), level='debug', method='exists')
         return count
     
-    def update(self, **kwargs):
+    def update(self, obj, **kwargs):
         """
         Update a selected object object.
         """
         
-        # No object selected
-        if not self.selected:
-            self.log('Cannot perform update, no object(s) selected')
-        
         # Update the object
         try:
             for k,v in kwargs.iteritems():
-                setattr(self.selected, k, v)
-            self.selected.save()
-            self.log('Updated object -> {0}'.format(repr(self.selected)), level='debug', method='update')
-            
-            # Deselect the object
-            self.selected = None
+                setattr(obj, k, v)
+            obj.save()
+            self.log('Updated object -> {0}'.format(repr(obj)), level='debug', method='update')
             return True
         
         # Failed to update object
         except Exception as e:
-            self.log('Failed to update object -> {0}: {1}'.format(repr(self.selected), str(e)), level='exception', method='update')
-            
-            # Deselect the object
-            self.selected = None
+            self.log('Failed to update object -> {0}: {1}'.format(repr(obj), str(e)), level='exception', method='update')
             return False
     
     def create(self, **kwargs):
@@ -205,27 +195,7 @@ class LenseBaseObject(object):
         except Exception as e:
             self.log('Failed to create object -> {0}'.format(str(e)), level='exception', method='create')
             return False
-          
-    def select(self, **kwargs):
-        """
-        Select an object before running an update.
-        """
-        self.selected = self.get(**kwargs)
-        
-        # No object found
-        if not self.selected:
-            raise RequestError(self.log('Could not locate object <{0}>: filter={1}'.format(self.cls, kwargs)), code=404)
-        
-        # Cannot select multiple objects
-        if isinstance(self.selected, list):
-            raise RequestError(self.log('Selection of multiple <{0}> objects not supported: found={1}'.format(self.cls, str(len(self.selected)))))
-        
-        # Log object selected
-        self.log('Selected object <{0}>: {1}'.format(self.cls, ', '.join(['{0}={1}'.format(k,v) for k,v in kwargs.iteritems()])))
-        
-        # Return the base object handler
-        return self
-        
+                  
     def _get(self, process, **kwargs):
         """
         Internal method for retrieving objects from the database.
