@@ -276,6 +276,10 @@ class LenseBase(object):
                 error = 'Cannot extract key "{0}", not found and no default provided'.format(key),
                 code  = 500)
             
+            # If storing the default value in the source object
+            if kwargs.get('store', False):
+                item[key] = kwargs['default']
+            
             # Return the default value
             return kwargs['default']
     

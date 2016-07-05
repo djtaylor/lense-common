@@ -56,8 +56,11 @@ class ObjectInterface(LenseBaseObject):
         Return a handler's manifest contents.
         """
         try:
-            return loads(self.manifest.objects.get(handler=handler).json)
+            manifest = loads(self.manifest.objects.get(handler=handler).json)
+            self.log('Retrieved manifest for handler: {0}'.format(handler), level='info', method='get_manifest')
+            return manifest
         except:
+            self.log('Handler has no manifest: {0}'.format(handler.uuid), level='info', method='get_manifest')
             return None
     
     def create_manifest(self, handler, manifest):
@@ -71,6 +74,7 @@ class ObjectInterface(LenseBaseObject):
         
         # Save the manifest
         self.manifest(handler=handler, json=manifest).save()
+        self.log('Created manifest for handler: {0}'.format(handler.uuid), level='info', method='create_manifest')
     
     def update_manifest(self, handler, manifest):
         """
@@ -85,6 +89,7 @@ class ObjectInterface(LenseBaseObject):
         manifest_object = self.manifest(handler=handler.uuid)
         manifest_object.json = manifest
         manifest_object.save()
+        self.log('Updated manifest for handler: {0}'.format(handler.uuid), level='info', method='update_manifest')
     
     def open(self, **kwargs):
         """
@@ -163,7 +168,7 @@ class ObjectInterface(LenseBaseObject):
         """
         
         # UUID / manifest
-        uuid     = LENSE.extract(kwargs, 'uuid', delete=False, default=LENSE.uuid4())
+        uuid     = LENSE.extract(kwargs, 'uuid', delete=False, default=LENSE.uuid4(), store=True)
         manifest = LENSE.extract(kwargs, 'manifest', default=None)
 
         # Multiple handlers cannot use the same path/method
@@ -185,7 +190,7 @@ class ObjectInterface(LenseBaseObject):
         self.create_manifest(handler, manifest)
         
         # Get and return the new handler object
-        return self.get(uuid=uuid)
+        return self.get(uuid=handler.uuid)
     
     def update(self, **kwargs):
         """
@@ -248,15 +253,15 @@ class ObjectInterface(LenseBaseObject):
         """
         Method for doing an unprivileged list of handlers.
         """
-        handlers = []
+        handlers = {}
         
         # Construct available handlers
         for h in self.get_internal():
-            handlers.append({
+            handlers[h.name] = {
                 'uuid': h.uuid,
                 'path': h.path,
                 'method': h.method,
                 'name': h.name,
-                'desc': h.desc
-            })
+                'desc': h.desc              
+            }
         return handlers

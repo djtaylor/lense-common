@@ -9,7 +9,7 @@
         "response": {
             "data": {
                 "uuid": "#__DATA__.uuid"
-            ,
+            },
             "message": "Closed handler"
         }
     }

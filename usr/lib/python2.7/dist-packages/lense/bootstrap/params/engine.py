@@ -166,13 +166,32 @@ class EngineParams(object):
         
         # Start to load the handlers
         for h in listdir(handler_core):
-            handler  = json_loads(open('{0}/{1}'.format(handler_core, h), 'r').read())
-            manifest = '{0}/{1}'.format(handler_manifest, h) 
+            handler_file  = '{0}/{1}'.format(handler_core, h)
+            manifest_file = '{0}/{1}'.format(handler_manifest, h)
+            
+            # Make sure the handler definition is valid JSON
+            try:
+                handler  = json_loads(open(handler_file, 'r').read())
+            except Exception as e:
+                handler_error = 'Failed to parse handler "{0}": {1}'.format(handler_file, str(e))
+                
+                # Log and print the error
+                BOOTSTRAP.LOG.exception(handler_error)
+                BOOTSTRAP.die(handler_error)
             
             # If using new style manifests
-            if path.isfile(manifest):
+            if path.isfile(manifest_file):
                 handler['backend']  = 'manifest'
-                handler['manifest'] = json_loads(open(manifest, 'r').read())
+                
+                # Make sure handler JSON is valid
+                try:
+                    handler['manifest'] = json_loads(open(manifest_file, 'r').read())
+                except Exception as e:
+                    manifest_error = 'Failed to parse manifest "{0}": {1}'.format(manifest_file, str(e))
+                    
+                    # Log and print the error
+                    BOOTSTRAP.LOG.exception(manifest_error)
+                    BOOTSTRAP.die(manifest_error)
                             
             # Store the handler
             handlers.append(handler)
