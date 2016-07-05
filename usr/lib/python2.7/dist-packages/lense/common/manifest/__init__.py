@@ -11,6 +11,7 @@ class LenseManifest(object):
     def __init__(self, manifest):
         self.json     = manifest
         self.COMPILED = import_class('CompiledManifest', 'lense.common.manifest.compiled')
+        self.MANAGER  = import_class('ManifestManager', 'lense.common.manifest.manager')
         
     def mapCommon(self, path):
         """
@@ -163,3 +164,17 @@ class LenseManifest(object):
         Class method for setting up the manifest backend.
         """
         LENSE.MANIFEST = cls(manifest)
+    
+    @classmethod
+    def compile(cls, dump):
+        """
+        Wrapper method for calling the manifest manager compile method.
+        """
+        return self.MANAGER.compile(dump)
+    
+    @classmethod
+    def execute(cls):
+        """
+        Wrapper method for calling the manifest manager execute method.
+        """
+        return self.MANAGER.execute()

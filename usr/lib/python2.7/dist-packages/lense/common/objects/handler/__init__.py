@@ -72,6 +72,72 @@ class ObjectInterface(LenseBaseObject):
         # Save the manifest
         self.manifest(handler=handler, json=manifest).save()
     
+    def update_manifest(self, handler, manifest):
+        """
+        Update a handler manifest.
+        """
+        LENSE.ensure(isinstance(handler, self.model),
+            value = True,
+            code  = 400,
+            error = 'Must be an instance of Handlers, not: {0}'.format(type(handler)))
+    
+        # Get the manifest
+        manifest_object = self.manifest(handler=handler.uuid)
+        manifest_object.json = manifest
+        manifest_object.save()
+    
+    def open(self, **kwargs):
+        """
+        Open a handler for editing.
+        """
+        uuid = LENSE.extract(kwargs, 'uuid')
+    
+        # Make sure the handler exists
+        handler = LENSE.ensure(self.get(uuid=uuid), 
+            isnot = None, 
+            error = 'Could not find handler: {0}'.format(uuid),
+            debug = 'Handler {0} exists, retrieved object'.format(uuid),
+            code  = 404)
+
+        # Check if the handler is locked
+        if handler.locked == True:
+            LENSE.ensure(handler.locked_by,
+                value = LENSE.REQUEST.USER.name,
+                error = 'Could not open handler {0}, already checked out by {1}'.format(handler.uuid, handler.locked_by),
+                code  = 400)
+            return True
+        
+        # Update the lock attributes
+        LENSE.ensure(self.update(handler, **{
+            'locked': True,
+            'locked_by': LENSE.REQUEST.USER.name
+        }), error = 'Failed to check out handler {0}'.format(uuid),
+            log   = 'Checking out hander {0}: locked=True'.format(uuid))
+        
+    def close(self, **kwargs):
+        """
+        Close a handler edit lock.
+        """
+        uuid = LENSE.extract(kwargs, 'uuid')
+    
+        # Make sure the handler exists
+        handler = LENSE.ensure(self.get(uuid=uuid), 
+            isnot = None, 
+            error = 'Could not find handler: {0}'.format(uuid),
+            debug = 'Handler {0} exists, retrieved object'.format(uuid),
+            code  = 404)
+        
+        # Check if the handler is already close
+        if not handler.locked:
+            return True
+            
+        # Update the lock attributes
+        LENSE.ensure(self.update(handler, **{
+            'locked': False,
+            'locked_by': None
+        }), error = 'Failed to check in handler {0}'.format(uuid),
+            log   = 'Checking in hander {0}: locked=False'.format(uuid))
+    
     def get(self, **kwargs):
         """
         Retrieve handler object(s)
@@ -104,7 +170,7 @@ class ObjectInterface(LenseBaseObject):
         LENSE.ensure(self.exists(path=kwargs['path'], method=kwargs['method']),
             value = False,
             code  = 400,
-            error = 'Cannot create duplication handler for: {0}@{1}'.format(kwargs['method'], kwargs['path']))
+            error = 'Cannot create duplicate handler for: {0}@{1}'.format(kwargs['method'], kwargs['path']))
         
         # Cannot duplicate UUID
         LENSE.ensure(self.exists(uuid=uuid),
@@ -120,3 +186,77 @@ class ObjectInterface(LenseBaseObject):
         
         # Get and return the new handler object
         return self.get(uuid=uuid)
+    
+    def update(self, **kwargs):
+        """
+        Update a handler object.
+        """
+        uuid = LENSE.extract(kwargs, 'uuid')
+        
+        # Updating the manifest
+        manifest = LENSE.extract(kwargs, 'manifest', default=None)
+        
+        # Get the handler
+        handler = LENSE.ensure(super(ObjectInterface, self).get(uuid=uuid),
+            isnot = None,
+            error = 'Could not find handler',
+            code  = 404)
+        
+        # Update the manifest
+        if manifest:
+            self.update_manifest(handler, manifest)
+        
+        # Update the user
+        super(ObjectInterface, self).update(handler, **kwargs)
+        
+        # Get and return the updated user
+        return self.get(uuid=uuid)
+    
+    def delete(self, **kwargs):
+        """
+        Delete a handler object.
+        """
+        uuid = LENSE.extract(kwargs, 'uuid')
+        
+        # Look for the handler
+        handler = LENSE.ensure(self.get(uuid=target), 
+            isnot = None, 
+            error = 'Could not find handler: {0}'.format(uuid),
+            debug = 'Handler {0} exists, retrieved object'.format(uuid),
+            code  = 404)
+        
+        # Make sure the handler isn't protected
+        LENSE.ensure(handler.protected, 
+            value = False, 
+            error = 'Cannot delete a protected handler', 
+            debug = 'Handler is protected: {0}'.format(repr(handler.protected)),
+            code  = 403)
+        
+        # Make sure the handler isn't locked
+        LENSE.ensure(handler.locked,
+            value = False,
+            error = 'Cannot delete handler, locked by: {0}'.format(handler.locked_by),
+            code  = 403)
+        
+        # Delete the handler
+        LENSE.ensure(handler.delete(),
+            error = 'Failed to delete the handler: {0}'.format(uuid),
+            log   = 'Deleted handler {0}'.format(uuid),
+            code  = 500)
+        
+    def list(self):
+        """
+        Method for doing an unprivileged list of handlers.
+        """
+        handlers = []
+        
+        # Construct available handlers
+        for h in self.get_internal():
+            handlers.append({
+                'uuid': h.uuid,
+                'path': h.path,
+                'method': h.method,
+                'name': h.name,
+                'desc': h.desc
+            })
+        return handlers

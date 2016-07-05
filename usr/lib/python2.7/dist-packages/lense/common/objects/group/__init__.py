@@ -58,6 +58,12 @@ class ObjectInterface(LenseBaseObject):
         if not self.exists(uuid=group) or not LENSE.OBJECTS.USER.exists(uuid=member):
             return False
         
+        # Make sure user is not already a member
+        LENSE.ensure(self.has_member(group, member),
+            value = False,
+            code  = 400,
+            error = 'User {0} is already a member of group {1}'.format(member, group))
+        
         # Get the group and user objects
         group = self.get_internal(uuid=group)
         user  = LENSE.OBJECTS.USER.get(uuid=member)
@@ -83,6 +89,12 @@ class ObjectInterface(LenseBaseObject):
         # Make sure the user/group exists
         if not self.exists(uuid=group) or not LENSE.OBJECTS.USER.exists(uuid=member):
             return False
+    
+        # Make sure user is a member
+        LENSE.ensure(self.has_member(group, member),
+            value = True,
+            code  = 400,
+            error = 'User {0} is not a member of group {1}'.format(member, group))
     
         # Get the group and user
         group = self.get_internal(uuid=group)
