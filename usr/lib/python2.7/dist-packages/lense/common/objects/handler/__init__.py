@@ -169,7 +169,7 @@ class ObjectInterface(LenseBaseObject):
         
         # UUID / manifest
         uuid     = LENSE.extract(kwargs, 'uuid', delete=False, default=LENSE.uuid4(), store=True)
-        manifest = LENSE.extract(kwargs, 'manifest', default=None)
+        manifest = LENSE.extract(kwargs, 'manifest')
 
         # Multiple handlers cannot use the same path/method
         LENSE.ensure(self.exists(path=kwargs['path'], method=kwargs['method']),

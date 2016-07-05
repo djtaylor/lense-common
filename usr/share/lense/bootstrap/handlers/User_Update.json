@@ -1,10 +1,8 @@
 {
-    "cls": "User_Update",
     "name": "user_update",
     "path": "user",
     "method": "PUT",
     "desc": "Update API user details",
-    "mod": "lense.engine.api.handlers.user",
     "protected": true,
     "enabled": true
 }

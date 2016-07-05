@@ -1,10 +1,8 @@
 {
-    "cls": "User_Delete",
     "name": "user_delete",
     "path": "user",
     "method": "DELETE",
     "desc": "Delete an existing API user",
-    "mod": "lense.engine.api.handlers.user",
     "protected": true,
     "enabled": true
 }

@@ -54,26 +54,30 @@ class ObjectInterface(LenseBaseObject):
         :type  member: str
         """
         
-        # Make sure the user/group exists
-        if not self.exists(uuid=group) or not LENSE.OBJECTS.USER.exists(uuid=member):
-            return False
+        # Get the group object
+        group = LENSE.ensure(self.get(uuid=group),
+            isnot = None,
+            error = 'Could not find group',
+            code  = 404)
+        
+        # Get the member object
+        member = LENSE.ensure(LENSE.OBJECTS.USER.get(uuid=member),
+            isnot = None,
+            error = 'Could not find user',
+            code  = 404)
         
         # Make sure user is not already a member
-        LENSE.ensure(self.has_member(group, member),
+        LENSE.ensure(self.has_member(group.uuid, member.uuid),
             value = False,
             code  = 400,
-            error = 'User {0} is already a member of group {1}'.format(member, group))
-        
-        # Get the group and user objects
-        group = self.get_internal(uuid=group)
-        user  = LENSE.OBJECTS.USER.get(uuid=member)
+            error = 'User {0} is already a member of group {1}'.format(member.uuid, group.uuid))
         
         # Add the user to the group
         try:
-            group.members_set(user)
+            group.members_set(member)
             return True
         except Exception as e:
-            LENSE.LOG.exception('Failed to add user "{0}" to group "{1}": {2}'.format(user.username, group.name, str(e)))
+            LENSE.LOG.exception('Failed to add user "{0}" to group "{1}": {2}'.format(member.username, group.name, str(e)))
             return False
     
     def remove_member(self, group, member):

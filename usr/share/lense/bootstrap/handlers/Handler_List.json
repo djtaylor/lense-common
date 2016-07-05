@@ -1,10 +1,8 @@
 {
-    "cls": "Handler_List",
     "name": "handler_list",
     "path": "handler/list",
     "method": "GET",
     "desc": "Public endpoint for listing available request handlers.",
-    "mod": "lense.engine.api.handlers.handler",
     "protected": true,
     "enabled": true,
     "allow_anon": true

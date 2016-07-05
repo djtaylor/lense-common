@@ -1,10 +1,8 @@
 {
-    "cls": "Handler_Delete",
     "name": "handler_delete",
     "path": "handler",
     "method": "DELETE",
     "desc": "Delete an existing API handler",
-    "mod": "lense.engine.api.handlers.handler",
     "protected": true,
     "enabled": true
 }

@@ -1,10 +1,8 @@
 {
-    "cls": "Handler_Get",
     "name": "handler_get",
     "path": "handler",
     "method": "GET",
     "desc": "Get a listing of API handlers",
-    "mod": "lense.engine.api.handlers.handler",
     "protected": true,
     "enabled": true
 }

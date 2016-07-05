@@ -1,10 +1,8 @@
 {
-    "cls": "Token_Get",
     "name": "token_get",
     "path": "token",
     "method": "GET",
     "desc": "Make an API token request",
-    "mod": "lense.engine.api.handlers.token",
     "protected": true,
     "enabled": true,
     "allow_anon": false

@@ -1,10 +1,8 @@
 {
-    "cls": "Group_Get",
     "name": "group_get",
     "path": "group",
     "method": "GET",
     "desc": "Get details for an API group",
-    "mod": "lense.engine.api.handlers.group",
     "protected": true,
     "enabled": true
 }

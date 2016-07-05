@@ -5,14 +5,10 @@
             "uuid": [true, null],
             "path": [false, null],
             "method": [false, null],
-            "mod": [false, null],
-            "cls": [false, null],
-            "protected": [false, null],
             "protected": [false, null],
             "allow_anon": [false, null],
             "locked": [false, null],
             "locked_by": [false, null],
-            "backend": [false, null],
             "manifest": [false, null]
         }
     },

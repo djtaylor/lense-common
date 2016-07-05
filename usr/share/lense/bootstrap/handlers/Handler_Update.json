@@ -1,10 +1,8 @@
 {
-    "cls": "Handler_Update",
     "name": "handler_update",
     "path": "handler",
     "method": "PUT",
     "desc": "Save changes to an API handler",
-    "mod": "lense.engine.api.handlers.handler",
     "protected": true,
     "enabled": true
 }

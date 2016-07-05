@@ -1,10 +1,8 @@
 {
-    "cls": "User_Enable",
     "name": "user_enable",
     "path": "user/enable",
     "method": "PUT",
     "desc": "Enable a user account",
-    "mod": "lense.engine.api.handlers.user",
     "protected": true,
     "enabled": true
 }

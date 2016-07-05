@@ -1,10 +1,8 @@
 {
-    "cls": "GroupMember_Remove",
     "name": "group_remove_member",
     "path": "group/member",
     "method": "DELETE",
     "desc": "Remove a user from an API group",
-    "mod": "lense.engine.api.handlers.group",
     "protected": true,
     "enabled": true
 }

@@ -5,14 +5,10 @@
             "uuid": [false, "LENSE.uuid4"],
             "path": [true, null],
             "method": [true, null],
-            "mod": [true, null],
-            "cls": [true, null],
             "protected": [false, false],
-            "protected": [false, true],
             "allow_anon": [false, false],
             "locked": [false, null],
             "locked_by": [false, null],
-            "backend": [false, null],
             "manifest": [false, null]
         }
     },

@@ -1,10 +1,8 @@
 {
-    "cls": "User_Create",
     "name": "user_create",
     "path": "user",
     "method": "POST",
     "desc": "Create a new API user",
-    "mod": "lense.engine.api.handlers.user",
     "protected": true,
     "enabled": true
 }

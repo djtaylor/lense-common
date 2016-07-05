@@ -1,10 +1,8 @@
 {
-    "cls": "Handler_Open",
     "name": "handler_open",
     "path": "handler/open",
     "method": "PUT",
     "desc": "Open an API handler for editing",
-    "mod": "lense.engine.api.handlers.handler",
     "protected": true,
     "enabled": true
 }
