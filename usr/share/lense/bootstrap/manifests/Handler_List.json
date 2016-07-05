@@ -1,0 +1,13 @@
+[
+    {
+        "var#handlers": {
+            "call": "LENSE.OBJECTS.HANDLER.list"
+        }
+    },
+    {
+        "response": {
+            "data": "#handlers",
+            "message": "Retrieved handler(s)"
+        }
+    }
+]

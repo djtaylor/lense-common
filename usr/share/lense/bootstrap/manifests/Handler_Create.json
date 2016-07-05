@@ -1,0 +1,31 @@
+[
+    {
+        "__PARAMS__": {
+            "name": [true, null],
+            "uuid": [false, "LENSE.uuid4"],
+            "path": [true, null],
+            "method": [true, null],
+            "mod": [true, null],
+            "cls": [true, null],
+            "protected": [false, false],
+            "protected": [false, true],
+            "allow_anon": [false, false],
+            "locked": [false, null],
+            "locked_by": [false, null],
+            "backend": [false, null],
+            "manifest": [false, null],
+        }
+    },
+    {
+        "var#handler": {
+            "call": "LENSE.OBJECTS.HANDLER.create",
+            "kwargs": "#__DATA__"
+        }
+    },
+    {
+        "response": {
+            "data": "#handler",
+            "message": "Created handler"
+        }
+    }
+]

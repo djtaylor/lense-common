@@ -1,0 +1,16 @@
+[
+    {
+        "do#openHandler": {
+            "call": "LENSE.OBJECTS.HANDLER.open",
+            "kwargs": "#__DATA__"
+        }
+    },
+    {
+        "response": {
+            "data": {
+                "uuid": "#__DATA__.uuid"
+            ,
+            "message": "Opened handler"
+        }
+    }
+]

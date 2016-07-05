@@ -1,0 +1,25 @@
+[
+    {
+        "__PARAMS__": {
+            "manifest": [true, null]
+        }
+    },
+    {
+        "var#manifestInterface": {
+            "call": "LENSE.MANIFEST.setup",
+            "args": ["#__DATA__.manifest"]
+        }
+    },
+    {
+        "var#compiledManifest": {
+            "call": "LENSE.MANIFEST.compile",
+            "args": [true]
+        }
+    },
+    {
+        "response": {
+            "data": "#compiledManifest",
+            "message": "Compiled manifest"
+        }
+    }
+]

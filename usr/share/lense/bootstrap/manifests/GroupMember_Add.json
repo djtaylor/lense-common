@@ -1,0 +1,20 @@
+[
+    {
+        "__PARAMS__": {
+            "group": [true, null],
+            "member": [true, null]
+        }
+    },
+    {
+        "do#addGroupMember": {
+            "call": "LENSE.OBJECTS.GROUP.add_member",
+            "kwargs": "#__DATA__"
+        }
+    },
+    {
+        "response": {
+            "data": "#__DATA__",
+            "message": "Added user to group"
+        }
+    }
+]
