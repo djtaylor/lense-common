@@ -1,0 +1,21 @@
+[
+    {
+        "__PARAMS__": {
+            "object_uuid": [true, null]
+        }
+    },
+    {
+        "var#permissions": {
+            "call": "LENSE.OBJECTS.PERMISSIONS.get",
+            "kwargs": {
+                "object_uuid": "#__DATA__.object_uuid"
+            }
+        }
+    },
+    {
+        "response": {
+            "data": "#permissions",
+            "message": "Retrieved permissions"
+        }
+    }
+]

@@ -144,13 +144,10 @@ class BootstrapEngine(BootstrapCommon):
                 'name': handler['name'],
                 'desc': handler['desc'],
                 'method': handler['method'],
-                'mod': handler['mod'],
-                'cls': handler['cls'],
                 'protected': handler['protected'],
                 'enabled': handler['enabled'],
                 'allow_anon': handler.get('allow_anon', False),
-                'backend': 'manifest' if handler.get('manifest', False) else 'python',
-                'manifest': handler.get('manifest', None)                                         
+                'manifest': handler['manifest']                                      
             })
             BOOTSTRAP.FEEDBACK.success('Created database entry for handler "{0}": Path={1}, Method={2}'.format(handler['name'], handler['path'], handler['method']))
     

@@ -1,0 +1,8 @@
+{
+    "name": "permissions_get",
+    "path": "permissions",
+    "method": "GET",
+    "desc": "Get permissions for an API object",
+    "protected": true,
+    "enabled": true
+}

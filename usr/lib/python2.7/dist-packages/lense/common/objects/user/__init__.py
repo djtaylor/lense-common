@@ -589,3 +589,4 @@ class ObjectInterface(LenseBaseObject):
         
         # Get and return the updated user
         return self.get(uuid=uuid)
+    
