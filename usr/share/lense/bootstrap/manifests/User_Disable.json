@@ -1,19 +1,19 @@
-[
-    {
-        "__PARAMS__": {
-            "uuid": [true, null]
-        }
-    },
-    {
-        "do#disableUser": {
-            "call": "LENSE.OBJECTS.USER.disable",
-            "args": ["#__DATA__.uuid"]
-        }   
-    },
-    {
-        "response": {
-            "data": "#__DATA__",
-            "message": "Disabled user"
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "do#disableUser": {
+    "call": "LENSE.OBJECTS.USER.disable",
+    "args": ["#__DATA__.uuid"]
+  }
+}, {
+  "response": {
+    "data": "#__DATA__",
+    "message": "Disabled user"
+  }
+}]

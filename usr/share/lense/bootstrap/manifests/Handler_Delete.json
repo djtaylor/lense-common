@@ -1,23 +1,23 @@
-[
-    {
-        "__PARAMS__": {
-            "uuid": [true, null]
-        }
-    },
-    {
-        "do#deleteHandler": {
-            "call": "LENSE.OBJECTS.HANDLER.delete",
-            "kwargs": {
-                "uuid": "#__DATA__.uuid"
-            }
-        }  
-    },
-    {
-        "response": {
-            "data": {
-                "uuid": "#__DATA__.uuid"
-            },
-            "message": "Deleted handler"
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "do#deleteHandler": {
+    "call": "LENSE.OBJECTS.HANDLER.delete",
+    "kwargs": {
+      "uuid": "#__DATA__.uuid"
+    }
+  }
+}, {
+  "response": {
+    "data": {
+      "uuid": "#__DATA__.uuid"
+    },
+    "message": "Deleted handler"
+  }
+}]

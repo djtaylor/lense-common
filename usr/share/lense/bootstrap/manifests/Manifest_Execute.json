@@ -1,24 +1,22 @@
-[
-    {
-        "__PARAMS__": {
-            "manifest": [true, null]
-        }
-    },
-    {
-        "var#manifestInterface": {
-            "call": "LENSE.MANIFEST.setup",
-            "args": ["#__DATA__.manifest"]
-        }
-    },
-    {
-        "var#executedManifest": {
-            "call": "LENSE.MANIFEST.execute"
-        }
-    },
-    {
-        "response": {
-            "data": "#executedManifest",
-            "message": "Executed manifest"
-        }
+[{
+  "__PARAMS__": {
+    "manifest": {
+      "required": true,
+      "type": "list"
     }
-]
+  }
+}, {
+  "var#manifestInterface": {
+    "call": "LENSE.MANIFEST.setup",
+    "args": ["#__DATA__.manifest"]
+  }
+}, {
+  "var#executedManifest": {
+    "call": "LENSE.MANIFEST.execute"
+  }
+}, {
+  "response": {
+    "data": "#executedManifest",
+    "message": "Executed manifest"
+  }
+}]

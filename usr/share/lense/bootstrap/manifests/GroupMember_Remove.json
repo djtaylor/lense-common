@@ -1,20 +1,24 @@
-[
-    {
-        "__PARAMS__": {
-            "group": [true, null],
-            "member": [true, null]
-        }
+[{
+  "__PARAMS__": {
+    "group": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     },
-    {
-        "do#removeGroupMember": {
-            "call": "LENSE.OBJECTS.GROUP.remove_member",
-            "kwargs": "#__DATA__"
-        }
-    },
-    {
-        "response": {
-            "data": "#__DATA__",
-            "message": "Removed user from group"
-        }
+    "member": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "do#removeGroupMember": {
+    "call": "LENSE.OBJECTS.GROUP.remove_member",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#__DATA__",
+    "message": "Removed user from group"
+  }
+}]

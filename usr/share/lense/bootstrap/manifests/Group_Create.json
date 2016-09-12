@@ -1,22 +1,35 @@
-[
-    {
-        "__PARAMS__": {
-            "name": [true, null],
-            "uuid": [false, "LENSE.uuid4"],
-            "protected": [false, false],
-            "desc": [false, null]
-        }
+[{
+  "__PARAMS__": {
+    "name": {
+      "required": true,
+      "type": "str",
+      "validate": "name"
     },
-    {
-        "var#group": {
-            "call": "LENSE.OBJECTS.GROUP.create",
-            "kwargs": "#__DATA__"
-        }
+    "uuid": {
+      "required": false,
+      "default": "LENSE.uuid4",
+      "type": "str",
+      "validate": "uuid"
     },
-    {
-        "response": {
-            "data": "#group",
-            "message": "Created group"
-        }
+    "protected": {
+      "required": false,
+      "default": false,
+      "type": "bool"
+    },
+    "desc": {
+      "required": false,
+      "default": null,
+      "type": "str"
     }
-]
+  }
+}, {
+  "var#group": {
+    "call": "LENSE.OBJECTS.GROUP.create",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#group",
+    "message": "Created group"
+  }
+}]

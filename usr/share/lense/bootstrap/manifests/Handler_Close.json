@@ -1,16 +1,21 @@
-[
-    {
-        "do#closeHandler": {
-            "call": "LENSE.OBJECTS.HANDLER.close",
-            "kwargs": "#__DATA__"
-        }
-    },
-    {
-        "response": {
-            "data": {
-                "uuid": "#__DATA__.uuid"
-            },
-            "message": "Closed handler"
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "do#closeHandler": {
+    "call": "LENSE.OBJECTS.HANDLER.close",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": {
+      "uuid": "#__DATA__.uuid"
+    },
+    "message": "Closed handler"
+  }
+}]

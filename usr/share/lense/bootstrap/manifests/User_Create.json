@@ -1,26 +1,55 @@
-[
-    {
-        "__PARAMS__": {
-            "username": [true, null],
-            "email": [true, null],
-            "group": [true, null],
-            "password": [false, "LENSE.rstring"],
-            "uuid": [false, "LENSE.uuid4"],
-            "first_name": [false, null],
-            "last_name": [false, null],
-            "from_ldap": [false, false]
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": false,
+      "type": "str",
+      "validate": "uuid",
+      "default": "LENSE.uuid4"
     },
-    {
-        "var#user": {
-            "call": "LENSE.OBJECTS.USER.create",
-            "kwargs": "#__DATA__"
-        }  
+    "username": {
+      "required": true,
+      "type": "str",
+      "validate": "name"
     },
-    {
-        "response": {
-            "data": "#user",
-            "message": "Created user"
-        }
+    "email": {
+      "required": true,
+      "type": "str",
+      "validate": "email"
+    },
+    "group": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
+    },
+    "password": {
+      "required": false,
+      "type": "str",
+      "default": "LENSE.rstring"
+    },
+    "first_name": {
+      "required": false,
+      "type": "str",
+      "default": ""
+    },
+    "last_name": {
+      "required": false,
+      "type": "str",
+      "default": ""
+    },
+    "from_ldap": {
+      "required": false,
+      "type": "bool",
+      "default": false
     }
-]
+  }
+}, {
+  "var#user": {
+    "call": "LENSE.OBJECTS.USER.create",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#user",
+    "message": "Created user"
+  }
+}]

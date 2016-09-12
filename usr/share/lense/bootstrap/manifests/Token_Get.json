@@ -1,19 +1,16 @@
-[
-    {
-        "var#token": {
-            "call": "LENSE.OBJECTS.USER.get_token",
-            "args": ["LENSE.REQUEST.USER.name"],
-            "ensure": {
-                "isnot": null,
-                "error": "Failed to retrieve user token"
-            }
-        }
-    },
-    {
-        "response": {
-            "data": {
-                "token": "#token"
-            }
-        }
+[{
+  "var#token": {
+    "call": "LENSE.OBJECTS.USER.get_token",
+    "args": ["LENSE.REQUEST.USER.name"],
+    "ensure": {
+      "isnot": null,
+      "error": "Failed to retrieve user token"
     }
-]
+  }
+}, {
+  "response": {
+    "data": {
+      "token": "#token"
+    }
+  }
+}]

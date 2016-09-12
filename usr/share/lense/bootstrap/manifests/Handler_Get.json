@@ -1,14 +1,19 @@
-[
-    {
-        "var#handlers": {
-            "call": "LENSE.OBJECTS.HANDLER.get",
-            "kwargs": "#__DATA__"
-        }
-    },
-    {
-        "response": {
-            "data": "#handlers",
-            "message": "Retrieved handler(s)"
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": false,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "var#handlers": {
+    "call": "LENSE.OBJECTS.HANDLER.get",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#handlers",
+    "message": "Retrieved handler(s)"
+  }
+}]

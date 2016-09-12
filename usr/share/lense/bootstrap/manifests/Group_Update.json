@@ -1,22 +1,32 @@
-[
-    {
-        "__PARAMS__": {
-            "uuid": [true, null],
-            "name": [false, null],
-            "protected": [false, false],
-            "desc": [false, null]
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     },
-    {
-        "var#updateGroup": {
-            "call": "LENSE.OBJECTS.GROUP.update",
-            "kwargs": "#__DATA__"
-        }
+    "name": {
+      "required": false,
+      "type": "str",
+      "validate_re": "name"
     },
-    {
-        "response": {
-            "data": "#updateGroup",
-            "message": "Updated group"
-        }
+    "protected": {
+      "required": false,
+      "type": "bool"
+    },
+    "desc": {
+      "required": false,
+      "type": "str"
     }
-]
+  }
+}, {
+  "var#updateGroup": {
+    "call": "LENSE.OBJECTS.GROUP.update",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#updateGroup",
+    "message": "Updated group"
+  }
+}]

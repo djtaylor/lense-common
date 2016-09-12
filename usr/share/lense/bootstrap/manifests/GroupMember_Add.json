@@ -1,20 +1,24 @@
-[
-    {
-        "__PARAMS__": {
-            "group": [true, null],
-            "member": [true, null]
-        }
+[{
+  "__PARAMS__": {
+    "group": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     },
-    {
-        "do#addGroupMember": {
-            "call": "LENSE.OBJECTS.GROUP.add_member",
-            "kwargs": "#__DATA__"
-        }
-    },
-    {
-        "response": {
-            "data": "#__DATA__",
-            "message": "Added user to group"
-        }
+    "member": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "do#addGroupMember": {
+    "call": "LENSE.OBJECTS.GROUP.add_member",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#__DATA__",
+    "message": "Added user to group"
+  }
+}]

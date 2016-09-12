@@ -1,27 +1,55 @@
-[
-    {
-        "__PARAMS__": {
-            "name": [false, null],
-            "uuid": [true, null],
-            "path": [false, null],
-            "method": [false, null],
-            "protected": [false, null],
-            "allow_anon": [false, null],
-            "locked": [false, null],
-            "locked_by": [false, null],
-            "manifest": [false, null]
-        }
+[{
+  "__PARAMS__": {
+    "name": {
+      "required": false,
+      "type": "str",
+      "validate": "name"
     },
-    {
-        "var#updateHandler": {
-            "call": "LENSE.OBJECTS.HANDLER.update",
-            "kwargs": "#__DATA__"
-        }
+    "uuid": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     },
-    {
-        "response": {
-            "data": "#updateHandler",
-            "message": "Updated handler"
-        }
+    "path": {
+      "required": false,
+      "type": "str",
+      "validate": "path"
+    },
+    "method": {
+      "required": false,
+      "type": "str",
+      "validate": "method"
+    },
+    "protected": {
+      "required": false,
+      "type": "bool"
+    },
+    "allow_anon": {
+      "required": false,
+      "type": "bool"
+    },
+    "locked": {
+      "required": false,
+      "type": "bool"
+    },
+    "locked_by": {
+      "required": false,
+      "type": "str",
+      "validate": "uuid"
+    },
+    "manifest": {
+      "required": false,
+      "type": "list"
     }
-]
+  }
+}, {
+  "var#updateHandler": {
+    "call": "LENSE.OBJECTS.HANDLER.update",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#updateHandler",
+    "message": "Updated handler"
+  }
+}]

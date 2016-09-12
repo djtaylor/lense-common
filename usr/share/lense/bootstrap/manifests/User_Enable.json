@@ -1,19 +1,19 @@
-[
-    {
-        "__PARAMS__": {
-            "uuid": [true, null]
-        }
-    },
-    {
-        "do#enableUser": {
-            "call": "LENSE.OBJECTS.USER.enable",
-            "args": ["#__DATA__.uuid"]
-        }   
-    },
-    {
-        "response": {
-            "data": "#__DATA__",
-            "message": "Enabled user"
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": true,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "do#enableUser": {
+    "call": "LENSE.OBJECTS.USER.enable",
+    "args": ["#__DATA__.uuid"]
+  }
+}, {
+  "response": {
+    "data": "#__DATA__",
+    "message": "Enabled user"
+  }
+}]

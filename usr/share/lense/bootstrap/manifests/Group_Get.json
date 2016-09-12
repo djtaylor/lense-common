@@ -1,14 +1,19 @@
-[
-    {
-        "var#groups": {
-            "call": "LENSE.OBJECTS.GROUP.get",
-            "kwargs": "#__DATA__"
-        }
-    },
-    {
-        "response": {
-            "data": "#groups",
-            "message": "Retrieved group(s)"
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": false,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "var#groups": {
+    "call": "LENSE.OBJECTS.GROUP.get",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#groups",
+    "message": "Retrieved group(s)"
+  }
+}]

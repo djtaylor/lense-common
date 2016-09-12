@@ -291,7 +291,7 @@ class LenseBase(object):
                 code  = 500)
 
             # If storing the default value in the source object
-            if kwargs.get('store', False):
+            if kwargs.get('store', None):
                 item[key] = kwargs['default']
 
             # Return the default value

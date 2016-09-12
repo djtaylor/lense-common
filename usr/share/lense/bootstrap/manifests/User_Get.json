@@ -1,14 +1,19 @@
-[
-    {
-        "var#retrievedUsers": {
-            "call": "LENSE.OBJECTS.USER.get",
-            "kwargs": "#__DATA__"
-        }  
-    },
-    {
-        "response": {
-            "data": "#retrievedUsers",
-            "message": "Retrieved user(s)"
-        }
+[{
+  "__PARAMS__": {
+    "uuid": {
+      "required": false,
+      "type": "str",
+      "validate": "uuid"
     }
-]
+  }
+}, {
+  "var#retrievedUsers": {
+    "call": "LENSE.OBJECTS.USER.get",
+    "kwargs": "#__DATA__"
+  }
+}, {
+  "response": {
+    "data": "#retrievedUsers",
+    "message": "Retrieved user(s)"
+  }
+}]
