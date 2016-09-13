@@ -133,10 +133,6 @@ class ManifestManager(object):
             if ('required' in attrs) and (not isinstance(attrs['required'], bool)):
                 raise ManifestError('Key "required" must be a boolean value for parameter {0}'.format(param))
 
-            # No default value
-            if attrs['default'] == None:
-                continue
-
         # Store parameter customization as a variable
         LENSE.MANIFEST.COMPILED.define_params(params)
 
@@ -227,7 +223,7 @@ class ManifestManager(object):
                     request_data = v
 
                 # Parameter customization
-                elif k == '__PARAMS__':
+                elif k == 'params':
                     self._compileParameters(v)
 
                 # Variable definition

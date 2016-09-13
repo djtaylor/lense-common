@@ -1,5 +1,5 @@
 [{
-  "__PARAMS__": {
+  "params": {
     "object_uuid": {
       "required": true,
       "type": "str",

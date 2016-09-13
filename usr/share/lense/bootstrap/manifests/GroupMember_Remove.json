@@ -1,5 +1,5 @@
 [{
-  "__PARAMS__": {
+  "params": {
     "group": {
       "required": true,
       "type": "str",

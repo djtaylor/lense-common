@@ -1,5 +1,5 @@
 [{
-  "__PARAMS__": {
+  "params": {
     "uuid": {
       "required": false,
       "type": "str",

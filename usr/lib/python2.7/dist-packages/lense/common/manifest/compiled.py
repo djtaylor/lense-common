@@ -99,7 +99,7 @@ class _CompiledObject(object):
                 LENSE.REQUEST.ensure(self.value, **self.attrs['ensure'])
 
         # Parameters
-        if self.type == '__PARAMS__':
+        if self.type == 'params':
             self.value = self.attrs
 
         # Response
@@ -147,7 +147,7 @@ class CompiledParameters(_CompiledObject):
     Class object for storing compiled request parameters.
     """
     def __init__(self, params):
-        super(CompiledParameters, self).__init__('__PARAMS__', '__PARAMS__', **params)
+        super(CompiledParameters, self).__init__('params', 'params', **params)
 
         # Request data container
         self.data = None
@@ -197,7 +197,7 @@ class CompiledParameters(_CompiledObject):
         for param, attrs in self.value.iteritems():
 
             # Assign any default values
-            if not (param in self.data.value) and (attrs['default']):
+            if not (param in self.data.value) and ('default' in attrs):
 
                 # Commons mapping
                 if attrs['default'].startswith('LENSE'):

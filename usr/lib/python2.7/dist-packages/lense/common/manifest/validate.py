@@ -17,7 +17,7 @@ TYPES = {
     'dict': dict
 }
 
-class ManifestValidation(object):
+class ManifestValidate(object):
     """
     Class object for containing methods for validating manifest attribute
     values.

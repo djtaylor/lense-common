@@ -1,12 +1,12 @@
 [{
-  "__PARAMS__": {
+  "params": {
     "uuid": {
       "required": true,
       "type": "str",
       "validate": "uuid"
     }
   }
-} {
+}, {
   "do#openHandler": {
     "call": "LENSE.OBJECTS.HANDLER.open",
     "kwargs": "#__DATA__"
