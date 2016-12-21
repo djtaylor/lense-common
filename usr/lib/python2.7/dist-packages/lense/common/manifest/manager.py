@@ -11,6 +11,11 @@ class ManifestManager(object):
     """
     Class object for managing manifest compilation and execution.
     """
+    def __init__(self):
+        self.log('Initializing manifest manager for request [{0}]: path={1}, method={2}'.format(
+            LENSE.REQUEST.uuid, LENSE.REQUEST.path, LENSE.REQUEST.method
+        ), method='__init__')
+
     def log(self, msg, level='info', method=None):
         """
         Wrapper method for logging with a prefix.
