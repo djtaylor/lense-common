@@ -353,6 +353,7 @@ class LenseRequestObject(LenseRequestBase):
         self.query        = self._get_header_value('QUERY_STRING')
         self.script       = self._get_header_value('SCRIPT_NAME')
         self.current      = self._get_header_value('REQUEST_URI')
+        self.port         = self._get_header_value('SERVER_PORT')
 
         # Request size / payload
         self.size         = int(getsizeof(getattr(request, 'body', '')))

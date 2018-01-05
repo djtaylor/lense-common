@@ -1,5 +1,6 @@
 import re
 import json
+from sys import getsizeof
 from inspect import isclass
 from six import string_types, integer_types
 
@@ -191,7 +192,7 @@ class ManifestManager(object):
                 self.log('Failed to dump object: {0}: {1}'.format(repr(obj), str(e)), level='debug', method='_toJSON')
 
         # Log the processed response object
-        self.log('Processing response object: type={0}, content={1}'.format(type(obj), repr(obj)))
+        self.log('Processing response object: type={0}, data_bytes={1}'.format(type(obj), getsizeof(obj)), method='_toJSON')
 
         # Return the response object
         return obj
@@ -268,4 +269,5 @@ class ManifestManager(object):
 
         # If a response is defined
         if LENSE.MANIFEST.COMPILED.haskey('response'):
+            self.log('Generating response...', method='execute')
             return self._toJSON(LENSE.MANIFEST.COMPILED.get('response').value)

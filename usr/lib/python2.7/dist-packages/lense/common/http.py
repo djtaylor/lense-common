@@ -45,7 +45,7 @@ HEADER = Collection({
     'API_ROOM':     'Lense-API-Room',
     'API_CALLBACK': 'Lense-API-Callback',
     'CONTENT_TYPE': 'Content-Type',
-    'ACCEPT':       'Accept' 
+    'ACCEPT':       'Accept'
 }).get()
 
 # MIME Types
@@ -116,42 +116,42 @@ class JSONErrorBase(object):
             'message': ERR_MESSAGE.get(self.status, 'An unknown error has occurred, please contact your administrator'),
             'error':   error if not isinstance(error, (list, dict)) else json.dumps(error)
         }
-        
+
         # If an error message is provided
         if error and isinstance(error, (str, unicode, basestring)):
             LENSE.LOG.error(error)
-        
+
         # If providing a stack trace for debugging and debugging is enabled
         if exception and LENSE.CONF.engine.debug:
             self.error_object.update({
                 'debug': self._extract_trace()
             })
-    
+
     def _extract_trace(self):
         """
         Extract traceback details from an exception.
         """
-        
+
         # Get the exception data
         try:
             e_type, e_info, e_trace = sys.exc_info()
-        
+
             # Exception message
             e_msg = '{}: {}'.format(e_type.__name__, e_info)
-        
+
             # Log the exception
             LENSE.LOG.exception(e_msg)
-        
+
             # Return the exception message and traceback
             return {
                 'exception': e_msg,
                 'traceback': traceback.extract_tb(e_trace)
             }
-            
+
         # Failed to extract exception data
         except:
             return None
-        
+
     def response(self):
         """
         Construct and return the response object.
@@ -164,14 +164,14 @@ class JSONError(JSONErrorBase):
     """
     def __init__(self, error=None, status=400):
         super(JSONError, self).__init__(error=error, status=status)
-    
+
 class JSONException(JSONErrorBase):
     """
     Internal server error response object.
     """
     def __init__(self, error=None):
         super(JSONException, self).__init__(error=error, exception=True)
-        
+
 class LenseHTTP(object):
     """
     Common class for handling HTTP attributes, requests, and responses.
@@ -182,51 +182,51 @@ class LenseHTTP(object):
         Parse request data from a query string in the request URL.
         """
         data = {}
-        
+
         # No query string
         if not query_str: return data
-        
+
         # Process each query string key
         for query_pair in query_str.split('&'):
-            
+
             # If processing a key/value pair
             if '=' in query_pair:
                 query_set = query_pair.split('=')
-                
+
                 # Return JSON if possible
                 try:
                     data[query_set[0]] = json.loads(query_set[1])
-                    
+
                 # Non-JSON parseable value
                 except:
-                    
+
                     # Integer value
                     try:
                         data[query_set[0]] = int(query_set[1])
-                    
+
                     # String value
                     except:
                         data[query_set[0]] = query_set[1]
-                
+
             # If processing a key flag
             else:
                 data[query_pair] = True
-                
+
         # Return constructed data
         return data
-    
+
     @staticmethod
     def redirect(path, data=None):
         """
         Return an HTTP redirect object.
         """
         return HttpResponseRedirect('/{0}{1}'.format(path, '' if not data else '?{0}'.format(data)))
-    
+
     @staticmethod
     def success(msg='OK', data={}):
         """
         Return HTTP 200 and response message/data.
-        
+
         :param  msg: The response message to send
         :type   msg: str
         :param data: Additional response data
@@ -234,25 +234,25 @@ class LenseHTTP(object):
         :rtype: JSONSuccess
         """
         return JSONSuccess(msg=msg, data=data).response()
-    
+
     @staticmethod
     def browser_error(template, data):
         """
         Return a error to the browser for rendering.
         """
-        
+
         # Template / request object
         t = loader.get_template(template)
         r = LENSE.REQUEST.DJANGO
-        
+
         # Return and render the error template
         return HttpResponseServerError(t.render(RequestContext(r, data)))
-    
+
     @staticmethod
     def error(msg=None, status=400):
         """
         Return a JSON error message in an HTTP response object.
-        
+
         :param    msg: The error message to return
         :type     msg: str
         :param status: The HTTP status code
@@ -260,12 +260,12 @@ class LenseHTTP(object):
         :rtype: JSONError
         """
         return JSONError(error=msg, status=status).response()
-    
+
     @staticmethod
     def exception(msg=None):
         """
         Return a JSON error message raised by an exception (i.e., 500)
-        
+
         :param msg: The error message to return
         :type  msg: str
         :rtype: JSONException

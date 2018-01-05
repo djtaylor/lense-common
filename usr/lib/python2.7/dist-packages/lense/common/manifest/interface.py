@@ -12,6 +12,8 @@ class ManifestInterface(object):
         :rtype: APIResponse
         """
 
+        LENSE.LOG.info('@MANIFEST: compiling = {0}'.format(manifest))
+
         # Setup the manifest backend
         LENSE.MANIFEST.setup(manifest)
 

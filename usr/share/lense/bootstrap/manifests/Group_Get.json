@@ -4,6 +4,10 @@
       "required": false,
       "type": "str",
       "validate": "uuid"
+    },
+    "detailed": {
+      "required": false,
+      "type": "bool"
     }
   }
 }, {

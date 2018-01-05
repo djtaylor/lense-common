@@ -164,6 +164,7 @@ class LenseManifest(object):
         """
         Class method for setting up the manifest backend.
         """
+        LENSE.LOG.info('@MANIFEST:setup, path={0}, method={1}, request_uuid={2}'.format(LENSE.REQUEST.path, LENSE.REQUEST.method, LENSE.REQUEST.uuid))
         LENSE.MANIFEST = cls(manifest)
 
     @classmethod
@@ -171,6 +172,7 @@ class LenseManifest(object):
         """
         Wrapper method for calling the manifest manager compile method.
         """
+        LENSE.LOG.info('@MANIFEST:compile')
         return self.MANAGER.compile(dump)
 
     @classmethod
@@ -178,4 +180,5 @@ class LenseManifest(object):
         """
         Wrapper method for calling the manifest manager execute method.
         """
+        LENSE.LOG.info('@MANIFEST:execute')
         return self.MANAGER.execute()
